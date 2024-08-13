@@ -1,0 +1,99 @@
+// Need to hide the first sets of controls, and only render the second
+// Leaflet controls duplicate controls bug:
+// https://github.com/alex3165/react-leaflet-draw/issues/150
+.leaflet-control-container {
+	display: none;
+}
+
+.leaflet-control-container ~ .leaflet-control-container {
+	display: block;
+}
+
+.leaflet-top {
+	align-items: center;
+	display: flex;
+	justify-content: flex-end;
+	width: 100%;
+
+	> .leaflet-control {
+		margin-top: 10px !important;
+	}
+
+	> :last-child {
+		margin-right: 10px;
+	}
+
+	@media only screen and (min-width: 768px) {
+		> .leaflet-control {
+			margin-top: 20px !important;
+		}
+
+		> :last-child {
+			margin-right: 20px;
+		}
+	}
+
+	.leaflet-control-zoom {
+		align-items: center;
+		border: 1px solid var(--owc-openkaarten-streetmap--primary-color) !important;
+		border-radius: 3px;
+		display: flex;
+		flex-direction: row-reverse;
+		justify-content: space-between;
+		margin-right: 8px;
+		a {
+			align-items: center;
+			border: none;
+			border-radius: 3px;
+			color: var(--owc-openkaarten-streetmap--primary-color);
+			display: flex;
+			height: 48px !important;
+			justify-content: center;
+			width: 44px !important;
+			&:first-child {
+				border-bottom-right-radius: 3px;
+				border-bottom-left-radius: 0;
+				border-left: 1px solid
+					var(--owc-openkaarten-streetmap--primary-color) !important;
+				border-top-left-radius: 3px;
+				border-top-right-radius: 0;
+			}
+		}
+	}
+
+	.leaflet-control-filters {
+		align-items: center;
+		border: 1px solid var(--owc-openkaarten-streetmap--primary-color) !important;
+		background-color: #fff;
+		border-radius: 3px;
+		display: flex;
+		justify-content: space-between;
+		gap: 8px;
+		min-width: 44px;
+		min-height: 50px;
+		padding: 10px 24px;
+		margin-left: 0 !important;
+
+		&__control-text {
+			color: var(--owc-openkaarten-streetmap--primary-color);
+			font-size: 20px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 130%; /* 26px */
+		}
+
+		&:hover {
+			cursor: pointer;
+			background-color: rgb(244, 244, 244);
+		}
+
+		&:focus-visible {
+			border-width: 3px;
+		}
+
+		a {
+			width: 100%;
+			height: 100%;
+		}
+	}
+}

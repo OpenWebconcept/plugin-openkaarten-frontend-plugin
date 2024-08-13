@@ -1,0 +1,32 @@
+
+.owc-openkaarten-streetmap {
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 20px;
+    &__row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+	h3 {
+		font-size: 1.2em;
+		margin: 0;
+	}
+    .components-base-control {
+      margin-bottom: 20px;
+    }
+
+	select option {
+		padding: 4px 0;
+	}
+	p {
+		margin: 10px 0;
+	}
+	.components-message-box{
+		display: flex;
+		flex-direction: column;
+	}
+	.components-select-control__input {
+		height: auto;
+	}
+}

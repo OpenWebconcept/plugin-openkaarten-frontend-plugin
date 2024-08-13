@@ -1,0 +1,40 @@
+{
+    "$schema" : "https://schemas.wp.org/trunk/block.json",
+    "title" : "OWC Openmaps Openstreet Map",
+    "description" : "OWC Openmaps Openstreet Map",
+    "icon" : "admin-site-alt",
+    "name" : "owc-openkaarten/streetmap",
+    "category" : "openkaarten-frontend-plugin",
+    "textdomain": "openkaarten-frontend-plugin",
+    "attributes" : {
+        "rest_uri" : {
+          "type" : "string",
+          "default" : ""
+        },
+        "selected_datasets" : {
+            "type" : "Array",
+            "default" : []
+        }
+    },
+    "style" : [
+        "owc-openkaarten-streetmap-block"
+    ],
+    "supports" : {
+        "align" : false,
+        "className" : false,
+        "customClassName" : false,
+        "html" : false,
+        "multiple" : false
+    },
+    "keywords" : [
+        "owc",
+        "openwebconcept",
+        "openmaps",
+        "map",
+        "locations"
+    ],
+    "viewScript" : [
+        "owc-openkaarten-streetmap-block"
+    ],
+    "version" : "0.1.0"
+}

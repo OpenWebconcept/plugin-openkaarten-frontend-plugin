@@ -1,0 +1,89 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenKaarten Frontend Plugin 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/openkaarten-frontend-plugin\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-06-13T09:17:05+00:00\n"
+"PO-Revision-Date: 2024-08-13 16:54+0200\n"
+"Language: nl_NL\n"
+"X-Generator: Poedit 3.4.1\n"
+"X-Domain: openkaarten-frontend-plugin\n"
+
+#. Plugin Name of the plugin
+#: openkaarten-plugin.php
+msgid "OpenKaarten Frontend Plugin"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: openkaarten-plugin.php
+msgid "https://openwebconcept.nl/"
+msgstr ""
+
+#. Description of the plugin
+#: openkaarten-plugin.php
+msgid "Adds OpenKaarten Blocks to the Gutenberg editor."
+msgstr "Voegt OpenKaarten blokken toe aan de Gutenberg editor."
+
+#. Author of the plugin
+#: openkaarten-plugin.php
+msgid "Acato"
+msgstr ""
+
+#. Author URI of the plugin
+#: openkaarten-plugin.php
+msgid "https://www.acato.nl"
+msgstr ""
+
+#: includes/frontend/class-frontend.php:49
+msgid "OpenKaarten Blocks"
+msgstr "OpenKaarten blokken"
+
+#: openkaarten-plugin.php:64
+msgid "This plugin requires the Openkaarten Base plugin."
+msgstr "Deze plugin benodigd de Openkaarten Base Plugin."
+
+#: openkaarten-plugin.php:64
+msgid "Openkaarten Base is not installed or active!"
+msgstr "Openkaarten Base is niet geïnstalleerd of geactiveerd!"
+
+#: src/blocks/owc-openkaarten/streetmap/block.json
+msgctxt "block title"
+msgid "OWC Openmaps Openstreet Map"
+msgstr "OpenKaarten Openstreetmap Kaart"
+
+#: src/blocks/owc-openkaarten/streetmap/block.json
+msgctxt "block description"
+msgid "OWC Openmaps Openstreet Map"
+msgstr "OpenKaarten Openstreetmap Kaart"
+
+#: src/blocks/owc-openkaarten/streetmap/block.json
+msgctxt "block keyword"
+msgid "owc"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/block.json
+msgctxt "block keyword"
+msgid "openwebconcept"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/block.json
+msgctxt "block keyword"
+msgid "openmaps"
+msgstr "openkaarten"
+
+#: src/blocks/owc-openkaarten/streetmap/block.json
+msgctxt "block keyword"
+msgid "map"
+msgstr "kaart"
+
+#: src/blocks/owc-openkaarten/streetmap/block.json
+msgctxt "block keyword"
+msgid "locations"
+msgstr "locaties"
+
+#~ msgid "Select datalayers to display:"
+#~ msgstr "Selecteer datalayers om te tonen"

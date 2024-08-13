@@ -1,0 +1,103 @@
+# Copyright (C) 2024 Acato
+# This file is distributed under the same license as the OpenKaarten Frontend Plugin plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenKaarten Frontend Plugin 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/openkaarten-frontend-plugin\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-08-13T14:51:28+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.8.1\n"
+"X-Domain: openkaarten-frontend-plugin\n"
+
+#. Plugin Name of the plugin
+msgid "OpenKaarten Frontend Plugin"
+msgstr ""
+
+#. Plugin URI of the plugin
+msgid "https://openwebconcept.nl/"
+msgstr ""
+
+#. Description of the plugin
+msgid "Adds OpenKaarten Blocks to the Gutenberg editor."
+msgstr ""
+
+#. Author of the plugin
+msgid "Acato"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://www.acato.nl"
+msgstr ""
+
+#: includes/frontend/class-frontend.php:49
+msgid "OpenKaarten Blocks"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:45
+msgid "Select the datalayers you want to display on the map"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:61
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:112
+msgid "No datalayers selected"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:81
+msgid "URL to rest-endpoint or Domain URL"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:94
+msgid "Invalid URL"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:101
+msgid "Select datalayers:"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:106
+msgid "No datalayers found"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:111
+msgid "Selected datalayers"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/block.json
+msgctxt "block title"
+msgid "OWC Openmaps Openstreet Map"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/block.json
+msgctxt "block description"
+msgid "OWC Openmaps Openstreet Map"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/block.json
+msgctxt "block keyword"
+msgid "owc"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/block.json
+msgctxt "block keyword"
+msgid "openwebconcept"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/block.json
+msgctxt "block keyword"
+msgid "openmaps"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/block.json
+msgctxt "block keyword"
+msgid "map"
+msgstr ""
+
+#: src/blocks/owc-openkaarten/streetmap/block.json
+msgctxt "block keyword"
+msgid "locations"
+msgstr ""
