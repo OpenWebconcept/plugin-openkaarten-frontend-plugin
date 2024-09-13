@@ -248,7 +248,7 @@ export default {
 
 <style lang="scss">
 #dataset-map {
-  height: 100dvh;
+  height: 80dvh;
 	max-height: 661px;
 	width: 100%;
 }
