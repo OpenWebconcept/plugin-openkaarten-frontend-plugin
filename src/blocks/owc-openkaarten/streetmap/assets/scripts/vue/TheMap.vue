@@ -27,7 +27,7 @@
 			v-if="tooltipCard"
 			:key="tooltipCard.datasetId"
 			:id="tooltipCard.datasetId"
-			:title="tooltipCard.datasetTitle"
+			:title="tooltipCard.locationTitle"
 			:properties="tooltipCard.properties"
 			:primaryColor="primaryColor"
 			@closeCard="closeTooltipCard"
@@ -248,7 +248,8 @@ export default {
 
 <style lang="scss">
 #dataset-map {
-	height: 831px;
+  height: 80dvh;
+	max-height: 661px;
 	width: 100%;
 }
 

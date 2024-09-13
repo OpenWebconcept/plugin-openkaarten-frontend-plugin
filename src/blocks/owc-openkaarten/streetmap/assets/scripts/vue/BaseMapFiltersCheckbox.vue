@@ -89,10 +89,10 @@ export default {
 			content: '';
 			position: absolute;
 			display: none;
-			left: 6px;
-			top: 2px;
-			width: 4px;
-			height: 8px;
+			left: 5px;
+			top: 1px;
+			width: 6px;
+			height: 10px;
 			border: solid white;
 			border-width: 0 3px 3px 0;
 			-webkit-transform: rotate(45deg);
