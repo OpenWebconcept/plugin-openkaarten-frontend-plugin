@@ -2,7 +2,6 @@ import { BlockControls } from "@wordpress/block-editor";
 import { SelectControl, __experimentalInputControl as InputControl, Notice } from "@wordpress/components";
 import { useMemo, useLayoutEffect, useState, useEffect } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
-import apiFetch from '@wordpress/api-fetch';
 
 export default function Edit({ attributes, setAttributes }) {
     const [isTypingUrl, setIsTypingUrl] = useState(false);
@@ -19,14 +18,18 @@ export default function Edit({ attributes, setAttributes }) {
 
     useEffect(() => {
         if (isValidURL) {
-            apiFetch({
-                url: `${attributes.rest_uri}/wp-json/owc/openkaarten/v1/datasets`
-            }).then(data => {
-                setDatasets(data.datasets);
-            }).catch(error => {
-                console.error('Fetching datasets failed', error);
-                setDatasets([]);
-            });
+            fetch(`${attributes.rest_uri}/wp-json/owc/openkaarten/v1/datasets?_locale=default`, {
+                method: 'GET',
+                // credentials: 'omit'  // Explicitly omit credentials (no cookies)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    setDatasets(data.datasets);
+                })
+                .catch(error => {
+                    console.error('Fetching datasets failed', error);
+                    setDatasets([]);
+                });
         }
     }, [attributes.rest_uri, isValidURL]);
 
