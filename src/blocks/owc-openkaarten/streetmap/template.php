@@ -47,7 +47,7 @@ echo wp_kses_post(
 			'id'               => 'owc-openkaarten-streetmap',
 			'class'            => 'owc-openkaarten-streetmap',
 			'data-endpoint'    => esc_url( $openkaarten_frontend_plugin_rest_uri ),
-			'data-title'       => esc_attr( $attributes['title'] ?: '' ),
+			'data-title'       => esc_attr( $attributes['title'] ?? '' ),
 			'data-dataset-ids' => esc_attr( wp_json_encode( $attributes['selected_datasets'] ) ?: '' ),
 		]
 	)
