@@ -1,27 +1,27 @@
-<script>
+<script setup>
 import BaseTooltipCardClose from './BaseTooltipCardClose.vue';
-export default {
-	components: { BaseTooltipCardClose },
-	props: {
-		title: {
-			type: String,
-			required: true,
-		},
-		id: {
-			type: Number,
-			required: true,
-		},
-		color: {
-			type: String,
-			required: true,
-		},
-		selected: {
-			type: Boolean,
-			required: true,
-			default: false,
-		},
-	},
-};
+
+defineProps({
+  title: {
+    type: String,
+    required: true,
+  },
+  id: {
+    type: Number,
+    required: true,
+  },
+  color: {
+    type: String,
+    required: true,
+  },
+  selected: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+});
+
+const emit = defineEmits(['onChange']);
 </script>
 
 <template>

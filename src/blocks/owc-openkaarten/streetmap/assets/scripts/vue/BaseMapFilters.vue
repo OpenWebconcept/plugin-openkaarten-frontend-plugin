@@ -1,59 +1,49 @@
-<script>
+<script setup>
+import { onMounted } from 'vue';
 import BaseMapFiltersCheckbox from './BaseMapFiltersCheckbox.vue';
 import BaseTooltipCardClose from './BaseTooltipCardClose.vue';
-export default {
-	components: { BaseTooltipCardClose, BaseMapFiltersCheckbox },
-	props: {
-		open: {
-			type: Boolean
-		},
-		datasets: {
-			type: Array,
-			default: () => [],
-		},
-		selectedDatasets: {
-			type: Array,
-			default: () => []
-		},
-		primaryColor: {
-			type: String,
-		},
-		title: {
-			type: String,
-			required: false,
-			default: 'Filters',
-		},
-		confirm: {
-			type: String,
-			required: false,
-			default: 'Bevestigen',
-		},
+
+const props = defineProps({
+	open: Boolean,
+	datasets: {
+		type: Array,
+		default: () => [],
 	},
-
-	setup(props, {emit}) {
-		const getDatalayerColor = (layer) => {
-			const firstMarker = layer.features[0]?.properties?.marker?.color;
-			return firstMarker || props.primaryColor;
-		};
-
-		const datasetChange = (id, checked) => {
-			emit('datasetChange', id, checked)
-		}
-
-		return {
-			getDatalayerColor,
-			datasetChange
-		};
+	selectedDatasets: {
+		type: Array,
+		default: () => []
 	},
+	primaryColor: String,
+	title: {
+		type: String,
+		default: 'Filters',
+	},
+	confirm: {
+		type: String,
+		default: 'Bevestigen',
+	},
+});
 
-	created () {
-		document.addEventListener('keyup', (e) => {
-			if (this.open && e.key === 'Escape') {
-				this.$emit('closeFilters')
-			}
-		})
+const emit = defineEmits(['closeFilters', 'datasetChange']);
+
+const getDatalayerColor = (layer) => {
+	const firstMarker = layer.features[0]?.properties?.marker?.color;
+	return firstMarker || props.primaryColor;
+};
+
+const datasetChange = (id, checked) => {
+	emit('datasetChange', id, checked);
+};
+
+const handleKeyup = (e) => {
+	if (props.open && e.key === 'Escape') {
+		emit('closeFilters');
 	}
 };
+
+onMounted(() => {
+	document.addEventListener('keyup', handleKeyup);
+});
 </script>
 
 <template>

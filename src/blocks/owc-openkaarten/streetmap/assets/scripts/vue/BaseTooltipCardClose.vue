@@ -1,3 +1,14 @@
+<script setup>
+defineProps({
+	primaryColor: {
+		type: String,
+		required: true,
+	},
+});
+
+const emit = defineEmits(['closeCard']);
+</script>
+
 <template>
 	<button
 		class="owc-openkaarten-streetmap__tooltip-card__close-btn"
@@ -21,17 +32,6 @@
 		</svg>
 	</button>
 </template>
-
-<script>
-export default {
-	props: {
-		primaryColor: {
-			type: String,
-			required: true,
-		},
-	},
-};
-</script>
 
 <style lang="scss">
 .owc-openkaarten-streetmap {

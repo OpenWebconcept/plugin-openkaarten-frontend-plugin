@@ -1,69 +1,58 @@
-<script>
+<script setup>
+import { computed, onMounted } from 'vue';
 import BaseTooltipCardClose from './BaseTooltipCardClose.vue';
 
-export default {
-	props: {
-		id: {
-			type: Number,
-			required: false,
-		},
-		title: {
-			type: String,
-			default: '',
-			required: true,
-		},
-		properties: {
-			type: Object,
-			default: {},
-			required: false,
-		},
-		primaryColor: {
-			type: String,
-			required: true,
-		},
+const props = defineProps({
+	id: Number,
+	title: {
+		type: String,
+		default: '',
+		required: true,
 	},
-
-	components: {
-		BaseTooltipCardClose,
+	properties: {
+		type: Object,
+		default: () => ({}),
 	},
+	primaryColor: {
+		type: String,
+		required: true,
+	},
+});
 
-	setup({ properties }, ctx) {
-		const getPropertyList = () => {
-			if (!properties) return null;
-			let list = [];
-			delete properties.marker;
-			for (const [key, value] of Object.entries(properties)) {
-				list.push({
-					key,
-					value,
-				});
-			}
+const emit = defineEmits(['closeCard']);
 
-			return `<ul class="owc-openkaarten-streetmap__tooltip-card__list">${list
-				.map(
-					(item) =>
-						`<li><span>${item.key}:</span> <span>${item.value}</span></li>`
-				)
-				.join('')}</ul>`;
-		};
+const content = computed(() => {
+	if (!props.properties) return null;
+	let list = [];
+	const propertiesCopy = { ...props.properties };
+	delete propertiesCopy.marker;
+	for (const [key, value] of Object.entries(propertiesCopy)) {
+		list.push({ key, value });
+	}
 
-		const handleFocus = (el) => {
-			if (el) {
-				el.focus();
-				document.addEventListener('keydown', ({ key }) => {
-					if (key === 'Escape') {
-						ctx.emit('closeCard');
-					}
-				});
+	return `<ul class="owc-openkaarten-streetmap__tooltip-card__list">${list
+		.map((item) => `<li><span>${item.key}:</span> <span>${item.value}</span></li>`)
+		.join('')}</ul>`;
+});
+
+const handleFocus = (el) => {
+	if (el) {
+		el.focus();
+		const handleKeydown = ({ key }) => {
+			if (key === 'Escape') {
+				emit('closeCard');
 			}
 		};
-
-		return {
-			content: getPropertyList(),
-			handleFocus,
-		};
-	},
+		document.addEventListener('keydown', handleKeydown);
+		onUnmounted(() => {
+			document.removeEventListener('keydown', handleKeydown);
+		});
+	}
 };
+
+onMounted(() => {
+	handleFocus(document.querySelector('.owc-openkaarten-streetmap__tooltip-card'));
+});
 </script>
 
 <template>
