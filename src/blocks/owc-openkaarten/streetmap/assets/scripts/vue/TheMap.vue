@@ -9,6 +9,7 @@ import { makeMarkerCluster } from '../utils/make-marker-cluster';
 import { makeMarkerIcon } from '../utils/make-marker-icon';
 import { makeTooltipCard } from '../utils/make-tooltip-card';
 import { makeFilterButtonHTML } from '../utils/make-filter-button-html';
+import { makeListViewButtonHTML } from '../utils/make-list-view-button-html';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 
@@ -34,6 +35,7 @@ const selectedDatasets = ref(props.datasets.map(({ id }) => id));
 const datasetLocations = ref([]);
 const mapRef = ref(null);
 const clusters = ref([]);
+const showListView = ref(false);
 
 const closeTooltipCard = () => {
 	tooltipCard.value = null;
@@ -169,10 +171,32 @@ const initializeMap = (datasets) => {
 		},
 	});
 
+	L.Control.ListViewToggle = L.Control.extend({
+		options: {
+			position: 'topleft',
+		},
+		onAdd: function () {
+			const btn = L.DomUtil.create('button', 'leaflet-control-list-view');
+			L.DomEvent.addListener(btn, 'click', L.DomEvent.stopPropagation)
+				.addListener(btn, 'click', L.DomEvent.preventDefault)
+				.addListener(btn, 'click', function () {
+					emit('toggleView');
+				});
+
+			const title = 'Lijst weergave';
+			btn.title = title;
+			btn.innerHTML = makeListViewButtonHTML('Lijst weergave', props.primaryColor);
+
+			return btn;
+		},
+	});
+
 	const mapStyles = new L.TileLayer(props.mapStyles);
 	const datalayerFilters = new L.Control.DataLayerFilters();
+	const listViewToggle = new L.Control.ListViewToggle();
 
 	map.addLayer(mapStyles);
+	map.addControl(listViewToggle);
 	if (groupedMarkerClusters?.length > 1) {
 		map.addControl(datalayerFilters);
 	}
@@ -182,6 +206,8 @@ const initializeMap = (datasets) => {
 	clusters.value = groupedMarkerClusters;
 	mapRef.value = map;
 };
+
+const emit = defineEmits(['toggleView']);
 
 onMounted(() => {
 	if (document.getElementById('dataset-map')) {
@@ -195,6 +221,7 @@ onMounted(() => {
 		class="owc-openkaarten-streetmap__map"
 		:style="{
 			'--owc-openkaarten-streetmap--primary-color': primaryColor,
+			'--owc-openkaarten-streetmap--cluster-color': props.primaryColor,
 		}"
 	>
 		<div id="dataset-map"></div>

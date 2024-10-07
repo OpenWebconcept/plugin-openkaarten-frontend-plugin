@@ -3,6 +3,7 @@ import { defineProps, onMounted, ref } from 'vue';
 import BaseAlert from './BaseAlert.vue';
 import BaseLoader from './BaseLoader.vue';
 import TheMap from './TheMap.vue';
+import ListViewResults from './ListView.vue';
 
 /**
  * Props.
@@ -27,6 +28,13 @@ const loading = ref(false);
 const datasets = ref([]);
 const primaryColor = ref('#328725');
 const mapStyles = ref('https://{s}.tile.osm.org/{z}/{x}/{y}.png');
+
+const showListView = ref(false);
+
+// Add a function to toggle the view
+const toggleView = () => {
+  showListView.value = !showListView.value;
+};
 
 /**
  * Computed properties.
@@ -71,12 +79,20 @@ onMounted(() => {
 			aria-atomic="true"
 		>
 			<BaseLoader :loading="loading" />
-			<theMap
-				v-if="!loading"
+			<TheMap
+				v-if="!loading && !showListView"
 				title="map"
 				:datasets="datasets"
 				:mapStyles="mapStyles"
 				:primaryColor="primaryColor"
+				@toggleView="toggleView"
+			/>
+			<ListViewResults
+				v-if="!loading && showListView"
+				:datasets="datasets"
+				:selectedDatasets="datasets.map(d => d.id)"
+				:primaryColor="primaryColor"
+				@toggleView="toggleView"
 			/>
 		</section>
 	</div>

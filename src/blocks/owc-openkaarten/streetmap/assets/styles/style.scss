@@ -61,7 +61,8 @@
 		}
 	}
 
-	.leaflet-control-filters {
+	.leaflet-control-filters,
+	.leaflet-control-list-view {
 		align-items: center;
 		border: 1px solid var(--owc-openkaarten-streetmap--primary-color) !important;
 		background-color: #fff;
