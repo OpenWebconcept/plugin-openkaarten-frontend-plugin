@@ -12,7 +12,7 @@
       "default": ""
     },
     "selected_datasets": {
-      "type": "Array",
+      "type": "array",
       "default": []
     }
   },
