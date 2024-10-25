@@ -44,11 +44,12 @@ if ( ! preg_match( '/wp-json\//', $openkaarten_frontend_plugin_rest_uri ) ) {
 echo wp_kses_post(
 	openkaarten_frontend_plugin_to_dom_attributes(
 		[
-			'id'               => 'owc-openkaarten-streetmap',
-			'class'            => 'owc-openkaarten-streetmap',
-			'data-endpoint'    => esc_url( $openkaarten_frontend_plugin_rest_uri ),
-			'data-title'       => esc_attr( $attributes['title'] ?? '' ),
-			'data-dataset-ids' => esc_attr( wp_json_encode( $attributes['selected_datasets'] ) ?: '' ),
+			'id'                  => 'owc-openkaarten-streetmap',
+			'class'               => 'owc-openkaarten-streetmap',
+			'data-endpoint'       => esc_url( $openkaarten_frontend_plugin_rest_uri ),
+			'data-title'          => esc_attr( $attributes['title'] ?? '' ),
+			'data-dataset-ids'    => esc_attr( wp_json_encode( $attributes['selected_datasets'] ) ?: '' ),
+			'data-tile-layer-uri' => esc_attr( $attributes['tile_layer_uri'] ),
 		]
 	)
 );

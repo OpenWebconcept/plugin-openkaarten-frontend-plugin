@@ -115,6 +115,13 @@ export default function Edit({ attributes, setAttributes }) {
                         <p id="datalayers">{__('No datalayers selected', 'openkaarten-frontend-plugin')}</p>
                     </div>
                 </div>
+                <InputControl
+                    label={__('URL template for tile layer', 'openkaarten-frontend-plugin')}
+                    value={attributes.tile_layer_uri}
+                    onChange={(tile_layer_uri) => {
+                        setAttributes({ tile_layer_uri });
+                    }}
+                />
             </div>
         </>
     );
