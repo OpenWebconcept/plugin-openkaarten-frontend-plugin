@@ -6,7 +6,7 @@ import TheMap from './TheMap.vue';
 
 /**
  * Props.
- * @type {Readonly<ExtractPropTypes<{endpoint: {default: string, type: *, required: boolean}, datasetIds: {default: array, type: *}}
+ * @type {Readonly<ExtractPropTypes<{endpoint: {default: string, type: *, required: boolean}, datasetIds: {default: array, type: *}, tileLayerUri: {default: string, type: *, required: boolean}}
  */
 const props = defineProps({
 	endpoint: {
@@ -18,6 +18,11 @@ const props = defineProps({
 		type: Array,
 		default: [],
 	},
+    tileLayerUri: {
+        type: String,
+        default: 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
+        required: true,
+    },
 });
 
 const error = ref(null);
@@ -26,7 +31,6 @@ const loading = ref(false);
 // Fetched data & default values
 const datasets = ref([]);
 const primaryColor = ref('#328725');
-const mapStyles = ref('https://{s}.tile.osm.org/{z}/{x}/{y}.png');
 
 /**
  * Computed properties.
@@ -41,8 +45,8 @@ async function getLocations() {
 			.then((response) => response.json())
 			.then((response) => {
 				datasets.value = response.datasets;
-        if (response.mapStyles) {
-          mapStyles.value = response.mapStyles
+        if (response.tileLayerUri) {
+          tileLayerUri.value = response.tileLayerUri
         }
         if (response.primaryColor) {
           primaryColor.value = response.primaryColor
@@ -75,7 +79,7 @@ onMounted(() => {
 				v-if="!loading"
 				title="map"
 				:datasets="datasets"
-				:mapStyles="mapStyles"
+				:tileLayerUri="tileLayerUri"
 				:primaryColor="primaryColor"
 			/>
 		</section>

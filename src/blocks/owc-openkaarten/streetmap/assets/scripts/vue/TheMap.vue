@@ -60,7 +60,7 @@ export default {
 			required: true,
 			default: '#328725',
 		},
-		mapStyles: {
+		tileLayerUri: {
 			type: String,
 			required: true,
 		},
@@ -213,10 +213,10 @@ export default {
 				},
 			});
 
-			const mapStyles = new L.TileLayer(props.mapStyles);
+			const tileLayerUri = new L.TileLayer(props.tileLayerUri);
 			const datalayerFilters = new L.Control.DataLayerFilters();
 
-			map.addLayer(mapStyles);
+			map.addLayer(tileLayerUri);
 			if (groupedMarkerClusters?.length > 1) {
 				map.addControl(datalayerFilters);
 			}
