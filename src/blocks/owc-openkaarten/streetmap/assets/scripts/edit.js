@@ -6,7 +6,7 @@ import { __ } from "@wordpress/i18n";
 export default function Edit({ attributes, setAttributes }) {
     const [isTypingUrl, setIsTypingUrl] = useState(false);
     const [datasets, setDatasets] = useState(null);
-    const [selectedDatasets, setSelectedDatasets] = useState( attributes.selected_datasets );
+    const [selectedDatasets, setSelectedDatasets] = useState(attributes.selected_datasets);
     const isValidURL = useMemo(() => {
         try {
             new URL(attributes.rest_uri);
@@ -18,18 +18,29 @@ export default function Edit({ attributes, setAttributes }) {
 
     useEffect(() => {
         if (isValidURL) {
-            fetch(`${attributes.rest_uri}/wp-json/owc/openkaarten/v1/datasets?_locale=default`, {
+            const { username, password, url } = stripCredentialsFromUrl(attributes.rest_uri);
+            const authHeader = `Basic ${btoa(`${username}:${password}`)}`;
+
+            fetch(`${url}wp-json/owc/openkaarten/v1/datasets?_locale=default`, {
                 method: 'GET',
-                // credentials: 'omit'  // Explicitly omit credentials (no cookies)
+                headers: {
+                    'Authorization': authHeader,
+                    'Content-Type': 'application/json'
+                },
             })
-                .then(response => response.json())
-                .then(data => {
-                    setDatasets(data.datasets);
-                })
-                .catch(error => {
-                    console.error('Fetching datasets failed', error);
-                    setDatasets([]);
-                });
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error status: ${response.status} - ${response}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                setDatasets(data.datasets);
+            })
+            .catch(error => {
+                console.error('Fetching datasets failed:', error.message);
+                setDatasets([]);
+            });
         }
     }, [attributes.rest_uri, isValidURL]);
 
@@ -125,4 +136,27 @@ export default function Edit({ attributes, setAttributes }) {
             </div>
         </>
     );
+}
+
+/**
+ * Strip username and password from the given URL and return sanitized URL.
+ *
+ * @param {string} url - The original URL with credentials.
+ * @returns {{ username: string, password: string, url: string }} - Returns username, password, and sanitized URL.
+ */
+function stripCredentialsFromUrl(url) {
+    try {
+        const parsedUrl = new URL(url);
+        const username = parsedUrl.username || '';
+        const password = parsedUrl.password || '';
+
+        // Strip username and password
+        parsedUrl.username = '';
+        parsedUrl.password = '';
+
+        return { username, password, url: parsedUrl.toString() };
+    } catch (error) {
+        console.error("Invalid URL provided:", error);
+        return { username: '', password: '', url }; // Return empty credentials if the URL is invalid
+    }
 }

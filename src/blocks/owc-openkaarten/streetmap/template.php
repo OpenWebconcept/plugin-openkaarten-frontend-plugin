@@ -23,18 +23,18 @@
 
 $openkaarten_frontend_plugin_rest_uri = $attributes['rest_uri'];
 
-if ( empty( $openkaarten_frontend_plugin_rest_uri ) || ! wp_http_validate_url( $openkaarten_frontend_plugin_rest_uri ) ) {
+if ( empty( $openkaarten_frontend_plugin_rest_uri ) || ! wp_http_validate_url( openkaarten_frontend_plugin_strip_user_credentials( $openkaarten_frontend_plugin_rest_uri ) ) ) {
 	$openkaarten_frontend_plugin_rest_uri = get_rest_url();
 }
 
 $openkaarten_frontend_plugin_rest_path = 'wp-json/owc/openkaarten/v1';
 
 if ( preg_match( '/\/wp-json\/$/', $openkaarten_frontend_plugin_rest_uri ) ) {
-	$openkaarten_frontend_plugin_rest_uri = preg_replace( '/\/wp-json\/$/', $openkaarten_frontend_plugin_rest_path, $openkaarten_frontend_plugin_rest_uri );
+	$openkaarten_frontend_plugin_rest_uri = preg_replace( '/(?<=\/)wp-json\//', $openkaarten_frontend_plugin_rest_path, $openkaarten_frontend_plugin_rest_uri );
 }
 
 // For when only a base url is provided.
-if ( ! preg_match( '/wp-json\//', $openkaarten_frontend_plugin_rest_uri ) ) {
+if ( ! preg_match( '/\/wp-json\//', $openkaarten_frontend_plugin_rest_uri ) ) {
 	$openkaarten_frontend_plugin_rest_uri = trailingslashit( $openkaarten_frontend_plugin_rest_uri ) . $openkaarten_frontend_plugin_rest_path;
 }
 
