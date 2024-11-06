@@ -12,8 +12,12 @@
       "default": ""
     },
     "selected_datasets": {
-      "type": "Array",
+      "type": "array",
       "default": []
+    },
+    "tile_layer_uri": {
+      "type": "string",
+      "default": "https://{s}.tile.osm.org/{z}/{x}/{y}.png"
     }
   },
   "style": [
