@@ -19,30 +19,60 @@ export default function Edit({ attributes, setAttributes }) {
     useEffect(() => {
         if (isValidURL) {
             const { username, password, url } = stripCredentialsFromUrl(attributes.rest_uri);
-            const authHeader = `Basic ${btoa(`${username}:${password}`)}`;
 
-            fetch(`${url}wp-json/owc/openkaarten/v1/datasets?_locale=default`, {
-                method: 'GET',
+            fetch('/wp-json/myplugin/v1/proxy-datasets', {
+                method: 'POST',
                 headers: {
-                    'Authorization': authHeader,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({
+                    url: `${url}wp-json/owc/openkaarten/v1/datasets?_locale=default`,
+                    username,
+                    password,
+                }),
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Error status: ${response.status} - ${response}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                setDatasets(data.datasets);
-            })
-            .catch(error => {
-                console.error('Fetching datasets failed:', error.message);
-                setDatasets([]);
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error status: ${response.status}`);
+                    }
+                    return response.json();  // Initial parsing attempt
+                })
+                .then(data => {
+                    console.log('Raw response data:', data);
+
+                    // Check if data is a string and might need additional parsing
+                    if (typeof data === "string") {
+                        try {
+                            data = JSON.parse(data);  // Parse again if it's a JSON string
+                            console.log('Parsed nested JSON:', data);
+                        } catch (error) {
+                            console.error('Error parsing nested JSON:', error);
+                            setDatasets([]);
+                            return;
+                        }
+                    }
+
+                    console.log('data.type:', data?.type);
+                    console.log('data.datasets:', Array.isArray(data?.datasets) ? data.datasets : "Not an array");
+
+                    if (data && data.type === "DatasetCollection" && Array.isArray(data.datasets)) {
+                        setDatasets(data.datasets);
+                    } else {
+                        console.error("Unexpected response format or 'datasets' is not an array.");
+                        setDatasets([]);  // Fallback to empty array if structure is unexpected
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetching datasets failed:', error.message);
+                    setDatasets([]);
+                });
         }
     }, [attributes.rest_uri, isValidURL]);
+
+
+
+
+
 
     const options = useMemo(() => {
         if (!datasets) {
