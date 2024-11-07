@@ -29,6 +29,8 @@ const error = ref(null);
 const loading = ref(false);
 
 // Fetched data & default values
+var username = ref(null)
+var password = ref(null)
 const datasets = ref([]);
 const primaryColor = ref('#328725');
 
@@ -40,31 +42,72 @@ const primaryColor = ref('#328725');
 async function getLocations() {
   loading.value = true;
 
+  if (!props.endpoint) {
+    console.error("Error: Endpoint URL is missing.");
+    error.value = "Endpoint URL is not defined.";
+    loading.value = false;
+    return;
+  }
+
+  try {
+    new URL(props.endpoint); // Ensure props.endpoint is valid.
+  } catch (error) {
+    console.error("Invalid endpoint URL:", error);
+    error.value = "Endpoint URL is invalid.";
+    loading.value = false;
+    return;
+  }
+
   if (props.datasetIds.length > 0) {
+    const url = stripCredentialsFromUrl(props.endpoint);
 
-    const url = new URL(`${stripCredentialsFromUrl(props.endpoint)}/datasets?include=${JSON.parse(props.datasetIds)}`);
-    // Basic Authentication header
-    const authHeader = `Basic ${btoa(`${props.username}:${props.password}`)}`;
+    if (!url) {
+      console.error("Invalid endpoint after stripping credentials.");
+      error.value = "Invalid endpoint URL after credential removal.";
+      loading.value = false;
+      return;
+    }
 
-    await fetch(url.toString(), {
-      method: 'GET',
+    const proxyPayload = {
+      url: `${url}/datasets?include=${JSON.parse(props.datasetIds)}`,
+      username: username.value,
+      password: password.value
+    };
+
+    await fetch('/wp-json/openkaarten-frontend-plugin/v1/proxy-datasets', {
+      method: 'POST',
       headers: {
-        'Authorization': authHeader,
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify(proxyPayload)
     })
-        .then((response) => response.json())
         .then((response) => {
-          datasets.value = response.datasets;
-          if (response.tileLayerUri) {
-            tileLayerUri.value = response.tileLayerUri;
+          if (!response.ok) {
+            throw new Error(`Proxy error: ${response.status}`);
           }
-          if (response.primaryColor) {
-            primaryColor.value = response.primaryColor;
+          return response.json();
+        })
+        .then(data => {
+          // Check if data is a string and might need additional parsing.
+          if (typeof data === "string") {
+            try {
+              data = JSON.parse(data);  // Parse again if it's a JSON string.
+            } catch (error) {
+              datasets.value = ([]);
+              return;
+            }
+          }
+
+          if (data && data.type === "DatasetCollection" && Array.isArray(data.datasets)) {
+            datasets.value = data.datasets;
+          } else {
+            console.error("Unexpected response format or 'datasets' is not an array.");
+            datasets.value = ([]);  // Fallback to empty array if structure is unexpected.
           }
           loading.value = false;
         })
         .catch((err) => {
+          console.error("Error in proxy response:", err);
           error.value = err.message;
           loading.value = false;
         });
@@ -82,14 +125,20 @@ async function getLocations() {
 function stripCredentialsFromUrl(url) {
   try {
     const parsedUrl = new URL(url);
+    // Update username and password directly on the reactive references.
+    username.value = parsedUrl.username;
+    password.value = parsedUrl.password;
+
+    // If the URL contains credentials, strip them.
     if (parsedUrl.username || parsedUrl.password) {
-      parsedUrl.username = "";
-      parsedUrl.password = "";
+      parsedUrl.username = '';
+      parsedUrl.password = '';
     }
-    return parsedUrl.toString();
+
+    return parsedUrl.toString();  // Return the URL without credentials.
   } catch (error) {
     console.error("Invalid URL provided:", error);
-    return url;
+    return url;  // Return the original URL if parsing fails.
   }
 }
 

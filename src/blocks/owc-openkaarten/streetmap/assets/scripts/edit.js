@@ -20,7 +20,7 @@ export default function Edit({ attributes, setAttributes }) {
         if (isValidURL) {
             const { username, password, url } = stripCredentialsFromUrl(attributes.rest_uri);
 
-            fetch('/wp-json/myplugin/v1/proxy-datasets', {
+            fetch('/wp-json/openkaarten-frontend-plugin/v1/proxy-datasets', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -31,48 +31,38 @@ export default function Edit({ attributes, setAttributes }) {
                     password,
                 }),
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Error status: ${response.status}`);
-                    }
-                    return response.json();  // Initial parsing attempt
-                })
-                .then(data => {
-                    console.log('Raw response data:', data);
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error status: ${response.status}`);
+                }
+                return response.json();  // Initial parsing attempt.
+            })
+            .then(data => {
 
-                    // Check if data is a string and might need additional parsing
-                    if (typeof data === "string") {
-                        try {
-                            data = JSON.parse(data);  // Parse again if it's a JSON string
-                            console.log('Parsed nested JSON:', data);
-                        } catch (error) {
-                            console.error('Error parsing nested JSON:', error);
-                            setDatasets([]);
-                            return;
-                        }
+                // Check if data is a string and might need additional parsing.
+                if (typeof data === "string") {
+                    try {
+                        data = JSON.parse(data);  // Parse again if it's a JSON string.
+                    } catch (error) {
+                        console.error('Error parsing nested JSON:', error);
+                        setDatasets([]);
+                        return;
                     }
+                }
 
-                    console.log('data.type:', data?.type);
-                    console.log('data.datasets:', Array.isArray(data?.datasets) ? data.datasets : "Not an array");
-
-                    if (data && data.type === "DatasetCollection" && Array.isArray(data.datasets)) {
-                        setDatasets(data.datasets);
-                    } else {
-                        console.error("Unexpected response format or 'datasets' is not an array.");
-                        setDatasets([]);  // Fallback to empty array if structure is unexpected
-                    }
-                })
-                .catch(error => {
-                    console.error('Fetching datasets failed:', error.message);
-                    setDatasets([]);
-                });
+                if (data && data.type === "DatasetCollection" && Array.isArray(data.datasets)) {
+                    setDatasets(data.datasets);
+                } else {
+                    console.error("Unexpected response format or 'datasets' is not an array.");
+                    setDatasets([]);  // Fallback to empty array if structure is unexpected.
+                }
+            })
+            .catch(error => {
+                console.error('Fetching datasets failed:', error.message);
+                setDatasets([]);
+            });
         }
     }, [attributes.rest_uri, isValidURL]);
-
-
-
-
-
 
     const options = useMemo(() => {
         if (!datasets) {
