@@ -49,7 +49,10 @@ class Plugin {
 		 * Register all the hooks related to the admin area functionality of the plugin.
 		 */
 		new Admin();
-
+		/**
+		 * Register a REST API endpoint that enables authenticated dataset retrieval for frontend and backend use.
+		 */
+		new Proxy_Datasets_Endpoint();
 		/**
 		 * Register all hooks related to the public-facing functionality of the plugin.
 		 */
