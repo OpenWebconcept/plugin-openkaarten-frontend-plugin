@@ -29,8 +29,8 @@ const error = ref(null);
 const loading = ref(false);
 
 // Fetched data & default values
-var username = ref(null)
-var password = ref(null)
+const username = ref(null)
+const password = ref(null)
 const datasets = ref([]);
 const primaryColor = ref('#328725');
 
