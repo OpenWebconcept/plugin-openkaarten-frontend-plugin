@@ -23,7 +23,7 @@ const props = defineProps({
 		required: true,
 		default: '#328725',
 	},
-	mapStyles: {
+	tileLayerUri: {
 		type: String,
 		required: true,
 	},
@@ -191,11 +191,11 @@ const initializeMap = (datasets) => {
 		},
 	});
 
-	const mapStyles = new L.TileLayer(props.mapStyles);
+	const tileLayerUri = new L.TileLayer(props.tileLayerUri);
 	const datalayerFilters = new L.Control.DataLayerFilters();
 	const listViewToggle = new L.Control.ListViewToggle();
 
-	map.addLayer(mapStyles);
+	map.addLayer(tileLayerUri);
 	map.addControl(listViewToggle);
 	if (groupedMarkerClusters?.length > 1) {
 		map.addControl(datalayerFilters);
