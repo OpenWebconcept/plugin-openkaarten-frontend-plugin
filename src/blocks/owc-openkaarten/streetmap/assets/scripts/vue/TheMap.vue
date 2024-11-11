@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import L from 'leaflet';
-import BaseMapFilters from './BaseMapFilters.vue';
+import BaseFilters from './BaseFilters.vue';
 import BaseTooltipCard from './BaseTooltipCard.vue';
 import { calculateBounds } from '../utils/calculate-bounds';
 import { calculateCenter } from '../utils/calculate-center';
@@ -18,6 +18,10 @@ const props = defineProps({
 		type: Array,
 		default: () => [],
 	},
+	selectedDatasets: {
+		type: Array,
+		required: true
+	},
 	primaryColor: {
 		type: String,
 		required: true,
@@ -31,7 +35,6 @@ const props = defineProps({
 
 const tooltipCard = ref(null);
 const showFiltersCard = ref(false);
-const selectedDatasets = ref(props.datasets.map(({ id }) => id));
 const datasetLocations = ref([]);
 const mapRef = ref(null);
 const clusters = ref([]);
@@ -47,16 +50,8 @@ const closeFilters = () => {
 };
 
 const datasetChange = (id, checked) => {
-	if (!id) return null
-	if (checked) {
-		const dataLayers = selectedDatasets.value;
-		dataLayers.push(id);
-		selectedDatasets.value = dataLayers;
-	} else {
-		selectedDatasets.value = selectedDatasets.value.filter(
-			(i) => i !== id
-		);
-	}
+	if (!id) return null;
+	emit('datasetChange', id, checked);
 	const map = mapRef.value;
 	const layers = clusters.value;
 	const datalayerCluster = layers.find(
@@ -207,7 +202,7 @@ const initializeMap = (datasets) => {
 	mapRef.value = map;
 };
 
-const emit = defineEmits(['toggleView']);
+const emit = defineEmits(['toggleView', 'datasetChange']);
 
 onMounted(() => {
 	if (document.getElementById('dataset-map')) {
@@ -232,7 +227,7 @@ onMounted(() => {
 			></div>
 		</Transition>
 		<Transition name="slide">
-			<BaseMapFilters
+			<BaseFilters
 				v-if="datasets && datasets.length > 1 && showFiltersCard"
 				:open="showFiltersCard"
 				:datasets="datasets.filter((set) => set.features.length)"
@@ -256,7 +251,7 @@ onMounted(() => {
 
 <style lang="scss">
 #dataset-map {
-  height: 80dvh;
+	height: 80dvh;
 	max-height: 661px;
 	width: 100%;
 }

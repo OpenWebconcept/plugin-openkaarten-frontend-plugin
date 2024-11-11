@@ -1,8 +1,9 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, nextTick } from 'vue';
 import BaseListCard from './BaseListCard.vue';
 import { makeFilterButtonHTML } from '../utils/make-filter-button-html';
 import { makeMapButtonHTML } from '../utils/make-map-button-html';
+import BaseFilters from './BaseFilters.vue';
 
 const props = defineProps({
   datasets: {
@@ -29,7 +30,7 @@ const filteredLocations = computed(() => {
     })));
 });
 
-const emits = defineEmits(['toggleView']);
+const emits = defineEmits(['toggleView', 'datasetChange']);
 
 const showFilters = ref(false);
 
@@ -44,36 +45,116 @@ const toggleView = () => {
 const filterButtonHTML = computed(() => makeFilterButtonHTML('Filter', props.primaryColor));
 const mapButtonHTML = computed(() => makeMapButtonHTML('Kaart', props.primaryColor));
 
-// @TODO: Implement the actual filtering logic here
-// ...
+const handleDatasetChange = (id, checked) => {
+  emits('datasetChange', id, checked);
+};
+
+const closeFilters = () => {
+  showFilters.value = false;
+};
+
+const ITEMS_PER_PAGE = 12;
+const displayLimit = ref(ITEMS_PER_PAGE);
+const listItemRefs = ref([]);
+
+const paginatedLocations = computed(() => {
+  return filteredLocations.value.slice(0, displayLimit.value);
+});
+
+const hasMoreItems = computed(() => {
+  return displayLimit.value < filteredLocations.value.length;
+});
+
+const loadMore = () => {
+  const newLimit = displayLimit.value + ITEMS_PER_PAGE;
+  displayLimit.value = Math.min(newLimit, filteredLocations.value.length);
+
+  nextTick(() => {
+    const newItemIndex = displayLimit.value - ITEMS_PER_PAGE;
+    const newItemRef = listItemRefs.value[newItemIndex];
+    if (newItemRef) {
+      newItemRef.focus();
+    }
+  });
+};
 </script>
 
 <template>
-  <div class="list-view">
+  <div
+    class="list-view"
+    :style="{
+      '--owc-filters-primary': primaryColor,
+      '--owc-openkaarten-streetmap--primary-color': primaryColor,
+      '--owc-filters-secondary': '#d2d2d2'
+    }"
+  >
     <div class="list-view__controls">
       <button @click="toggleView" class="list-view__map-button" v-html="mapButtonHTML"></button>
       <button @click="toggleFilters" class="list-view__filters-button" v-html="filterButtonHTML"></button>
     </div>
-    <div v-for="location in filteredLocations" :key="`${location.datasetId}-${location.properties.id}`" class="list-view__item">
-      <BaseListCard
-        :title="location.properties.title || location.datasetTitle"
-        :address="location.properties.address || 'Zorg | Beatrixlaan 32 C, 3273 AB Westmaas'"
-        :description="location.properties.description || 'Huisartsenpraktijk Westmaas B.V. ligt in het gelijknamige dorp in de regio Hoeksche Waard. Westmaas telt circa 2.065 inwoners en levert huisartsenzorg aan 2.380 patiënten.'"
-        :image="location.properties.image || 'https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'"
+
+    <!-- Add fade transition for overlay -->
+    <Transition name="fade">
+      <div
+        v-if="showFilters"
+        class="owc-openkaarten-streetmap__overlay"
+      ></div>
+    </Transition>
+
+    <!-- Add slide transition for filters -->
+    <Transition name="slide">
+      <BaseFilters
+        v-if="showFilters"
+        :open="showFilters"
+        :datasets="datasets.filter((set) => set.features.length)"
+        :selectedDatasets="selectedDatasets"
         :primaryColor="primaryColor"
+        @closeFilters="closeFilters"
+        @datasetChange="handleDatasetChange"
+      />
+    </Transition>
+
+    <div class="list-view__results">
+      <div
+        v-for="(location, index) in paginatedLocations"
+        :key="`${location.datasetId}-${location.properties.id}`"
+        class="list-view__item"
+        :ref="el => { listItemRefs[index] = el }"
+        tabindex="0"
       >
-        <template #footer>
-        </template>
-      </BaseListCard>
+        <BaseListCard
+          :title="location.properties.title || location.datasetTitle"
+          :address="location.properties.address || 'Zorg | Beatrixlaan 32 C, 3273 AB Westmaas'"
+          :description="location.properties.description || 'Huisartsenpraktijk Westmaas B.V. ligt in het gelijknamige dorp in de regio Hoeksche Waard. Westmaas telt circa 2.065 inwoners en levert huisartsenzorg aan 2.380 patiënten.'"
+          :image="location.properties.image || 'https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'"
+          :primaryColor="primaryColor"
+        >
+          <template #footer>
+          </template>
+        </BaseListCard>
+      </div>
+
+      <!-- Add Load More button -->
+      <button
+        v-if="hasMoreItems"
+        @click="loadMore"
+        class="list-view__load-more"
+        :style="{ '--button-color': primaryColor }"
+      >
+        Toon meer resultaten ({{ paginatedLocations.length }} van {{ filteredLocations.length }})
+      </button>
     </div>
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .list-view {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  min-block-size: 660px;
+  position: relative;
+  overflow: hidden;
 
   &__controls {
     display: flex;
@@ -93,13 +174,12 @@ const mapButtonHTML = computed(() => makeMapButtonHTML('Kaart', props.primaryCol
       min-height: 50px;
       padding: 10px 24px;
 
-      // @TODO: styles are not being applied, why?
       span {
         color: #328725;
         font-size: 20px;
         font-style: normal;
         font-weight: 500;
-        line-height: 130%; 
+        line-height: 130%;
       }
 
       &:hover {
@@ -113,10 +193,74 @@ const mapButtonHTML = computed(() => makeMapButtonHTML('Kaart', props.primaryCol
     }
   }
 
-  &__item {
+  &__results {
     display: flex;
     flex-direction: column;
     gap: 1rem;
   }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    &:focus {
+      outline: 2px solid var(--owc-openkaarten-streetmap--primary-color);
+      outline-offset: 4px;
+    }
+  }
+
+  &__load-more {
+    margin-top: 1rem;
+    padding: 1rem 2rem;
+    background-color: white;
+    border: 2px solid var(--button-color);
+    color: var(--button-color);
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgb(244, 244, 244);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--button-color);
+      outline-offset: 2px;
+    }
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease-in-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transform: translateX(0);
+  transition: transform 0.5s ease-in-out;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(120%);
+}
+
+.owc-openkaarten-streetmap__overlay {
+  background-color: var(--owc-map-overlay, rgba(0, 0, 0, 0.25));
+  position: absolute;
+  content: '';
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted } from 'vue';
-import BaseMapFiltersCheckbox from './BaseMapFiltersCheckbox.vue';
+import BaseFiltersCheckbox from './BaseFiltersCheckbox.vue';
 import BaseTooltipCardClose from './BaseTooltipCardClose.vue';
 
 const props = defineProps({
@@ -49,7 +49,7 @@ onMounted(() => {
 <template>
 	<div
 		class="owc-openkaarten-streetmap__filters"
-		:style="{ '--filters-primary-color': primaryColor }"
+		:style="{ '--owc-filters-primary': primaryColor }"
 	>
 		<div class="owc-openkaarten-streetmap__filters__header">
 			<h5>{{ title }}</h5>
@@ -65,7 +65,7 @@ onMounted(() => {
 					:key="layer.id"
 					class="owc-openkaarten-streetmap__filters__body__list-item"
 				>
-					<BaseMapFiltersCheckbox
+					<BaseFiltersCheckbox
 						:title="layer.title"
 						:id="layer.id"
 						:color="primaryColor"
@@ -96,7 +96,6 @@ onMounted(() => {
 .owc-openkaarten-streetmap__filters {
 	--owc-filters-card-padding: 12px;
 	--owc-filters-card-margin: 10px;
-	--owc-filters-primary: var(--owc-openkaarten-streetmap--primary-color);
 	--owc-filters-secondary: var(--Grey-4, #7a7a7a);
 	--owc-filters-title-color: var(--Primary-300, #001d5f);
 	--owc-filters-checkbox-label-color: var(--Grey-4, #4b4b4b);
@@ -113,6 +112,7 @@ onMounted(() => {
 	width: 448px;
 	max-width: calc(100% - calc(var(--owc-filters-card-margin) * 2));
 	height: auto;
+	max-height: 661px;
 	background: #fff;
 	position: absolute;
 	top: var(--owc-filters-card-margin);
