@@ -37,9 +37,9 @@ const emit = defineEmits(['closeCard']);
 .owc-openkaarten-streetmap {
 	&__tooltip-card__close-btn {
 		cursor: pointer;
-		// position: absolute;
-		// top: 8px;
-		// right: 8px;
+		position: absolute;
+		top: 8px;
+		right: 8px;
 		display: flex;
 		justify-content: center;
 		align-items: center;

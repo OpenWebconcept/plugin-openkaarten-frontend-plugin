@@ -23,11 +23,19 @@ const props = defineProps({
 const filteredLocations = computed(() => {
   return props.datasets
     .filter(dataset => props.selectedDatasets.includes(dataset.id))
-    .flatMap(dataset => dataset.features.map(feature => ({
-      ...feature,
-      datasetId: dataset.id,
-      datasetTitle: dataset.title,
-    })));
+    .flatMap(dataset => dataset.features.map(feature => {
+      const tooltipData = feature.properties?.tooltip || [];
+      return {
+        ...feature,
+        datasetId: dataset.id,
+        datasetTitle: dataset.title,
+        title: tooltipData.find(t => t.layout === 'title')?.title || feature.title,
+        meta: tooltipData.find(t => t.layout === 'meta')?.meta || '',
+        text: tooltipData.find(t => t.layout === 'text')?.text || 'Huisartsenpraktijk Westmaas B.V. ligt in het gelijknamige dorp in de regio Hoeksche Waard. Westmaas telt circa 2.065 inwoners en levert huisartsenzorg aan 2.380 patiënten. ',
+        button: tooltipData.find(t => t.layout === 'button') || null,
+        image: tooltipData.find(t => t.layout === 'image')?.image || 'https://images.unsplash.com/photo-1525916801717-9405b53a3246?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fHNwb3J0JTIwcGFya3xlbnwwfHwwfHx8MA%3D%3D'
+      };
+    }));
 });
 
 const emits = defineEmits(['toggleView', 'datasetChange']);
@@ -123,13 +131,26 @@ const loadMore = () => {
         tabindex="0"
       >
         <BaseListCard
-          :title="location.properties.title || location.datasetTitle"
-          :address="location.properties.address || 'Zorg | Beatrixlaan 32 C, 3273 AB Westmaas'"
-          :description="location.properties.description || 'Huisartsenpraktijk Westmaas B.V. ligt in het gelijknamige dorp in de regio Hoeksche Waard. Westmaas telt circa 2.065 inwoners en levert huisartsenzorg aan 2.380 patiënten.'"
-          :image="location.properties.image || 'https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'"
+          :title="location.title || location.datasetTitle"
+          :address="location.meta"
+          :description="location.text"
+          :image="location.image"
+          :button="location.button"
           :primaryColor="primaryColor"
         >
           <template #footer>
+            <a
+              v-if="location.button"
+              :href="location.button.button_url"
+              class="base-list-card__button"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.243 4.41a.833.833 0 0 1 1.178 0l5 5a.833.833 0 0 1 0 1.18l-5 5a.833.833 0 0 1-1.178-1.18l3.577-3.577H4.165a.833.833 0 0 1 0-1.667h9.655L10.243 5.59a.833.833 0 0 1 0-1.178Z" fill="#1261A3"/>
+              </svg>
+              {{ location.button.button_text }}
+            </a>
           </template>
         </BaseListCard>
       </div>
@@ -153,6 +174,7 @@ const loadMore = () => {
   flex-direction: column;
   gap: 1rem;
   min-block-size: 660px;
+  padding: 0.25rem;
   position: relative;
   overflow: hidden;
 
@@ -206,7 +228,7 @@ const loadMore = () => {
 
     &:focus {
       outline: 2px solid var(--owc-openkaarten-streetmap--primary-color);
-      outline-offset: 4px;
+      outline-offset: 1px;
     }
   }
 
