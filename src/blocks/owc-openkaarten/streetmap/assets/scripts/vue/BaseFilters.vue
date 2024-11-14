@@ -1,65 +1,55 @@
-<script>
-import BaseMapFiltersCheckbox from './BaseMapFiltersCheckbox.vue';
+<script setup>
+import { onMounted } from 'vue';
+import BaseFiltersCheckbox from './BaseFiltersCheckbox.vue';
 import BaseTooltipCardClose from './BaseTooltipCardClose.vue';
-export default {
-	components: { BaseTooltipCardClose, BaseMapFiltersCheckbox },
-	props: {
-		open: {
-			type: Boolean
-		},
-		datasets: {
-			type: Array,
-			default: () => [],
-		},
-		selectedDatasets: {
-			type: Array,
-			default: () => []
-		},
-		primaryColor: {
-			type: String,
-		},
-		title: {
-			type: String,
-			required: false,
-			default: 'Filters',
-		},
-		confirm: {
-			type: String,
-			required: false,
-			default: 'Bevestigen',
-		},
+
+const props = defineProps({
+	open: Boolean,
+	datasets: {
+		type: Array,
+		default: () => [],
 	},
-
-	setup(props, {emit}) {
-		const getDatalayerColor = (layer) => {
-			const firstMarker = layer.features[0]?.properties?.marker?.color;
-			return firstMarker || props.primaryColor;
-		};
-
-		const datasetChange = (id, checked) => {
-			emit('datasetChange', id, checked)
-		}
-
-		return {
-			getDatalayerColor,
-			datasetChange
-		};
+	selectedDatasets: {
+		type: Array,
+		default: () => []
 	},
+	primaryColor: String,
+	title: {
+		type: String,
+		default: 'Filters',
+	},
+	confirm: {
+		type: String,
+		default: 'Bevestigen',
+	},
+});
 
-	created () {
-		document.addEventListener('keyup', (e) => {
-			if (this.open && e.key === 'Escape') {
-				this.$emit('closeFilters')
-			}
-		})
+const emit = defineEmits(['closeFilters', 'datasetChange']);
+
+const getDatalayerColor = (layer) => {
+	const firstMarker = layer.features[0]?.properties?.marker?.color;
+	return firstMarker || props.primaryColor;
+};
+
+const datasetChange = (id, checked) => {
+	emit('datasetChange', id, checked);
+};
+
+const handleKeyup = (e) => {
+	if (props.open && e.key === 'Escape') {
+		emit('closeFilters');
 	}
 };
+
+onMounted(() => {
+	document.addEventListener('keyup', handleKeyup);
+});
 </script>
 
 <template>
 	<div
 		class="owc-openkaarten-streetmap__filters"
-		:style="{ '--filters-primary-color': primaryColor }"
+		:style="{ '--owc-filters-primary': primaryColor }"
 	>
 		<div class="owc-openkaarten-streetmap__filters__header">
 			<h5>{{ title }}</h5>
@@ -75,7 +65,7 @@ export default {
 					:key="layer.id"
 					class="owc-openkaarten-streetmap__filters__body__list-item"
 				>
-					<BaseMapFiltersCheckbox
+					<BaseFiltersCheckbox
 						:title="layer.title"
 						:id="layer.id"
 						:color="primaryColor"
@@ -106,7 +96,6 @@ export default {
 .owc-openkaarten-streetmap__filters {
 	--owc-filters-card-padding: 12px;
 	--owc-filters-card-margin: 10px;
-	--owc-filters-primary: var(--owc-openkaarten-streetmap--primary-color);
 	--owc-filters-secondary: var(--Grey-4, #7a7a7a);
 	--owc-filters-title-color: var(--Primary-300, #001d5f);
 	--owc-filters-checkbox-label-color: var(--Grey-4, #4b4b4b);
@@ -123,6 +112,7 @@ export default {
 	width: 448px;
 	max-width: calc(100% - calc(var(--owc-filters-card-margin) * 2));
 	height: auto;
+	max-height: 661px;
 	background: #fff;
 	position: absolute;
 	top: var(--owc-filters-card-margin);

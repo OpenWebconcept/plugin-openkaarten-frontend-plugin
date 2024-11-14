@@ -3,6 +3,7 @@ import {defineProps, onMounted, ref} from 'vue';
 import BaseAlert from './BaseAlert.vue';
 import BaseLoader from './BaseLoader.vue';
 import TheMap from './TheMap.vue';
+import ListViewResults from './ListView.vue';
 
 /**
  * Props.
@@ -33,6 +34,34 @@ const username = ref(null)
 const password = ref(null)
 const datasets = ref([]);
 const primaryColor = ref('#328725');
+
+const showListView = ref(false);
+
+// Move selectedDatasets to App.vue
+const selectedDatasets = ref([]);
+
+// Initialize selectedDatasets when datasets are loaded
+const initializeSelectedDatasets = () => {
+  selectedDatasets.value = datasets.value.map(d => d.id);
+};
+
+// Add datasetChange handler
+const handleDatasetChange = (id, checked) => {
+  if (!id) return null;
+  
+  if (checked) {
+    const dataLayers = selectedDatasets.value;
+    dataLayers.push(id);
+    selectedDatasets.value = dataLayers;
+  } else {
+    selectedDatasets.value = selectedDatasets.value.filter((i) => i !== id);
+  }
+};
+
+// Add a function to toggle the view
+const toggleView = () => {
+  showListView.value = !showListView.value;
+};
 
 /**
  * Fetch locations based on dataset IDs.
@@ -100,6 +129,7 @@ async function getLocations() {
 
           if (data && data.type === "DatasetCollection" && Array.isArray(data.datasets)) {
             datasets.value = data.datasets;
+            initializeSelectedDatasets(); // Initialize after datasets are loaded
           } else {
             console.error("Unexpected response format or 'datasets' is not an array.");
             datasets.value = ([]);  // Fallback to empty array if structure is unexpected.
@@ -158,11 +188,22 @@ onMounted(() => {
     >
       <BaseLoader :loading="loading"/>
       <TheMap
-          v-if="!loading"
+          v-if="!loading && !showListView"
           title="map"
           :datasets="datasets"
+          :selectedDatasets="selectedDatasets"
           :tileLayerUri="tileLayerUri"
           :primaryColor="primaryColor"
+          @toggleView="toggleView"
+          @datasetChange="handleDatasetChange"
+      />
+      <ListViewResults
+          v-if="!loading && showListView"
+          :datasets="datasets"
+          :selectedDatasets="selectedDatasets"
+          :primaryColor="primaryColor"
+          @toggleView="toggleView"
+          @datasetChange="handleDatasetChange"
       />
     </section>
   </div>
