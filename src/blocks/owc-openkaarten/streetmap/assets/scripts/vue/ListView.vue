@@ -234,14 +234,16 @@ const loadMore = () => {
 
   &__load-more {
     margin-top: 1rem;
+    margin-inline: auto;
     padding: 1rem 2rem;
     background-color: white;
     border: 2px solid var(--button-color);
     color: var(--button-color);
     border-radius: 4px;
+    font-size: 1rem;
     font-weight: 500;
-    cursor: pointer;
     transition: background-color 0.2s ease;
+    cursor: pointer;
 
     &:hover {
       background-color: rgb(244, 244, 244);

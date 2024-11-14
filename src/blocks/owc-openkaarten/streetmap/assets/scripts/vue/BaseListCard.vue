@@ -39,7 +39,7 @@ defineProps({
 	</div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .base-list-card {
 	--image-size: 256px;
 
@@ -84,7 +84,7 @@ defineProps({
 		font-weight: 400;
 	}
 
-	&__link {
+	&__button {
 		display: flex;
 		align-items: center;
 		gap: 0.25rem;
