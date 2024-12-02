@@ -75,7 +75,7 @@ const initializeMap = (datasets) => {
 		centerY: long,
 		minimumZoom: 4,
 		maximumZoom: 16,
-		defaultZoom: 8,
+		defaultZoom: 14,
 		enableHomeControl: true,
 		enableZoomControl: true,
 		enableBoxZoomControl: true,
