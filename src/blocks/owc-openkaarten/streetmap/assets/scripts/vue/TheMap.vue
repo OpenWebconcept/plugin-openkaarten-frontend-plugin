@@ -75,7 +75,7 @@ const initializeMap = (datasets) => {
 		centerY: long,
 		minimumZoom: 4,
 		maximumZoom: 16,
-		defaultZoom: 14,
+		defaultZoom: 11,
 		enableHomeControl: true,
 		enableZoomControl: true,
 		enableBoxZoomControl: true,
@@ -109,24 +109,31 @@ const initializeMap = (datasets) => {
 				props.primaryColor,
 		});
 
-		set.features.forEach((location) => {
-			const icon = makeMarkerIcon(L, {
-				marker: location.properties?.marker,
-				defaultColor: props.primaryColor,
-			});
+    console.log(set.features)
 
-			const marker = new L.Marker(location.geometry.coordinates, {
-				icon,
-			});
-			marker.on('click', () => {
-				tooltipCard.value = makeTooltipCard(location, set);
-			});
-			marker.on('keydown', ({ originalEvent }) => {
-				if (originalEvent.keyCode === 13) {
-					tooltipCard.value = makeTooltipCard(location, set);
-				}
-			});
-			cluster.addLayer(marker);
+		set.features.forEach((location) => {
+      const icon = makeMarkerIcon(L, {
+      	marker: location.properties?.marker,
+      	defaultColor: props.primaryColor,
+      });
+
+      var geojsonLayer = new L.GeoJSON( location, {
+        pointToLayer: function(feature, latlng) {
+          const marker = new L.Marker(latlng, {
+            icon,
+          });
+          marker.on('click', () => {
+            tooltipCard.value = makeTooltipCard(location, set);
+          });
+          marker.on('keydown', ({ originalEvent }) => {
+            if (originalEvent.keyCode === 13) {
+              tooltipCard.value = makeTooltipCard(location, set);
+            }
+          });
+
+          cluster.addLayer(marker);
+        }
+      }).addTo(map);
 		});
 
 		return {
