@@ -109,8 +109,6 @@ const initializeMap = (datasets) => {
 				props.primaryColor,
 		});
 
-    console.log(set.features)
-
 		set.features.forEach((location) => {
       const icon = makeMarkerIcon(L, {
       	marker: location.properties?.marker,
