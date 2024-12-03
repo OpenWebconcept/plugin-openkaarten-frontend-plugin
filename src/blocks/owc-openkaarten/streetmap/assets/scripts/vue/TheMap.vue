@@ -350,7 +350,7 @@ onMounted(() => {
 
 	.fade-enter-active,
 	.fade-leave-active {
-		transition: opacity 0.5s ease-in-out;
+		transition: opacity 0.2s ease-in-out;
 	}
 
 	.fade-enter-from,
@@ -361,7 +361,7 @@ onMounted(() => {
 	.slide-enter-active,
 	.slide-leave-active {
 		transform: translateX(0);
-		transition: transform 0.5s ease-in-out;
+		transition: transform 0.2s ease-in-out;
 	}
 
 	.slide-enter-from,
