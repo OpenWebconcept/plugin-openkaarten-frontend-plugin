@@ -12,7 +12,7 @@ const emit = defineEmits(['closeCard']);
 <template>
 	<button
 		class="owc-openkaarten-streetmap__tooltip-card__close-btn"
-		title="close"
+    aria-label="Sluit"
 		:style="{
 			'--owc-openkaarten-streetmap--close-btn-color': primaryColor,
 		}"
@@ -23,6 +23,7 @@ const emit = defineEmits(['closeCard']);
 			height="20"
 			viewBox="0 0 20 20"
 			fill="none"
+      aria-hidden="true"
 			xmlns="http://www.w3.org/2000/svg"
 		>
 			<path
