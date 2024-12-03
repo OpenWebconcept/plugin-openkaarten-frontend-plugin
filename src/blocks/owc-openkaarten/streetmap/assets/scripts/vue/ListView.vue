@@ -181,6 +181,7 @@ const loadMore = () => {
   min-block-size: 660px;
   padding: 0.25rem;
   position: relative;
+  overflow-x: clip;
 
   &__controls {
     display: flex;

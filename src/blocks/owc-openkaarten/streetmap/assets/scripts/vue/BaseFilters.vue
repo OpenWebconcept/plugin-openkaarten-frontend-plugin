@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted, ref, watch, nextTick } from 'vue';
 import BaseFiltersCheckbox from './BaseFiltersCheckbox.vue';
 import BaseTooltipCardClose from './BaseTooltipCardClose.vue';
 
@@ -35,30 +35,111 @@ const datasetChange = (id, checked) => {
 	emit('datasetChange', id, checked);
 };
 
-const handleKeyup = (e) => {
-	if (props.open && e.key === 'Escape') {
-		emit('closeFilters');
+const filterContainer = ref(null);
+const closeButton = ref(null);
+let previousActiveElement = null;
+
+const getFocusableElements = (element) => {
+	return element.querySelectorAll(
+		'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+	);
+};
+
+const handleTab = (e) => {
+	if (!props.open || !filterContainer.value) return;
+
+	const focusableElements = getFocusableElements(filterContainer.value);
+	const firstFocusable = focusableElements[0];
+	const lastFocusable = focusableElements[focusableElements.length - 1];
+
+	if (e.shiftKey) {
+		if (document.activeElement === firstFocusable) {
+			e.preventDefault();
+			lastFocusable.focus();
+		}
+	} else {
+		if (document.activeElement === lastFocusable) {
+			e.preventDefault();
+			firstFocusable.focus();
+		}
 	}
 };
 
+const handleKeyup = (e) => {
+	if (!props.open) return;
+	
+	if (e.key === 'Escape') {
+		closeFiltersWithX();
+	}
+};
+
+const handleClickOutside = (e) => {
+	if (!props.open) return;
+	
+	if (filterContainer.value && !filterContainer.value.contains(e.target)) {
+		closeFiltersWithX();
+	}
+};
+
+const closeFiltersWithX = () => {
+	const filterButton = document.querySelector('.leaflet-control-filters');
+	if (filterButton) {
+		filterButton.focus();
+	}
+	emit('closeFilters');
+};
+
+const closeFiltersWithConfirm = (event) => {
+	event?.preventDefault();
+	event?.stopPropagation();
+	
+	const filterButton = document.querySelector('.leaflet-control-filters');
+	if (filterButton) {
+		filterButton.focus();
+	}
+	emit('closeFilters');
+};
+
+watch(() => props.open, async (newValue) => {
+	if (newValue) {
+		previousActiveElement = document.activeElement;
+		await nextTick();
+		closeButton.value?.focus();
+	}
+});
+
 onMounted(() => {
+	document.addEventListener('keydown', handleTab);
 	document.addEventListener('keyup', handleKeyup);
+	document.addEventListener('mousedown', handleClickOutside);
+});
+
+onUnmounted(() => {
+	document.removeEventListener('keydown', handleTab);
+	document.removeEventListener('keyup', handleKeyup);
+	document.removeEventListener('mousedown', handleClickOutside);
 });
 </script>
 
 <template>
 	<div
+		ref="filterContainer"
 		class="owc-openkaarten-streetmap__filters"
 		:style="{ '--owc-filters-primary': primaryColor }"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="filters-title"
+		aria-describedby="filters-description"
 	>
 		<div class="owc-openkaarten-streetmap__filters__header">
-			<h5>{{ title }}</h5>
+			<h5 id="filters-title">{{ title }}</h5>
 			<BaseTooltipCardClose
+				ref="closeButton"
 				:primaryColor="primaryColor"
-				@closeCard="$emit('closeFilters')"
+				@closeCard="closeFiltersWithX"
 			/>
 		</div>
-		<div class="owc-openkaarten-streetmap__filters__body">
+		<div id="filters-description" class="owc-openkaarten-streetmap__filters__body">
 			<ul class="owc-openkaarten-streetmap__filters__body__list">
 				<li
 					v-for="layer in datasets"
@@ -84,7 +165,8 @@ onMounted(() => {
 		<div class="owc-openkaarten-streetmap__filters__footer">
 			<button
 				class="owc-openkaarten-streetmap__filters__footer__btn"
-				@click="$emit('closeFilters')"
+				@click.stop.prevent="closeFiltersWithConfirm"
+				@keydown.enter.stop.prevent="closeFiltersWithConfirm"
 			>
 				{{ confirm }}
 			</button>
@@ -105,7 +187,6 @@ onMounted(() => {
 		--owc-filters-card-margin: 0;
 	}
 
-
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
@@ -119,6 +200,9 @@ onMounted(() => {
 	bottom: var(--owc-filters-card-margin);
 	right: var(--owc-filters-card-margin);
 	z-index: 9999;
+	border: none;
+	padding: 0;
+	margin: 0;
 
 	&__header {
 		display: flex;
@@ -183,8 +267,18 @@ onMounted(() => {
 			font-style: normal;
 			font-weight: 400;
 			line-height: 150%; /* 27px */
+
 			&:hover {
 				cursor: pointer;
+			}
+
+			&:focus-visible {
+				outline: 2px solid var(--owc-openkaarten-streetmap--primary-color);
+				outline-offset: 2px;
+			}
+
+			&:where(:hover, :focus-visible) {
+				opacity: 0.8;
 			}
 		}
 	}

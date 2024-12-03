@@ -1,5 +1,5 @@
 <script setup>
-import {defineProps, onMounted, ref} from 'vue';
+import {defineProps, onMounted, ref, nextTick} from 'vue';
 import BaseAlert from './BaseAlert.vue';
 import BaseLoader from './BaseLoader.vue';
 import TheMap from './TheMap.vue';
@@ -58,9 +58,16 @@ const handleDatasetChange = (id, checked) => {
   }
 };
 
-// Add a function to toggle the view
-const toggleView = () => {
+const containerRef = ref(null);
+
+// Function to toggle the view and set focus
+const toggleViewAndFocus = () => {
   showListView.value = !showListView.value;
+  nextTick(() => {
+    if (containerRef.value) {
+      containerRef.value.focus();
+    }
+  });
 };
 
 /**
@@ -178,7 +185,11 @@ onMounted(() => {
 </script>
 
 <template v-if="endpoint">
-  <div class="owc-openkaarten-streetmap-container" ref="container">
+  <div
+    class="owc-openkaarten-streetmap-container"
+    ref="containerRef"
+    tabindex="-1"
+  >
     <BaseAlert v-if="error" type="error" :message="error"/>
     <section
         class="owc-openkaarten-streetmap__results"
@@ -194,7 +205,7 @@ onMounted(() => {
           :selectedDatasets="selectedDatasets"
           :tileLayerUri="tileLayerUri"
           :primaryColor="primaryColor"
-          @toggleView="toggleView"
+          @toggleView="toggleViewAndFocus"
           @datasetChange="handleDatasetChange"
       />
       <ListViewResults
@@ -202,7 +213,7 @@ onMounted(() => {
           :datasets="datasets"
           :selectedDatasets="selectedDatasets"
           :primaryColor="primaryColor"
-          @toggleView="toggleView"
+          @toggleView="toggleViewAndFocus"
           @datasetChange="handleDatasetChange"
       />
     </section>
@@ -213,6 +224,11 @@ onMounted(() => {
 #owc-openkaarten-streetmap {
   container-type: inline-size;
   max-width: 100%;
+}
+
+.owc-openkaarten-streetmap-container:focus,
+.owc-openkaarten-streetmap__results:focus {
+  outline: none !important;
 }
 
 .owc-openkaarten-streetmap-container {
