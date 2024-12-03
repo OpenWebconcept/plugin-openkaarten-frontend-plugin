@@ -22,7 +22,10 @@ const props = defineProps({
 
 const filteredLocations = computed(() => {
   return props.datasets
-    .filter(dataset => props.selectedDatasets.includes(dataset.id))
+    .filter(dataset => {
+      return props.selectedDatasets.includes(dataset.id) &&
+             !dataset.features.some(feature => feature.geometry?.type === 'Polygon');
+    })
     .flatMap(dataset => dataset.features.map(feature => {
       const tooltipData = feature.properties?.tooltip || [];
       return {
@@ -51,7 +54,7 @@ const toggleView = () => {
 };
 
 const filterButtonHTML = computed(() => makeFilterButtonHTML('Filter', props.primaryColor));
-const mapButtonHTML = computed(() => makeMapButtonHTML('Kaart', props.primaryColor));
+const mapButtonHTML = computed(() => makeMapButtonHTML('Kaart weergave', props.primaryColor));
 
 const handleDatasetChange = (id, checked) => {
   emits('datasetChange', id, checked);
@@ -98,7 +101,12 @@ const loadMore = () => {
   >
     <div class="list-view__controls">
       <button @click="toggleView" class="list-view__map-button" v-html="mapButtonHTML"></button>
-      <button @click="toggleFilters" class="list-view__filters-button" v-html="filterButtonHTML"></button>
+      <button
+        v-if="datasets.length > 1"
+        @click="toggleFilters"
+        class="list-view__filters-button"
+        v-html="filterButtonHTML"
+      ></button>
     </div>
 
     <!-- Add fade transition for overlay -->
@@ -122,8 +130,8 @@ const loadMore = () => {
       />
     </Transition>
 
-    <div class="list-view__results">
-      <div
+    <ul class="list-view__results">
+      <li
         v-for="(location, index) in paginatedLocations"
         :key="`${location.datasetId}-${location.properties.id}`"
         class="list-view__item"
@@ -135,7 +143,6 @@ const loadMore = () => {
           :address="location.meta"
           :description="location.text"
           :image="location.image"
-          :button="location.button"
           :primaryColor="primaryColor"
         >
           <template #footer>
@@ -143,17 +150,15 @@ const loadMore = () => {
               v-if="location.button"
               :href="location.button.button_url"
               class="base-list-card__button"
-              target="_blank"
-              rel="noopener noreferrer"
             >
-              <svg width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg aria-hidden="true" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M10.243 4.41a.833.833 0 0 1 1.178 0l5 5a.833.833 0 0 1 0 1.18l-5 5a.833.833 0 0 1-1.178-1.18l3.577-3.577H4.165a.833.833 0 0 1 0-1.667h9.655L10.243 5.59a.833.833 0 0 1 0-1.178Z" fill="#1261A3"/>
               </svg>
               {{ location.button.button_text }}
             </a>
           </template>
         </BaseListCard>
-      </div>
+      </li>
 
       <!-- Add Load More button -->
       <button
@@ -164,7 +169,7 @@ const loadMore = () => {
       >
         Toon meer resultaten ({{ paginatedLocations.length }} van {{ filteredLocations.length }})
       </button>
-    </div>
+    </ul>
   </div>
 </template>
 
@@ -176,7 +181,6 @@ const loadMore = () => {
   min-block-size: 660px;
   padding: 0.25rem;
   position: relative;
-  overflow: hidden;
 
   &__controls {
     display: flex;
@@ -219,6 +223,8 @@ const loadMore = () => {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    padding: 0;
+    margin: 0;
   }
 
   &__item {
