@@ -122,7 +122,7 @@ const loadMore = () => {
       <BaseFilters
         v-if="showFilters"
         :open="showFilters"
-        :datasets="datasets.filter((set) => set.features.length)"
+        :datasets="datasets.filter((set) => set.features.length && !set.features.every(feature => feature.geometry?.type === 'Polygon'))"
         :selectedDatasets="selectedDatasets"
         :primaryColor="primaryColor"
         @closeFilters="closeFilters"
@@ -265,7 +265,7 @@ const loadMore = () => {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.5s ease-in-out;
+  transition: opacity 0.2s ease-in-out;
 }
 
 .fade-enter-from,
@@ -276,7 +276,7 @@ const loadMore = () => {
 .slide-enter-active,
 .slide-leave-active {
   transform: translateX(0);
-  transition: transform 0.5s ease-in-out;
+  transition: transform 0.2s ease-in-out;
 }
 
 .slide-enter-from,
