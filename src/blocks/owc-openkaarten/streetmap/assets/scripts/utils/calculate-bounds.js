@@ -7,7 +7,9 @@ export const calculateBounds = (datasets) => {
 	const processCoordinates = (coords) => {
 		// Handle a single coordinate pair
 		if (!Array.isArray(coords[0])) {
-			const [lat, long] = coords.reverse(); // lat-long reversed
+      // Reverse the coordinates, use 0 and 1 as lat and long
+      const lat = coords[1];
+      const long = coords[0];
 			minLat = minLat === null ? lat : Math.min(minLat, lat);
 			maxLat = maxLat === null ? lat : Math.max(maxLat, lat);
 			minLong = minLong === null ? long : Math.min(minLong, long);
@@ -26,6 +28,11 @@ export const calculateBounds = (datasets) => {
 	};
 
 	datasets.forEach(({ features }) => {
+    // Check if features is an array. If not, make it an array.
+    if (!Array.isArray(features)) {
+          features = [features];
+    }
+
 		features.forEach(({ geometry }) => {
 			processCoordinates(geometry.coordinates.slice());
 		});
