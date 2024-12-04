@@ -109,30 +109,34 @@ const initializeMap = (datasets) => {
 				props.primaryColor,
 		});
 
+    if (!Array.isArray(set.features)) {
+      set.features = [set.features];
+    }
+
 		set.features.forEach((location) => {
       const icon = makeMarkerIcon(L, {
-      	marker: location.properties?.marker,
-      	defaultColor: props.primaryColor,
+        marker: location.properties?.marker,
+        defaultColor: props.primaryColor,
       });
 
-      var geojsonLayer = new L.GeoJSON( location, {
-        pointToLayer: function(feature, latlng) {
-          const marker = new L.Marker(latlng, {
-            icon,
-          });
-          marker.on('click', () => {
-            tooltipCard.value = makeTooltipCard(location, set);
-          });
-          marker.on('keydown', ({ originalEvent }) => {
-            if (originalEvent.keyCode === 13) {
-              tooltipCard.value = makeTooltipCard(location, set);
-            }
-          });
-
-          cluster.addLayer(marker);
-        }
-      }).addTo(map);
-		});
+      // If the location is a MultiPoint, then add the markers directly to the map. If not, add a cluster.
+      if (location.geometry.type === 'MultiPoint') {
+        location.geometry.coordinates.forEach(coord => {
+          const pointLatLng = L.latLng(coord[1], coord[0]);  // Convert coordinates to LatLng.
+          const marker = new L.Marker(pointLatLng, { icon });
+          attachEvents(marker);
+          map.addLayer(marker);
+        });
+      } else {
+        new L.GeoJSON(location, {
+          pointToLayer: function (feature, latlng) {
+            const marker = new L.Marker(latlng, { icon });
+            attachEvents(marker);
+            cluster.addLayer(marker);
+          }
+        }).addTo(map);
+      }
+    });
 
 		return {
 			id: set.id,
@@ -140,6 +144,18 @@ const initializeMap = (datasets) => {
 			cluster,
 		};
 	});
+
+  // Function to attach events
+  function attachEvents(marker) {
+    marker.on('click', () => {
+      tooltipCard.value = makeTooltipCard(location, set);
+    });
+    marker.on('keydown', ({ originalEvent }) => {
+      if (originalEvent.keyCode === 13) {
+        tooltipCard.value = makeTooltipCard(location, set);
+      }
+    });
+  }
 
 	L.Control.DataLayerFilters = L.Control.extend({
 		options: {
@@ -200,6 +216,7 @@ const initializeMap = (datasets) => {
 	if (groupedMarkerClusters?.length > 1) {
 		map.addControl(datalayerFilters);
 	}
+
 	groupedMarkerClusters.forEach(({ cluster }) => {
 		map.addLayer(cluster);
 	});
