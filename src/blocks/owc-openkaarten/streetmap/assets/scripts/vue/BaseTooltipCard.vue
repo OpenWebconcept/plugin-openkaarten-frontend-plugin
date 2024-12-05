@@ -92,7 +92,7 @@ onMounted(() => {
 					<svg aria-hidden="true" width="20" height="21" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M10.243 4.91a.833.833 0 0 1 1.178 0l5 5a.833.833 0 0 1 0 1.18l-5 5a.833.833 0 0 1-1.178-1.18l3.577-3.577H4.165a.833.833 0 0 1 0-1.667h9.655L10.243 6.09a.833.833 0 0 1 0-1.178Z" fill="#fff"/>
 					</svg>
-					{{ button.button_text }}
+					{{ button.button_text }} <span class="sr-only">over {{ title }}</span>
 				</a>
 			</div>
 		</div>
