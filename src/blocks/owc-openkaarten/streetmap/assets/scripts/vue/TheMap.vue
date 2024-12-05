@@ -124,14 +124,14 @@ const initializeMap = (datasets) => {
         location.geometry.coordinates.forEach(coord => {
           const pointLatLng = L.latLng(coord[1], coord[0]);  // Convert coordinates to LatLng.
           const marker = new L.Marker(pointLatLng, { icon });
-          attachEvents(marker);
+          attachEvents(marker, location, set);
           map.addLayer(marker);
         });
       } else {
         new L.GeoJSON(location, {
           pointToLayer: function (feature, latlng) {
             const marker = new L.Marker(latlng, { icon });
-            attachEvents(marker);
+            attachEvents(marker, location, set);
             cluster.addLayer(marker);
           }
         }).addTo(map);
@@ -146,7 +146,7 @@ const initializeMap = (datasets) => {
 	});
 
   // Function to attach events
-  function attachEvents(marker) {
+  function attachEvents(marker, location, set) {
     marker.on('click', () => {
       tooltipCard.value = makeTooltipCard(location, set);
     });
