@@ -4,6 +4,7 @@ import BaseListCard from './BaseListCard.vue';
 import { makeFilterButtonHTML } from '../utils/make-filter-button-html';
 import { makeMapButtonHTML } from '../utils/make-map-button-html';
 import BaseFilters from './BaseFilters.vue';
+import BaseSearchInput from './BaseSearchInput.vue';
 
 const props = defineProps({
   datasets: {
@@ -20,8 +21,10 @@ const props = defineProps({
   },
 });
 
+const searchQuery = ref('');
+
 const filteredLocations = computed(() => {
-  return props.datasets
+  let locations = props.datasets
     .filter(dataset => {
       return props.selectedDatasets.includes(dataset.id) &&
              !dataset.features.some(feature => feature.geometry?.type === 'Polygon');
@@ -39,6 +42,15 @@ const filteredLocations = computed(() => {
         image: tooltipData.find(t => t.layout === 'image')?.image || ''
       };
     }));
+
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    locations = locations.filter(location => 
+      location.meta?.toLowerCase().includes(query)
+    );
+  }
+
+  return locations;
 });
 
 const emits = defineEmits(['toggleView', 'datasetChange']);
@@ -88,6 +100,10 @@ const loadMore = () => {
     }
   });
 };
+
+const handleSearch = (query) => {
+  searchQuery.value = query;
+};
 </script>
 
 <template>
@@ -100,6 +116,10 @@ const loadMore = () => {
     }"
   >
     <div class="list-view__controls">
+      <BaseSearchInput 
+        :primary-color="primaryColor"
+        @search="handleSearch"
+      />
       <button @click="toggleView" class="list-view__map-button" v-html="mapButtonHTML"></button>
       <button
         v-if="datasets.length > 1"
@@ -187,7 +207,7 @@ const loadMore = () => {
   &__controls {
     display: flex;
     justify-content: flex-end;
-    gap: 1rem;
+    gap: 0.5rem;
     margin-block-end: 0.5rem;
 
     button {

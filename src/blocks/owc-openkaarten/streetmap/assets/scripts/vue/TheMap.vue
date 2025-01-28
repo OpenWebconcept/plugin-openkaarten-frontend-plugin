@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import L from 'leaflet';
 import BaseFilters from './BaseFilters.vue';
 import BaseTooltipCard from './BaseTooltipCard.vue';
@@ -10,6 +10,7 @@ import { makeMarkerIcon } from '../utils/make-marker-icon';
 import { makeTooltipCard } from '../utils/make-tooltip-card';
 import { makeFilterButtonHTML } from '../utils/make-filter-button-html';
 import { makeListViewButtonHTML } from '../utils/make-list-view-button-html';
+import BaseSearchInput from './BaseSearchInput.vue';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 
@@ -39,6 +40,8 @@ const datasetLocations = ref([]);
 const mapRef = ref(null);
 const clusters = ref([]);
 const showListView = ref(false);
+const searchQuery = ref('');
+const searchMarkers = ref([]);
 
 const closeTooltipCard = () => {
 	tooltipCard.value = null;
@@ -64,6 +67,18 @@ const datasetChange = (id, checked) => {
 	} else {
 		map.removeLayer(datalayerCluster);
 	}
+};
+
+// Move attachEvents outside of initializeMap
+const attachEvents = (marker, location, set) => {
+	marker.on('click', () => {
+		tooltipCard.value = makeTooltipCard(location, set);
+	});
+	marker.on('keydown', ({ originalEvent }) => {
+		if (originalEvent.keyCode === 13) {
+			tooltipCard.value = makeTooltipCard(location, set);
+		}
+	});
 };
 
 const initializeMap = (datasets) => {
@@ -145,18 +160,6 @@ const initializeMap = (datasets) => {
 		};
 	});
 
-  // Function to attach events
-  function attachEvents(marker, location, set) {
-    marker.on('click', () => {
-      tooltipCard.value = makeTooltipCard(location, set);
-    });
-    marker.on('keydown', ({ originalEvent }) => {
-      if (originalEvent.keyCode === 13) {
-        tooltipCard.value = makeTooltipCard(location, set);
-      }
-    });
-  }
-
 	L.Control.DataLayerFilters = L.Control.extend({
 		options: {
 			position: 'topleft',
@@ -226,6 +229,95 @@ const initializeMap = (datasets) => {
 
 const emit = defineEmits(['toggleView', 'datasetChange']);
 
+const filteredLocations = computed(() => {
+  if (!searchQuery.value) return [];
+
+  const query = searchQuery.value.toLowerCase();
+  return props.datasets
+    .filter(dataset => props.selectedDatasets.includes(dataset.id))
+    .flatMap(dataset => dataset.features.map(feature => {
+      const tooltipData = feature.properties?.tooltip || [];
+      const address = tooltipData.find(t => t.layout === 'meta')?.meta || '';
+
+      return {
+        ...feature,
+        datasetId: dataset.id,
+        address,
+        matches: address.toLowerCase().includes(query)
+      };
+    }))
+    .filter(location => location.matches);
+});
+
+// Add search handler
+const handleSearch = (query) => {
+  searchQuery.value = query;
+  const map = mapRef.value;
+  
+  // Clear existing search markers
+  searchMarkers.value.forEach(marker => {
+    map.removeLayer(marker);
+  });
+  searchMarkers.value = [];
+
+  if (!query) {
+    // Show all markers again when search is cleared
+    clusters.value.forEach(({ cluster }) => {
+      map.addLayer(cluster);
+    });
+    return;
+  }
+
+  // Hide all regular markers
+  clusters.value.forEach(({ cluster }) => {
+    map.removeLayer(cluster);
+  });
+
+  // Create markers for search results and zoom to bounds
+  const searchBounds = L.latLngBounds();
+  
+  filteredLocations.value.forEach(location => {
+    if (location.geometry.type === 'MultiPoint') {
+      location.geometry.coordinates.forEach(coord => {
+        const latlng = L.latLng(coord[1], coord[0]);
+        addSearchMarker(latlng, location);
+        searchBounds.extend(latlng);
+      });
+    } else {
+      const coords = location.geometry.coordinates;
+      const latlng = L.latLng(coords[1], coords[0]);
+      addSearchMarker(latlng, location);
+      searchBounds.extend(latlng);
+    }
+  });
+
+  if (!searchBounds.isValid()) return;
+
+  // Zoom to results with padding
+  map.fitBounds(searchBounds, {
+    padding: [50, 50],
+    maxZoom: 15
+  });
+};
+
+// Helper function to add search result markers
+const addSearchMarker = (latlng, location) => {
+  const map = mapRef.value;
+  const icon = makeMarkerIcon(L, {
+    marker: location.properties?.marker,
+    defaultColor: props.primaryColor,
+  });
+
+  const marker = new L.Marker(latlng, { 
+    icon,
+    zIndexOffset: 1000 // Ensure search results appear above other markers
+  });
+  
+  attachEvents(marker, location, { id: location.datasetId });
+  marker.addTo(map);
+  searchMarkers.value.push(marker);
+};
+
 onMounted(() => {
 	if (document.getElementById('dataset-map')) {
 		initializeMap(props.datasets);
@@ -241,6 +333,12 @@ onMounted(() => {
 			'--owc-openkaarten-streetmap--cluster-color': props.primaryColor,
 		}"
 	>
+		<div class="owc-openkaarten-streetmap__controls">
+			<BaseSearchInput 
+				:primary-color="primaryColor"
+				@search="handleSearch"
+			/>
+		</div>
 		<div id="dataset-map"></div>
 		<Transition name="fade">
 			<div
@@ -384,6 +482,17 @@ onMounted(() => {
 	.slide-enter-from,
 	.slide-leave-to {
 		transform: translateX(120%);
+	}
+
+	&__controls {
+		position: absolute;
+		inset-block-start: 20px;
+		inset-inline-start: 20px;
+		z-index: 1000;
+		display: flex;
+		gap: 0.5rem;
+		max-width: min(450px, calc(100% - 2rem));
+		width: 100%;
 	}
 }
 </style>
