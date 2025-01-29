@@ -25,12 +25,23 @@ const searchQuery = ref('');
 
 const filteredLocations = computed(() => {
   let locations = props.datasets
-    .filter(dataset => {
-      return props.selectedDatasets.includes(dataset.id) &&
-             !dataset.features.some(feature => feature.geometry?.type === 'Polygon');
-    })
+    .filter(dataset => props.selectedDatasets.includes(dataset.id))
     .flatMap(dataset => dataset.features.map(feature => {
       const tooltipData = feature.properties?.tooltip || [];
+      const coords = feature.geometry.coordinates;
+      
+      // Collect all searchable text
+      const searchableText = [
+        tooltipData.find(t => t.layout === 'meta')?.meta,
+        tooltipData.find(t => t.layout === 'title')?.title,
+        tooltipData.find(t => t.layout === 'text')?.text,
+        feature.properties?.name,
+        feature.properties?.description,
+        coords ? `${coords[1]},${coords[0]}` : null
+      ]
+        .filter(Boolean)
+        .join(' ');
+
       return {
         ...feature,
         datasetId: dataset.id,
@@ -38,15 +49,14 @@ const filteredLocations = computed(() => {
         title: tooltipData.find(t => t.layout === 'title')?.title || feature.title,
         meta: tooltipData.find(t => t.layout === 'meta')?.meta || '',
         text: tooltipData.find(t => t.layout === 'text')?.text || '',
-        button: tooltipData.find(t => t.layout === 'button') || null,
-        image: tooltipData.find(t => t.layout === 'image')?.image || ''
+        searchableText: searchableText.toLowerCase()
       };
     }));
 
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
     locations = locations.filter(location => 
-      location.meta?.toLowerCase().includes(query)
+      location.searchableText.includes(query)
     );
   }
 

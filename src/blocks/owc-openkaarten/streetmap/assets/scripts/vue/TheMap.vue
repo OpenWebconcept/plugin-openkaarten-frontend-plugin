@@ -64,6 +64,8 @@ const clusterOptions = {
   },
 };
 
+const locationAddresses = ref(new Map());
+
 const closeTooltipCard = () => {
 	tooltipCard.value = null;
 	document.getElementById('dataset-map')?.focus();
@@ -285,100 +287,140 @@ const initializeMap = (datasets) => {
 
 const emit = defineEmits(['toggleView', 'datasetChange']);
 
-const filteredLocations = computed(() => {
-  if (!searchQuery.value) return [];
-
-  const query = searchQuery.value.toLowerCase();
-  return props.datasets
-    .filter(dataset => props.selectedDatasets.includes(dataset.id))
-    .flatMap(dataset => dataset.features.map(feature => {
-      const tooltipData = feature.properties?.tooltip || [];
-      const address = tooltipData.find(t => t.layout === 'meta')?.meta || '';
-
-      return {
-        ...feature,
-        datasetId: dataset.id,
-        address,
-        matches: address.toLowerCase().includes(query)
-      };
-    }))
-    .filter(location => location.matches);
-});
-
-// Add search handler
-const handleSearch = (query) => {
-  searchQuery.value = query;
-  const map = mapRef.value;
-  
-  // Clear existing search markers
-  searchMarkers.value.forEach(marker => {
-    map.removeLayer(marker);
-  });
-  searchMarkers.value = [];
-
-  if (!query) {
-    // Show all markers again when search is cleared
-    clusters.value.forEach(({ cluster }) => {
-      map.addLayer(cluster);
-    });
-    return;
-  }
-
-  // Hide all regular markers
-  clusters.value.forEach(({ cluster }) => {
-    map.removeLayer(cluster);
-  });
-
-  // Create markers for search results and zoom to bounds
-  const searchBounds = L.latLngBounds();
-  
-  filteredLocations.value.forEach(location => {
-    if (location.geometry.type === 'MultiPoint') {
-      location.geometry.coordinates.forEach(coord => {
-        const latlng = L.latLng(coord[1], coord[0]);
-        addSearchMarker(latlng, location);
-        searchBounds.extend(latlng);
-      });
-    } else {
-      const coords = location.geometry.coordinates;
-      const latlng = L.latLng(coords[1], coords[0]);
-      addSearchMarker(latlng, location);
-      searchBounds.extend(latlng);
-    }
-  });
-
-  if (!searchBounds.isValid()) return;
-
-  // Zoom to results with padding
-  map.fitBounds(searchBounds, {
-    padding: [50, 50],
-    maxZoom: 15
-  });
-};
-
-// Helper function to add search result markers
-const addSearchMarker = (latlng, location) => {
-  const map = mapRef.value;
-  const icon = makeMarkerIcon(L, {
-    marker: location.properties?.marker,
-    defaultColor: props.primaryColor,
-  });
-
-  const marker = new L.Marker(latlng, { 
-    icon,
-    zIndexOffset: 1000 // Ensure search results appear above other markers
-  });
-  
-  attachEvents(marker, location, { id: location.datasetId });
-  marker.addTo(map);
-  searchMarkers.value.push(marker);
-};
-
-onMounted(() => {
+onMounted(async () => {
 	if (document.getElementById('dataset-map')) {
 		initializeMap(props.datasets);
 	}
 });
+
+const filteredLocations = computed(() => {
+	if (!searchQuery.value) return [];
+
+	const query = searchQuery.value.toLowerCase();
+	return props.datasets
+		.filter(dataset => props.selectedDatasets.includes(dataset.id))
+		.flatMap(dataset => dataset.features.map(feature => {
+			const tooltipData = feature.properties?.tooltip || [];
+			const coords = feature.geometry.coordinates;
+			
+			// Collect all searchable text
+			const searchableText = [
+				// Tooltip data
+				tooltipData.find(t => t.layout === 'meta')?.meta,
+				tooltipData.find(t => t.layout === 'title')?.title,
+				tooltipData.find(t => t.layout === 'text')?.text,
+				// Location data
+				feature.properties?.name,
+				feature.properties?.description,
+				// Coordinates (formatted for search)
+				coords ? `${coords[1]},${coords[0]}` : null
+			]
+				.filter(Boolean) // Remove null/undefined values
+				.join(' ')
+				.toLowerCase();
+
+			return {
+				...feature,
+				datasetId: dataset.id,
+				matches: searchableText.includes(query)
+			};
+		}))
+		.filter(location => location.matches);
+});
+
+// Add search handler
+const handleSearch = (query) => {
+	searchQuery.value = query;
+	const map = mapRef.value;
+	
+	if (!map) return;
+	
+	// Clear existing search markers
+	searchMarkers.value.forEach(marker => {
+		if (marker && map.hasLayer(marker)) {
+			map.removeLayer(marker);
+		}
+	});
+	searchMarkers.value = [];
+
+	if (!query) {
+		// Show all markers again when search is cleared
+		clusters.value.forEach(({ cluster }) => {
+			if (cluster && !map.hasLayer(cluster)) {
+				map.addLayer(cluster);
+			}
+		});
+		return;
+	}
+
+	// Hide all regular markers
+	clusters.value.forEach(({ cluster }) => {
+		if (cluster && map.hasLayer(cluster)) {
+			map.removeLayer(cluster);
+		}
+	});
+
+	// Create markers for search results and zoom to bounds
+	const searchBounds = L.latLngBounds();
+	let hasValidResults = false;
+
+	filteredLocations.value.forEach(location => {
+		if (location?.geometry?.coordinates) {
+			if (location.geometry.type === 'MultiPoint') {
+				location.geometry.coordinates.forEach(coord => {
+					if (Array.isArray(coord) && coord.length >= 2) {
+						const latlng = L.latLng(coord[1], coord[0]);
+						addSearchMarker(latlng, location);
+						searchBounds.extend(latlng);
+						hasValidResults = true;
+					}
+				});
+			} else {
+				const coords = location.geometry.coordinates;
+				if (Array.isArray(coords) && coords.length >= 2) {
+					const latlng = L.latLng(coords[1], coords[0]);
+					addSearchMarker(latlng, location);
+					searchBounds.extend(latlng);
+					hasValidResults = true;
+				}
+			}
+		}
+	});
+
+	if (hasValidResults) {
+		// Zoom to results with padding
+		map.fitBounds(searchBounds, {
+			padding: [50, 50],
+			maxZoom: 15
+		});
+	}
+};
+
+// Helper function to add search result markers
+const addSearchMarker = (latlng, location) => {
+	const map = mapRef.value;
+	if (!map || !latlng || !location) return;
+
+	try {
+		const icon = makeMarkerIcon(L, {
+			marker: location.properties?.marker,
+			defaultColor: props.primaryColor,
+		});
+
+		const marker = new L.Marker(latlng, { 
+			icon,
+			zIndexOffset: 1000 // Ensure search results appear above other markers
+		});
+		
+		if (marker) {
+			attachEvents(marker, location, { id: location.datasetId });
+			marker.addTo(map);
+			searchMarkers.value.push(marker);
+		}
+	} catch (error) {
+		console.error('Error adding search marker:', error);
+	}
+};
 </script>
 
 <template v-cloak>
