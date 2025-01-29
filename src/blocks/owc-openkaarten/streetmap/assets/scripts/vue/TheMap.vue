@@ -42,6 +42,27 @@ const clusters = ref([]);
 const showListView = ref(false);
 const searchQuery = ref('');
 const searchMarkers = ref([]);
+const clusterOptions = {
+  spiderfyOnMaxZoom: true,
+  showCoverageOnHover: false,
+  zoomToBoundsOnClick: true,
+  maxClusterRadius: 40,
+  disableClusteringAtZoom: 13,
+  iconCreateFunction: (cluster) => {
+    const count = cluster.getChildCount();
+    return L.divIcon({
+      html: `
+        <div class="owc-openkaarten-streetmap__cluster-group">
+          <div class="owc-openkaarten-streetmap__cluster-group__circle">
+            <span class="owc-openkaarten-streetmap__cluster-group__count">${count}</span>
+          </div>
+        </div>
+      `,
+      className: '',
+      iconSize: L.point(40, 40),
+    });
+  },
+};
 
 const closeTooltipCard = () => {
 	tooltipCard.value = null;
@@ -81,6 +102,68 @@ const attachEvents = (marker, location, set) => {
 	});
 };
 
+// Helper function to get coordinates from feature
+const getLatLng = (feature) => {
+  const coords = feature.geometry.coordinates;
+  return L.latLng(coords[1], coords[0]);
+};
+
+// Helper function to get color from marker config
+const getColorFromMarker = (markerConfig) => {
+  if (!markerConfig) return props.primaryColor;
+  
+  // If marker has a custom color, use that
+  if (markerConfig.color) return markerConfig.color;
+  
+  // If marker has a custom icon with color, use that
+  if (markerConfig.icon?.color) return markerConfig.icon.color;
+  
+  return props.primaryColor;
+};
+
+// Helper function to create appropriate layer based on feature type
+const createLayer = (feature, dataset) => {
+  if (feature.geometry.type === 'Polygon') {
+    return new L.GeoJSON(feature, {
+      style: () => {
+        const color = getColorFromMarker(feature.properties?.marker);
+        return {
+          color: color,
+          fillColor: color,
+          fillOpacity: 0.2,
+          weight: 2
+        };
+      }
+    });
+  }
+  
+  // Handle MultiPoint features
+  if (feature.geometry.type === 'MultiPoint') {
+    const markers = L.featureGroup();
+    feature.geometry.coordinates.forEach(coord => {
+      const latlng = L.latLng(coord[1], coord[0]);
+      const icon = makeMarkerIcon(L, {
+        marker: feature.properties?.marker,
+        defaultColor: props.primaryColor,
+      });
+      const marker = new L.Marker(latlng, { icon });
+      markers.addLayer(marker);
+    });
+    return markers;
+  }
+
+  // Handle regular points using GeoJSON
+  return new L.GeoJSON(feature, {
+    pointToLayer: (feature, latlng) => {
+      const icon = makeMarkerIcon(L, {
+        marker: feature.properties?.marker,
+        defaultColor: props.primaryColor,
+      });
+      return new L.Marker(latlng, { icon });
+    }
+  });
+};
+
 const initializeMap = (datasets) => {
 	const bounds = calculateBounds(datasets);
 	const { lat, long } = calculateCenter(bounds);
@@ -111,54 +194,27 @@ const initializeMap = (datasets) => {
 	});
 	map.setView([config.centerX, config.centerY], config.defaultZoom);
 
-	const groupedMarkerClusters = datasets.map((set) => {
-		const pane = map.createPane(set.title.replace(' ', '_'));
-		const cluster = makeMarkerCluster({
-			disableClusteringAtZoom: 13,
-			maxClusterRadius: 40,
-			showCoverageOnHover: false,
-			sizeMultiplier: 4,
-			clusterPane: pane,
-			color:
-				set.features[0]?.properties?.marker?.color ||
-				props.primaryColor,
+	const groupedMarkerClusters = datasets
+		.filter((dataset) => props.selectedDatasets.includes(dataset.id))
+		.map((dataset) => {
+			// Create a pane for this dataset
+			const pane = map.createPane(dataset.title.replace(' ', '_'));
+			const cluster = L.markerClusterGroup({
+				...clusterOptions,
+				clusterPane: pane
+			});
+			
+			dataset.features.forEach((feature) => {
+				const layer = createLayer(feature, dataset);
+				attachEvents(layer, feature, dataset);
+				cluster.addLayer(layer);
+			});
+
+			return {
+				id: dataset.id,
+				cluster,
+			};
 		});
-
-    if (!Array.isArray(set.features)) {
-      set.features = [set.features];
-    }
-
-		set.features.forEach((location) => {
-      const icon = makeMarkerIcon(L, {
-        marker: location.properties?.marker,
-        defaultColor: props.primaryColor,
-      });
-
-      // If the location is a MultiPoint, then add the markers directly to the map. If not, add a cluster.
-      if (location.geometry.type === 'MultiPoint') {
-        location.geometry.coordinates.forEach(coord => {
-          const pointLatLng = L.latLng(coord[1], coord[0]);  // Convert coordinates to LatLng.
-          const marker = new L.Marker(pointLatLng, { icon });
-          attachEvents(marker, location, set);
-          map.addLayer(marker);
-        });
-      } else {
-        new L.GeoJSON(location, {
-          pointToLayer: function (feature, latlng) {
-            const marker = new L.Marker(latlng, { icon });
-            attachEvents(marker, location, set);
-            cluster.addLayer(marker);
-          }
-        }).addTo(map);
-      }
-    });
-
-		return {
-			id: set.id,
-			title: set.title,
-			cluster,
-		};
-	});
 
 	L.Control.DataLayerFilters = L.Control.extend({
 		options: {
@@ -337,6 +393,7 @@ onMounted(() => {
 			<BaseSearchInput 
 				:primary-color="primaryColor"
 				@search="handleSearch"
+				:results-count="filteredLocations.length"
 			/>
 		</div>
 		<div id="dataset-map"></div>
@@ -437,9 +494,9 @@ onMounted(() => {
 		.leaflet-custom-icon {
 			&--hosted-svg {
 				.leaflet-svg {
-					width: 24px;
-					height: 24px;
-					padding: 4px;
+					width: 32px;
+					height: 32px;
+					padding: 2px;
 					border-radius: 50% 50% 50% 0;
 					background-color: #fff;
 					border: 4px solid var(--l-icon-color);

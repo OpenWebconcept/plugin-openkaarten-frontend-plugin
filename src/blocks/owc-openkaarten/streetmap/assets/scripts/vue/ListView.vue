@@ -210,7 +210,7 @@ const handleSearch = (query) => {
     gap: 0.5rem;
     margin-block-end: 0.5rem;
 
-    button {
+    button:not([class*="search"]) {
       align-items: center;
       border: 1px solid #328725;
       background-color: #fff;
