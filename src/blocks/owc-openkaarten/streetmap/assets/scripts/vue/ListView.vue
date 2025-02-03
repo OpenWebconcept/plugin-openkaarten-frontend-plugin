@@ -4,6 +4,7 @@ import BaseListCard from './BaseListCard.vue';
 import { makeFilterButtonHTML } from '../utils/make-filter-button-html';
 import { makeMapButtonHTML } from '../utils/make-map-button-html';
 import BaseFilters from './BaseFilters.vue';
+import BaseSearchInput from './BaseSearchInput.vue';
 
 const props = defineProps({
   datasets: {
@@ -20,14 +21,27 @@ const props = defineProps({
   },
 });
 
+const searchQuery = ref('');
+
 const filteredLocations = computed(() => {
-  return props.datasets
-    .filter(dataset => {
-      return props.selectedDatasets.includes(dataset.id) &&
-             !dataset.features.some(feature => feature.geometry?.type === 'Polygon');
-    })
+  let locations = props.datasets
+    .filter(dataset => props.selectedDatasets.includes(dataset.id))
     .flatMap(dataset => dataset.features.map(feature => {
       const tooltipData = feature.properties?.tooltip || [];
+      const coords = feature.geometry.coordinates;
+      
+      // Collect all searchable text
+      const searchableText = [
+        tooltipData.find(t => t.layout === 'meta')?.meta,
+        tooltipData.find(t => t.layout === 'title')?.title,
+        tooltipData.find(t => t.layout === 'text')?.text,
+        feature.properties?.name,
+        feature.properties?.description,
+        coords ? `${coords[1]},${coords[0]}` : null
+      ]
+        .filter(Boolean)
+        .join(' ');
+
       return {
         ...feature,
         datasetId: dataset.id,
@@ -35,10 +49,18 @@ const filteredLocations = computed(() => {
         title: tooltipData.find(t => t.layout === 'title')?.title || feature.title,
         meta: tooltipData.find(t => t.layout === 'meta')?.meta || '',
         text: tooltipData.find(t => t.layout === 'text')?.text || '',
-        button: tooltipData.find(t => t.layout === 'button') || null,
-        image: tooltipData.find(t => t.layout === 'image')?.image || ''
+        searchableText: searchableText.toLowerCase()
       };
     }));
+
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    locations = locations.filter(location => 
+      location.searchableText.includes(query)
+    );
+  }
+
+  return locations;
 });
 
 const emits = defineEmits(['toggleView', 'datasetChange']);
@@ -88,6 +110,10 @@ const loadMore = () => {
     }
   });
 };
+
+const handleSearch = (query) => {
+  searchQuery.value = query;
+};
 </script>
 
 <template>
@@ -100,6 +126,10 @@ const loadMore = () => {
     }"
   >
     <div class="list-view__controls">
+      <BaseSearchInput 
+        :primary-color="primaryColor"
+        @search="handleSearch"
+      />
       <button @click="toggleView" class="list-view__map-button" v-html="mapButtonHTML"></button>
       <button
         v-if="datasets.length > 1"
@@ -187,10 +217,10 @@ const loadMore = () => {
   &__controls {
     display: flex;
     justify-content: flex-end;
-    gap: 1rem;
+    gap: 0.5rem;
     margin-block-end: 0.5rem;
 
-    button {
+    button:not([class*="search"]) {
       align-items: center;
       border: 1px solid #328725;
       background-color: #fff;

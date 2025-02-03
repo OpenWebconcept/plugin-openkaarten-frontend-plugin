@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import L from 'leaflet';
 import BaseFilters from './BaseFilters.vue';
 import BaseTooltipCard from './BaseTooltipCard.vue';
@@ -10,6 +10,7 @@ import { makeMarkerIcon } from '../utils/make-marker-icon';
 import { makeTooltipCard } from '../utils/make-tooltip-card';
 import { makeFilterButtonHTML } from '../utils/make-filter-button-html';
 import { makeListViewButtonHTML } from '../utils/make-list-view-button-html';
+import BaseSearchInput from './BaseSearchInput.vue';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 
@@ -39,6 +40,31 @@ const datasetLocations = ref([]);
 const mapRef = ref(null);
 const clusters = ref([]);
 const showListView = ref(false);
+const searchQuery = ref('');
+const searchMarkers = ref([]);
+const clusterOptions = {
+  spiderfyOnMaxZoom: true,
+  showCoverageOnHover: false,
+  zoomToBoundsOnClick: true,
+  maxClusterRadius: 40,
+  disableClusteringAtZoom: 13,
+  iconCreateFunction: (cluster) => {
+    const count = cluster.getChildCount();
+    return L.divIcon({
+      html: `
+        <div class="owc-openkaarten-streetmap__cluster-group">
+          <div class="owc-openkaarten-streetmap__cluster-group__circle">
+            <span class="owc-openkaarten-streetmap__cluster-group__count">${count}</span>
+          </div>
+        </div>
+      `,
+      className: '',
+      iconSize: L.point(40, 40),
+    });
+  },
+};
+
+const locationAddresses = ref(new Map());
 
 const closeTooltipCard = () => {
 	tooltipCard.value = null;
@@ -64,6 +90,80 @@ const datasetChange = (id, checked) => {
 	} else {
 		map.removeLayer(datalayerCluster);
 	}
+};
+
+// Move attachEvents outside of initializeMap
+const attachEvents = (marker, location, set) => {
+	marker.on('click', () => {
+		tooltipCard.value = makeTooltipCard(location, set);
+	});
+	marker.on('keydown', ({ originalEvent }) => {
+		if (originalEvent.keyCode === 13) {
+			tooltipCard.value = makeTooltipCard(location, set);
+		}
+	});
+};
+
+// Helper function to get coordinates from feature
+const getLatLng = (feature) => {
+  const coords = feature.geometry.coordinates;
+  return L.latLng(coords[1], coords[0]);
+};
+
+// Helper function to get color from marker config
+const getColorFromMarker = (markerConfig) => {
+  if (!markerConfig) return props.primaryColor;
+  
+  // If marker has a custom color, use that
+  if (markerConfig.color) return markerConfig.color;
+  
+  // If marker has a custom icon with color, use that
+  if (markerConfig.icon?.color) return markerConfig.icon.color;
+  
+  return props.primaryColor;
+};
+
+// Helper function to create appropriate layer based on feature type
+const createLayer = (feature, dataset) => {
+  if (feature.geometry.type === 'Polygon') {
+    return new L.GeoJSON(feature, {
+      style: () => {
+        const color = getColorFromMarker(feature.properties?.marker);
+        return {
+          color: color,
+          fillColor: color,
+          fillOpacity: 0.2,
+          weight: 2
+        };
+      }
+    });
+  }
+  
+  // Handle MultiPoint features
+  if (feature.geometry.type === 'MultiPoint') {
+    const markers = L.featureGroup();
+    feature.geometry.coordinates.forEach(coord => {
+      const latlng = L.latLng(coord[1], coord[0]);
+      const icon = makeMarkerIcon(L, {
+        marker: feature.properties?.marker,
+        defaultColor: props.primaryColor,
+      });
+      const marker = new L.Marker(latlng, { icon });
+      markers.addLayer(marker);
+    });
+    return markers;
+  }
+
+  // Handle regular points using GeoJSON
+  return new L.GeoJSON(feature, {
+    pointToLayer: (feature, latlng) => {
+      const icon = makeMarkerIcon(L, {
+        marker: feature.properties?.marker,
+        defaultColor: props.primaryColor,
+      });
+      return new L.Marker(latlng, { icon });
+    }
+  });
 };
 
 const initializeMap = (datasets) => {
@@ -96,66 +196,27 @@ const initializeMap = (datasets) => {
 	});
 	map.setView([config.centerX, config.centerY], config.defaultZoom);
 
-	const groupedMarkerClusters = datasets.map((set) => {
-		const pane = map.createPane(set.title.replace(' ', '_'));
-		const cluster = makeMarkerCluster({
-			disableClusteringAtZoom: 13,
-			maxClusterRadius: 40,
-			showCoverageOnHover: false,
-			sizeMultiplier: 4,
-			clusterPane: pane,
-			color:
-				set.features[0]?.properties?.marker?.color ||
-				props.primaryColor,
+	const groupedMarkerClusters = datasets
+		.filter((dataset) => props.selectedDatasets.includes(dataset.id))
+		.map((dataset) => {
+			// Create a pane for this dataset
+			const pane = map.createPane(dataset.title.replace(' ', '_'));
+			const cluster = L.markerClusterGroup({
+				...clusterOptions,
+				clusterPane: pane
+			});
+			
+			dataset.features.forEach((feature) => {
+				const layer = createLayer(feature, dataset);
+				attachEvents(layer, feature, dataset);
+				cluster.addLayer(layer);
+			});
+
+			return {
+				id: dataset.id,
+				cluster,
+			};
 		});
-
-    if (!Array.isArray(set.features)) {
-      set.features = [set.features];
-    }
-
-		set.features.forEach((location) => {
-      const icon = makeMarkerIcon(L, {
-        marker: location.properties?.marker,
-        defaultColor: props.primaryColor,
-      });
-
-      // If the location is a MultiPoint, then add the markers directly to the map. If not, add a cluster.
-      if (location.geometry.type === 'MultiPoint') {
-        location.geometry.coordinates.forEach(coord => {
-          const pointLatLng = L.latLng(coord[1], coord[0]);  // Convert coordinates to LatLng.
-          const marker = new L.Marker(pointLatLng, { icon });
-          attachEvents(marker, location, set);
-          map.addLayer(marker);
-        });
-      } else {
-        new L.GeoJSON(location, {
-          pointToLayer: function (feature, latlng) {
-            const marker = new L.Marker(latlng, { icon });
-            attachEvents(marker, location, set);
-            cluster.addLayer(marker);
-          }
-        }).addTo(map);
-      }
-    });
-
-		return {
-			id: set.id,
-			title: set.title,
-			cluster,
-		};
-	});
-
-  // Function to attach events
-  function attachEvents(marker, location, set) {
-    marker.on('click', () => {
-      tooltipCard.value = makeTooltipCard(location, set);
-    });
-    marker.on('keydown', ({ originalEvent }) => {
-      if (originalEvent.keyCode === 13) {
-        tooltipCard.value = makeTooltipCard(location, set);
-      }
-    });
-  }
 
 	L.Control.DataLayerFilters = L.Control.extend({
 		options: {
@@ -226,11 +287,140 @@ const initializeMap = (datasets) => {
 
 const emit = defineEmits(['toggleView', 'datasetChange']);
 
-onMounted(() => {
+onMounted(async () => {
 	if (document.getElementById('dataset-map')) {
 		initializeMap(props.datasets);
 	}
 });
+
+const filteredLocations = computed(() => {
+	if (!searchQuery.value) return [];
+
+	const query = searchQuery.value.toLowerCase();
+	return props.datasets
+		.filter(dataset => props.selectedDatasets.includes(dataset.id))
+		.flatMap(dataset => dataset.features.map(feature => {
+			const tooltipData = feature.properties?.tooltip || [];
+			const coords = feature.geometry.coordinates;
+			
+			// Collect all searchable text
+			const searchableText = [
+				// Tooltip data
+				tooltipData.find(t => t.layout === 'meta')?.meta,
+				tooltipData.find(t => t.layout === 'title')?.title,
+				tooltipData.find(t => t.layout === 'text')?.text,
+				// Location data
+				feature.properties?.name,
+				feature.properties?.description,
+				// Coordinates (formatted for search)
+				coords ? `${coords[1]},${coords[0]}` : null
+			]
+				.filter(Boolean) // Remove null/undefined values
+				.join(' ')
+				.toLowerCase();
+
+			return {
+				...feature,
+				datasetId: dataset.id,
+				matches: searchableText.includes(query)
+			};
+		}))
+		.filter(location => location.matches);
+});
+
+// Add search handler
+const handleSearch = (query) => {
+	searchQuery.value = query;
+	const map = mapRef.value;
+	
+	if (!map) return;
+	
+	// Clear existing search markers
+	searchMarkers.value.forEach(marker => {
+		if (marker && map.hasLayer(marker)) {
+			map.removeLayer(marker);
+		}
+	});
+	searchMarkers.value = [];
+
+	if (!query) {
+		// Show all markers again when search is cleared
+		clusters.value.forEach(({ cluster }) => {
+			if (cluster && !map.hasLayer(cluster)) {
+				map.addLayer(cluster);
+			}
+		});
+		return;
+	}
+
+	// Hide all regular markers
+	clusters.value.forEach(({ cluster }) => {
+		if (cluster && map.hasLayer(cluster)) {
+			map.removeLayer(cluster);
+		}
+	});
+
+	// Create markers for search results and zoom to bounds
+	const searchBounds = L.latLngBounds();
+	let hasValidResults = false;
+
+	filteredLocations.value.forEach(location => {
+		if (location?.geometry?.coordinates) {
+			if (location.geometry.type === 'MultiPoint') {
+				location.geometry.coordinates.forEach(coord => {
+					if (Array.isArray(coord) && coord.length >= 2) {
+						const latlng = L.latLng(coord[1], coord[0]);
+						addSearchMarker(latlng, location);
+						searchBounds.extend(latlng);
+						hasValidResults = true;
+					}
+				});
+			} else {
+				const coords = location.geometry.coordinates;
+				if (Array.isArray(coords) && coords.length >= 2) {
+					const latlng = L.latLng(coords[1], coords[0]);
+					addSearchMarker(latlng, location);
+					searchBounds.extend(latlng);
+					hasValidResults = true;
+				}
+			}
+		}
+	});
+
+	if (hasValidResults) {
+		// Zoom to results with padding
+		map.fitBounds(searchBounds, {
+			padding: [50, 50],
+			maxZoom: 15
+		});
+	}
+};
+
+// Helper function to add search result markers
+const addSearchMarker = (latlng, location) => {
+	const map = mapRef.value;
+	if (!map || !latlng || !location) return;
+
+	try {
+		const icon = makeMarkerIcon(L, {
+			marker: location.properties?.marker,
+			defaultColor: props.primaryColor,
+		});
+
+		const marker = new L.Marker(latlng, { 
+			icon,
+			zIndexOffset: 1000 // Ensure search results appear above other markers
+		});
+		
+		if (marker) {
+			attachEvents(marker, location, { id: location.datasetId });
+			marker.addTo(map);
+			searchMarkers.value.push(marker);
+		}
+	} catch (error) {
+		console.error('Error adding search marker:', error);
+	}
+};
 </script>
 
 <template v-cloak>
@@ -241,6 +431,13 @@ onMounted(() => {
 			'--owc-openkaarten-streetmap--cluster-color': props.primaryColor,
 		}"
 	>
+		<div class="owc-openkaarten-streetmap__controls">
+			<BaseSearchInput 
+				:primary-color="primaryColor"
+				@search="handleSearch"
+				:results-count="filteredLocations.length"
+			/>
+		</div>
 		<div id="dataset-map"></div>
 		<Transition name="fade">
 			<div
@@ -339,9 +536,9 @@ onMounted(() => {
 		.leaflet-custom-icon {
 			&--hosted-svg {
 				.leaflet-svg {
-					width: 24px;
-					height: 24px;
-					padding: 4px;
+					width: 32px;
+					height: 32px;
+					padding: 2px;
 					border-radius: 50% 50% 50% 0;
 					background-color: #fff;
 					border: 4px solid var(--l-icon-color);
@@ -384,6 +581,17 @@ onMounted(() => {
 	.slide-enter-from,
 	.slide-leave-to {
 		transform: translateX(120%);
+	}
+
+	&__controls {
+		position: absolute;
+		inset-block-start: 20px;
+		inset-inline-start: 20px;
+		z-index: 1000;
+		display: flex;
+		gap: 0.5rem;
+		max-width: min(450px, calc(100% - 2rem));
+		width: 100%;
 	}
 }
 </style>
