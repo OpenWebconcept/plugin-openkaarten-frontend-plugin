@@ -78,14 +78,32 @@ class Proxy_Datasets_Endpoint {
 
 		// Handle errors in the response.
 		if ( is_wp_error( $response ) ) {
-			error_log( 'Fetch error: ' . $response->get_error_message() );
-			return new WP_Error( 'fetch_error', 'Failed to fetch data', [ 'status' => 500 ] );
+			$error_message = $response->get_error_message();
+			error_log( 'Fetch error: ' . $error_message );
+
+			return new WP_REST_Response(
+				[
+					'error'      => true,
+					'message'    => 'Failed to fetch data',
+					'debug_info' => $error_message,
+				],
+				500
+			);
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
-			error_log( 'Unexpected HTTP status code: ' . $status_code );
-			return new WP_Error( 'http_error', "HTTP request failed with status $status_code", [ 'status' => $status_code ] );
+			$error_message = "Unexpected HTTP status code: $status_code";
+			error_log( $error_message );
+
+			return new WP_REST_Response(
+				[
+					'error'      => true,
+					'message'    => "HTTP request failed with status $status_code",
+					'debug_info' => $error_message,
+				],
+				$status_code
+			);
 		}
 
 		$body = wp_remote_retrieve_body( $response );
