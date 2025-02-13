@@ -10,6 +10,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  resultsCount: {
+    type: Number,
+    default: 0
+  },
 });
 
 const emit = defineEmits(['search']);
@@ -25,6 +29,11 @@ const clearSearch = () => {
   emit('search', '');
 };
 
+const searchStatus = computed(() => {
+  if (!searchQuery.value) return '';
+  return `${props.resultsCount} resultaten gevonden voor "${searchQuery.value}"`;
+});
+
 </script>
 
 <template>
@@ -34,16 +43,16 @@ const clearSearch = () => {
       class="search-form"
       :style="{ '--search-primary-color': primaryColor }"
     >
-      <label class="sr-only" for="location-search">Zoeken op locatie</label>
+      <label class="sr-only" for="location-search">Zoek op straat en/of plaats of postcode</label>
       <div class="search-wrapper">
-        <div 
+        <div
           role="status" 
           aria-live="polite" 
           aria-atomic="true" 
           class="sr-only"
         >
+          <span>{{ searchStatus }}</span>
         </div>
-        
         <input
           id="location-search"
           type="search"
@@ -119,6 +128,26 @@ const clearSearch = () => {
   &:focus {
     outline: 2px solid var(--search-primary-color);
     outline-offset: 2px;
+  }
+
+  input[type="search"]::-ms-clear {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  &::-ms-reveal {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  /* clears the 'X' in searchbar from Chrome */
+  &::-webkit-search-decoration,
+  &::-webkit-search-cancel-button,
+  &::-webkit-search-results-button,
+  &::-webkit-search-results-decoration {
+    display: none;
   }
 }
 

@@ -36,12 +36,10 @@ const props = defineProps({
 
 const tooltipCard = ref(null);
 const showFiltersCard = ref(false);
-const datasetLocations = ref([]);
 const mapRef = ref(null);
 const clusters = ref([]);
-const showListView = ref(false);
 const searchQuery = ref('');
-const searchMarkers = ref([]);
+const resultsCount = ref(0);
 const clusterOptions = {
   spiderfyOnMaxZoom: true,
   showCoverageOnHover: false,
@@ -63,8 +61,6 @@ const clusterOptions = {
     });
   },
 };
-
-const locationAddresses = ref(new Map());
 
 const closeTooltipCard = () => {
 	tooltipCard.value = null;
@@ -102,12 +98,6 @@ const attachEvents = (marker, location, set) => {
 			tooltipCard.value = makeTooltipCard(location, set);
 		}
 	});
-};
-
-// Helper function to get coordinates from feature
-const getLatLng = (feature) => {
-  const coords = feature.geometry.coordinates;
-  return L.latLng(coords[1], coords[0]);
 };
 
 // Helper function to get color from marker config
@@ -293,41 +283,6 @@ onMounted(async () => {
 	}
 });
 
-const filteredLocations = computed(() => {
-	if (!searchQuery.value) return [];
-
-	const query = searchQuery.value.toLowerCase();
-	return props.datasets
-		.filter(dataset => props.selectedDatasets.includes(dataset.id))
-		.flatMap(dataset => dataset.features.map(feature => {
-			const tooltipData = feature.properties?.tooltip || [];
-			const coords = feature.geometry.coordinates;
-			
-			// Collect all searchable text
-			const searchableText = [
-				// Tooltip data
-				tooltipData.find(t => t.layout === 'meta')?.meta,
-				tooltipData.find(t => t.layout === 'title')?.title,
-				tooltipData.find(t => t.layout === 'text')?.text,
-				// Location data
-				feature.properties?.name,
-				feature.properties?.description,
-				// Coordinates (formatted for search)
-				coords ? `${coords[1]},${coords[0]}` : null
-			]
-				.filter(Boolean) // Remove null/undefined values
-				.join(' ')
-				.toLowerCase();
-
-			return {
-				...feature,
-				datasetId: dataset.id,
-				matches: searchableText.includes(query)
-			};
-		}))
-		.filter(location => location.matches);
-});
-
 // Add search handler
 const handleSearch = async (query) => {
   searchQuery.value = query;
@@ -364,6 +319,7 @@ const handleSearch = async (query) => {
 
       // Add new targetMarker.
       targetMarker.addTo(map);
+      resultsCount.value = results.length ? 1 : 0
       targetMarker.bindPopup("Gevonden locatie");
     }
   } catch (error) {
@@ -384,8 +340,8 @@ const handleSearch = async (query) => {
 			<BaseSearchInput
         :placeholder="'Zoek op straat en/of plaats of postcode'"
 				:primary-color="primaryColor"
+        :results-count="resultsCount"
 				@search="handleSearch"
-				:results-count="filteredLocations.length"
 			/>
 		</div>
 		<div id="dataset-map"></div>

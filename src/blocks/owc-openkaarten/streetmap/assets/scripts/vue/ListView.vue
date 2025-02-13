@@ -128,6 +128,7 @@ const handleSearch = (query) => {
     <div class="list-view__controls">
       <BaseSearchInput 
         :primary-color="primaryColor"
+        :results-count="filteredLocations.length"
         @search="handleSearch"
       />
       <button @click="toggleView" class="list-view__map-button" v-html="mapButtonHTML"></button>
