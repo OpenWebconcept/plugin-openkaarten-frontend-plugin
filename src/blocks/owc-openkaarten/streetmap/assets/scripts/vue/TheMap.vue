@@ -196,7 +196,11 @@ const initializeMap = (datasets) => {
 				...clusterOptions,
 				clusterPane: pane
 			});
-			
+
+			if (dataset.features.constructor !== Array) {
+				dataset.features = [dataset.features];
+			}
+
 			dataset.features.forEach((feature) => {
 				const layer = createLayer(feature, dataset);
 				attachEvents(layer, feature, dataset);
