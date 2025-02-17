@@ -310,7 +310,7 @@ const handleSearch = async (query) => {
       const targetMarker = L.marker(latLng, {icon:targetIcon})
 
       if (map && map._loaded) {
-        map.setView(latLng, 15);
+        map.flyTo(latLng, 15, { animate: true, duration: 1 });
       } // Zoom in on the found location.
 
       // remove old targetMarker if present.
