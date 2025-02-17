@@ -323,6 +323,13 @@ const handleSearch = async (query) => {
       targetMarker.addTo(map);
       resultsCount.value = results.length ? 1 : 0
       targetMarker.bindPopup("Gevonden locatie");
+
+      // Fix marker repositioning issue on zoom
+      map.on("zoomend", () => {
+        if (lastSearchMarker.value) {
+          lastSearchMarker.value.setLatLng(lastSearchMarker.value.getLatLng());
+        }
+      });
     }
   } catch (error) {
     console.error("Error in retrieving location:", error);
