@@ -307,29 +307,19 @@ const handleSearch = async (query) => {
         popupAnchor: [8, -7]
       });
 
-      const targetMarker = L.marker(latLng, {icon:targetIcon})
-
       if (map && map._loaded) {
+        map.once('zoomend', () => {
+          if (lastSearchMarker.value) {
+            map.removeLayer(lastSearchMarker.value);
+          }
+          const targetMarker = L.marker(latLng, { icon: targetIcon });
+          targetMarker.addTo(map);
+          targetMarker.bindPopup("Gevonden locatie");
+          lastSearchMarker.value = targetMarker;
+        });
         map.flyTo(latLng, 15, { animate: true, duration: 1 });
-      } // Zoom in on the found location.
-
-      // remove old targetMarker if present.
-      if (lastSearchMarker.value) {
-        map.removeLayer(lastSearchMarker.value);
       }
-      lastSearchMarker.value = targetMarker;
-
-      // Add new targetMarker.
-      targetMarker.addTo(map);
       resultsCount.value = results.length ? 1 : 0
-      targetMarker.bindPopup("Gevonden locatie");
-
-      // Fix marker repositioning issue on zoom
-      map.on("zoomend", () => {
-        if (lastSearchMarker.value) {
-          lastSearchMarker.value.setLatLng(lastSearchMarker.value.getLatLng());
-        }
-      });
     }
   } catch (error) {
     console.error("Error in retrieving location:", error);
