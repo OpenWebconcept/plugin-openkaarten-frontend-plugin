@@ -1,4 +1,5 @@
 <script setup>
+import '../utils/create-nonce.js';
 import {defineProps, onMounted, ref, nextTick} from 'vue';
 import BaseAlert from './BaseAlert.vue';
 import BaseLoader from './BaseLoader.vue';
