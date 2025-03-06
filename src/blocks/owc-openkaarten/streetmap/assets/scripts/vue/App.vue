@@ -249,7 +249,9 @@ onMounted(() => {
 
 .owc-openkaarten-streetmap-container {
   margin-inline: auto;
-  width: min(calc(100% - 32px), 1440px);
+  @media only screen and (min-width: 768px) {
+    width: min(calc(100% - 32px), 1440px);
+  }
 }
 
 .owc-openkaarten-streetmap *:focus-visible {

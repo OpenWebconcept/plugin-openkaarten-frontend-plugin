@@ -251,9 +251,9 @@ const initializeMap = (datasets) => {
 					emit('toggleView');
 				});
 
-			const title = 'Lijst weergave';
+			const title = 'Lijst';
 			btn.title = title;
-			btn.innerHTML = makeListViewButtonHTML('Lijst weergave', props.primaryColor);
+			btn.innerHTML = makeListViewButtonHTML('Lijst', props.primaryColor);
 
 			return btn;
 		},
@@ -428,8 +428,12 @@ const handleSearch = async (query) => {
 	}
 
 	&__map {
+    padding-top: 80px;
 		position: relative;
 		overflow: hidden;
+    @media only screen and (min-width: 768px) {
+      padding-top: 0;
+    }
 		.leaflet-marker-icon {
 			&:focus-visible {
 				border-radius: 50%;
@@ -491,12 +495,18 @@ const handleSearch = async (query) => {
 	&__controls {
 		position: absolute;
 		inset-block-start: 20px;
-		inset-inline-start: 20px;
+		inset-inline-start: 10px;
 		z-index: 1000;
 		display: flex;
 		gap: 0.5rem;
-		max-width: min(450px, calc(100% - 2rem));
 		width: 100%;
+    @media only screen and (min-width: 768px) {
+      inset-inline-start: 20px;
+      max-width: min(340px, calc(100% - 2rem));
+    }
+    @media only screen and (min-width: 900px) {
+      max-width: min(450px, calc(100% - 2rem));
+    }
 	}
 }
 </style>
