@@ -76,7 +76,7 @@ const toggleView = () => {
 };
 
 const filterButtonHTML = computed(() => makeFilterButtonHTML('Filter', props.primaryColor));
-const mapButtonHTML = computed(() => makeMapButtonHTML('Kaart weergave', props.primaryColor));
+const mapButtonHTML = computed(() => makeMapButtonHTML('Kaart', props.primaryColor));
 
 const handleDatasetChange = (id, checked) => {
   emits('datasetChange', id, checked);
@@ -217,10 +217,12 @@ const handleSearch = (query) => {
 
   &__controls {
     display: flex;
-    justify-content: flex-end;
+    flex-wrap: wrap;
     gap: 0.5rem;
     margin-block-end: 0.5rem;
-
+    @media only screen and (min-width: 768px) {
+      justify-content: flex-end;
+    }
     button:not([class*="search"]) {
       align-items: center;
       border: 1px solid #328725;
