@@ -502,7 +502,7 @@ const handleSearch = async (query) => {
 		width: 100%;
     @media only screen and (min-width: 768px) {
       inset-inline-start: 20px;
-      max-width: min(340px, calc(100% - 2rem));
+      max-width: min(300px, calc(100% - 2rem));
     }
     @media only screen and (min-width: 900px) {
       max-width: min(450px, calc(100% - 2rem));
