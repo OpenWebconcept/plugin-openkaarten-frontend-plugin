@@ -253,7 +253,7 @@ const initializeMap = (datasets) => {
 
 			const title = 'Lijst';
 			btn.title = title;
-			btn.innerHTML = makeListViewButtonHTML('Lijst', props.primaryColor);
+			btn.innerHTML = makeListViewButtonHTML(title, props.primaryColor);
 
 			return btn;
 		},
@@ -502,10 +502,10 @@ const handleSearch = async (query) => {
 		width: 100%;
     @media only screen and (min-width: 768px) {
       inset-inline-start: 20px;
-      max-width: min(300px, calc(100% - 2rem));
+      max-inline-size: min(300px, calc(100% - 2rem));
     }
     @media only screen and (min-width: 900px) {
-      max-width: min(450px, calc(100% - 2rem));
+      max-inline-size: min(450px, calc(100% - 2rem));
     }
 	}
 }
