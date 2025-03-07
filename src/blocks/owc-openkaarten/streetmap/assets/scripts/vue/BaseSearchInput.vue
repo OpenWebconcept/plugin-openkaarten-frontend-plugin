@@ -131,9 +131,9 @@ const searchStatus = computed(() => {
   font-size: 1rem;
   &::placeholder {
     overflow: visible;
-    font-size: 14px;
+    font-size: .875rem;
     @media only screen and (min-width: 768px) {
-      font-size: 16px;
+      font-size: 1rem;
     }
   }
 
