@@ -25,6 +25,7 @@ export const makeMarkerCluster = ({
 			if (clusterGroupSize > cluserGroupMaxSize) {
 				clusterGroupSize = cluserGroupMaxSize;
 			}
+			console.log('Making marker cluster');
 			return L.divIcon({
 				html: `
                 <div 
