@@ -17,6 +17,7 @@ export const makeMarkerIcon = (L, { marker, defaultColor }) => {
 	};
 
 	if (iconType === 'inline-svg') {
+		console.log('Creating inline marker icon')
 		return L.divIcon({
 			className: 'leaflet-custom-icon',
 			html: L.Util.template(iconSettings.iconUrl, iconSettings),
@@ -25,10 +26,11 @@ export const makeMarkerIcon = (L, { marker, defaultColor }) => {
 			popupAnchor: [0, -28],
 		});
 	} else {
+		console.log('Creating div marker icon')
 		return L.divIcon({
 			className: 'leaflet-custom-icon--hosted-svg',
 			html: L.Util.template(
-				`<div style="--l-icon-color: ${iconColor};" class="leaflet-svg"><img src=${iconSettings.iconUrl} /></div>`,
+				`<div /*style="--l-icon-color: ${iconColor};"*/ class="leaflet-svg"><img src=${iconSettings.iconUrl} /></div>`,
 				iconSettings
 			),
 			iconAnchor: [12, 32],
