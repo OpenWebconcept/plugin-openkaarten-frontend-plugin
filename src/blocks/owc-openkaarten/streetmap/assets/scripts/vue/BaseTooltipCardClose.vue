@@ -13,11 +13,10 @@ const emit = defineEmits(['closeCard']);
 	<button
 		class="owc-openkaarten-streetmap__tooltip-card__close-btn"
     aria-label="Sluit"
-		:style="{
-			'--owc-openkaarten-streetmap--close-btn-color': primaryColor,
-		}"
+		:data-primary-color="primaryColor"
 		@click="$emit('closeCard')"
 	>
+<!--    :style="{ '--owc-openkaarten-streetmap--close-btn-color': primaryColor, }"-->
 		<svg
 			width="20"
 			height="20"

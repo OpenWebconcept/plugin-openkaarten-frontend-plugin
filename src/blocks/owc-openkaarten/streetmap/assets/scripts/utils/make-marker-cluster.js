@@ -29,8 +29,9 @@ export const makeMarkerCluster = ({
 				html: `
                 <div 
                     class="owc-openkaarten-streetmap__cluster-group__circle"
-                    style="--owc-openkaarten-streetmap--cluster-color: ${color};"
+                    data-cluster-color="${color};"
                     >
+<!--                    style="--owc-openkaarten-streetmap--cluster-color: ${color};"-->
                     <span class="owc-openkaarten-streetmap__cluster-group__count">${count}</span>
                 </div>`,
 				className: 'owc-openkaarten-streetmap__cluster-group',
