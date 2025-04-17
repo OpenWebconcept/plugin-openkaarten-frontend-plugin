@@ -120,7 +120,17 @@ async function getLocations() {
     })
         .then((response) => {
           if (!response.ok) {
-            throw new Error(`Proxy error: ${response.status}`);
+            // Try to read the JSON error information.
+            return response.json()
+                .then(errData => {
+                  console.error('Server error response:', errData);
+                  error.value = `Status ${response.status} ${errData.debug_info}`
+                  throw new Error(errData.message || `HTTP ${response.status}`);
+                })
+                .catch(() => {
+                  // Fallback if JSON is not available.
+                  throw new Error(`Proxy error: ${response.status}`);
+                });
           }
           return response.json();
         })
@@ -130,6 +140,7 @@ async function getLocations() {
             try {
               data = JSON.parse(data);  // Parse again if it's a JSON string.
             } catch (error) {
+              console.error('Parsing error', error)
               datasets.value = ([]);
               return;
             }
@@ -139,14 +150,18 @@ async function getLocations() {
             datasets.value = data.datasets;
             initializeSelectedDatasets(); // Initialize after datasets are loaded
           } else {
+            error.value = "Unexpected response format or 'datasets' is not an array."
             console.error("Unexpected response format or 'datasets' is not an array.");
             datasets.value = ([]);  // Fallback to empty array if structure is unexpected.
           }
           loading.value = false;
         })
         .catch((err) => {
-          console.error("Error in proxy response:", err);
-          error.value = err.message;
+          if (err.response && err.response.status === 500) {
+            error.value = 'The server might be having issues, please try again later';
+          } else if (err.message.includes('500')) {
+            error.value = 'The server is busy at the moment, please try again later';
+          }
           loading.value = false;
         });
   } else {
@@ -256,7 +271,9 @@ onMounted(() => {
 
 .owc-openkaarten-streetmap-container {
   margin-inline: auto;
-  width: min(calc(100% - 32px), 1440px);
+  @media only screen and (min-width: 768px) {
+    width: min(calc(100% - 32px), 1440px);
+  }
 }
 
 .owc-openkaarten-streetmap *:focus-visible {

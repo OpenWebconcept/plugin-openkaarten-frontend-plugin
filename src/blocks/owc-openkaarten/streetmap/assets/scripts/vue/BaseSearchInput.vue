@@ -104,7 +104,12 @@ const searchStatus = computed(() => {
 .search-container {
   display: block;
   flex-grow: 1;
+  width: 100%;
   margin-inline-end: 1.5rem;
+  @media only screen and (min-width: 768px) {
+    width: auto;
+    margin-inline-end: 1.5rem;
+  }
 }
 
 .search-form {
@@ -121,10 +126,17 @@ const searchStatus = computed(() => {
 .search-input {
   width: 100%;
   padding: 0.75rem 1rem;
-  padding-inline-end: 5rem; // Space for both buttons
+  padding-inline-end: 4.5rem; // Space for both buttons
   border: 1px solid #7a7a7a;
   border-radius: 4px;
   font-size: 1rem;
+  &::placeholder {
+    overflow: visible;
+    font-size: .875rem;
+    @media only screen and (min-width: 768px) {
+      font-size: 1rem;
+    }
+  }
 
   &:focus {
     outline: 2px solid var(--search-primary-color);
