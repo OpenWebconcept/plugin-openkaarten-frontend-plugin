@@ -198,7 +198,7 @@ function stripCredentialsFromUrl(url) {
 onMounted(() => {
   getLocations();
 
-  document.querySelectorAll('[data-primary-color]').forEach(el => {
+  document.querySelectorAll('[data-primary-color]')?.forEach(el => {
     const color = el.getAttribute('data-primary-color');
     el.style.setProperty('--owc-filters-primary', color);
     el.style.setProperty('--owc-openkaarten-streetmap--primary-color', color);
@@ -206,15 +206,15 @@ onMounted(() => {
     el.style.setProperty('--owc-openkaarten-streetmap--close-btn-color', color);
     el.style.setProperty('--button-color', color);
   });
-  document.querySelectorAll('[data-cluster-color]').forEach(el => {
+  document.querySelectorAll('[data-cluster-color]')?.forEach(el => {
     const color = el.getAttribute('data-cluster-color');
     el.style.setProperty('--owc-openkaarten-streetmap--cluster-color', color);
   });
-  document.querySelectorAll('[data-background-color]').forEach(el => {
+  document.querySelectorAll('[data-background-color]')?.forEach(el => {
     const color = el.getAttribute('data-background-color');
-    el.style.setProperty('background-color', color);
+    el.style.backgroundColor = color;
   });
-  document.querySelectorAll('[data-icon-color]').forEach(el => {
+  document.querySelectorAll('[data-icon-color]')?.forEach(el => {
     const color = el.getAttribute('data-icon-color');
     el.style.setProperty('--l-icon-color', color);
   });
