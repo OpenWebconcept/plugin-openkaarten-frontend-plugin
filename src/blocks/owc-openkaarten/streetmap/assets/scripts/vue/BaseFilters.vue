@@ -131,7 +131,6 @@ onUnmounted(() => {
 		aria-labelledby="filters-title"
 		aria-describedby="filters-description"
 	>
-<!--    :style="{ '--owc-filters-primary': primaryColor }"-->
 		<div class="owc-openkaarten-streetmap__filters__header">
 			<h5 id="filters-title">{{ title }}</h5>
 			<BaseTooltipCardClose
