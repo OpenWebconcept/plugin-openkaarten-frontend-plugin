@@ -123,11 +123,6 @@ const handleSearch = (query) => {
     :data-primary-color="primaryColor"
     data-filters-secondary="#d2d2d2"
   >
-    <!--    :style="{-->
-    <!--      '--owc-filters-primary': primaryColor,-->
-    <!--      '--owc-openkaarten-streetmap--primary-color': primaryColor,-->
-    <!--      '--owc-filters-secondary': '#d2d2d2'-->
-    <!--    }"-->
     <div class="list-view__controls">
       <BaseSearchInput 
         :primary-color="primaryColor"
@@ -202,7 +197,6 @@ const handleSearch = (query) => {
         class="list-view__load-more"
         :data-primary-color="primaryColor"
       >
-<!--        :style="{ '--button-color': primaryColor }"-->
         Toon meer resultaten ({{ paginatedLocations.length }} van {{ filteredLocations.length }})
       </button>
     </ul>

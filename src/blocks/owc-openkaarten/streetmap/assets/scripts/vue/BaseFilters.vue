@@ -158,7 +158,6 @@ onUnmounted(() => {
 						:data-background-color="getDatalayerColor(layer)"
 						class="owc-openkaarten-streetmap__filters__body__list-item__dl-indicator"
 					/>
-<!--          :style="{'background-color': getDatalayerColor(layer)}"-->
 				</li>
 			</ul>
 		</div>

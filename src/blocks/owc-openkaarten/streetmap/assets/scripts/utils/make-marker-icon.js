@@ -28,7 +28,6 @@ export const makeMarkerIcon = (L, { marker, defaultColor }) => {
 		return L.divIcon({
 			className: 'leaflet-custom-icon--hosted-svg',
 			html: L.Util.template(
-        // style="--l-icon-color: ${iconColor};"
 				`<div data-icon-color="${iconColor};" class="leaflet-svg"><img src=${iconSettings.iconUrl} /></div>`,
 				iconSettings
 			),

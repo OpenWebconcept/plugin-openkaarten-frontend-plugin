@@ -337,8 +337,6 @@ const handleSearch = async (query) => {
 		:data-primary-color="primaryColor"
 		:data-cluster-color="props.primaryColor"
 	>
-<!--    :style="{'--owc-openkaarten-streetmap--primary-color': primaryColor,-->
-<!--    '--owc-openkaarten-streetmap--cluster-color': props.primaryColor, }"-->
 		<div class="owc-openkaarten-streetmap__controls">
 			<BaseSearchInput
         :placeholder="'Zoek op straat en/of plaats of postcode'"

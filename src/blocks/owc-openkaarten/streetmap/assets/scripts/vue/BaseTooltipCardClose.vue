@@ -16,7 +16,6 @@ const emit = defineEmits(['closeCard']);
 		:data-primary-color="primaryColor"
 		@click="$emit('closeCard')"
 	>
-<!--    :style="{ '--owc-openkaarten-streetmap--close-btn-color': primaryColor, }"-->
 		<svg
 			width="20"
 			height="20"
