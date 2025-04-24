@@ -199,7 +199,6 @@ onMounted(() => {
   getLocations();
 
   document.querySelectorAll('[data-primary-color]')?.forEach(el => {
-    console.log('el', el.parentElement)
     const color = el.getAttribute('data-primary-color');
     el.parentElement.style.setProperty('--owc-filters-primary', color);
     el.parentElement.style.setProperty('--owc-openkaarten-streetmap--primary-color', color);
