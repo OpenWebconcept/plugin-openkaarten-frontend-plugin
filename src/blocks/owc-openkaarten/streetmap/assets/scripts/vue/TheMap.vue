@@ -334,10 +334,8 @@ const handleSearch = async (query) => {
 <template v-cloak>
 	<div
 		class="owc-openkaarten-streetmap__map"
-		:style="{
-			'--owc-openkaarten-streetmap--primary-color': primaryColor,
-			'--owc-openkaarten-streetmap--cluster-color': props.primaryColor,
-		}"
+		:data-primary-color="primaryColor"
+		:data-cluster-color="props.primaryColor"
 	>
 		<div class="owc-openkaarten-streetmap__controls">
 			<BaseSearchInput

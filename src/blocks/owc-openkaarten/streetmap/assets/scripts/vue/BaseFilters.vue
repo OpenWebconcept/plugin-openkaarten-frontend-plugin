@@ -125,12 +125,13 @@ onUnmounted(() => {
 	<div
 		ref="filterContainer"
 		class="owc-openkaarten-streetmap__filters"
-		:style="{ '--owc-filters-primary': primaryColor }"
-		role="dialog"
+		:data-primary-color="primaryColor"
+    role="dialog"
 		aria-modal="true"
 		aria-labelledby="filters-title"
 		aria-describedby="filters-description"
 	>
+<!--    :style="{ '--owc-filters-primary': primaryColor }"-->
 		<div class="owc-openkaarten-streetmap__filters__header">
 			<h5 id="filters-title">{{ title }}</h5>
 			<BaseTooltipCardClose
@@ -154,9 +155,7 @@ onUnmounted(() => {
 						@onChange="datasetChange"
 					/>
 					<div
-						:style="{
-							'background-color': getDatalayerColor(layer),
-						}"
+						:data-background-color="getDatalayerColor(layer)"
 						class="owc-openkaarten-streetmap__filters__body__list-item__dl-indicator"
 					/>
 				</li>
