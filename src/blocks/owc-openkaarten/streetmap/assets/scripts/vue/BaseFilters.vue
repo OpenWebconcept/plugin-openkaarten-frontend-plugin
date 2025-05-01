@@ -125,7 +125,7 @@ onUnmounted(() => {
 	<div
 		ref="filterContainer"
 		class="owc-openkaarten-streetmap__filters"
-		:data-primary-color="primaryColor"
+    :style="{ '--owc-filters-primary': primaryColor }"
     role="dialog"
 		aria-modal="true"
 		aria-labelledby="filters-title"
@@ -154,7 +154,7 @@ onUnmounted(() => {
 						@onChange="datasetChange"
 					/>
 					<div
-						:data-background-color="getDatalayerColor(layer)"
+              :style="{'background-color': getDatalayerColor(layer)}"
 						class="owc-openkaarten-streetmap__filters__body__list-item__dl-indicator"
 					/>
 				</li>
