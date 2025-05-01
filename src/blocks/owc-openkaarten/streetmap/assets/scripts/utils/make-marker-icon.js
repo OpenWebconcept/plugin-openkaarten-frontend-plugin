@@ -9,7 +9,6 @@ export const makeMarkerIcon = (L, { marker, defaultColor }) => {
 	} else {
 		icon = marker.icon;
 		iconType = 'hosted-svg';
-    document.querySelector('#dataset-map').style.setProperty('--l-icon-color', iconColor);
 	}
 
 	const iconSettings = {
