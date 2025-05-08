@@ -238,6 +238,13 @@ onMounted(() => {
 
 <style lang="scss">
 #owc-openkaarten-streetmap {
+  --owc-filters-primary: #328725;
+  --owc-openkaarten-streetmap--primary-color: #328725;
+  --search-primary-color: #328725;
+  --owc-openkaarten-streetmap--close-btn-color: #328725;
+  --button-color: #328725;
+  --owc-openkaarten-streetmap--primary-color: #328725;
+
   container-type: inline-size;
   max-width: 100%;
 }
