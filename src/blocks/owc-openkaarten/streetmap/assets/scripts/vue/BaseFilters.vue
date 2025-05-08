@@ -125,7 +125,6 @@ onUnmounted(() => {
 	<div
 		ref="filterContainer"
 		class="owc-openkaarten-streetmap__filters"
-    :style="{ '--owc-filters-primary': primaryColor }"
     role="dialog"
 		aria-modal="true"
 		aria-labelledby="filters-title"
@@ -154,9 +153,11 @@ onUnmounted(() => {
 						@onChange="datasetChange"
 					/>
 					<div
-              :style="{'background-color': getDatalayerColor(layer)}"
-              class="owc-openkaarten-streetmap__filters__body__list-item__dl-indicator"
-					/>
+              :class="[
+              'owc-openkaarten-streetmap__filters__body__list-item__dl-indicator',
+              'owc-openkaarten-streetmap__filters__body__list-item__dl-indicator-' + getDatalayerColor(layer).replace('#', '')
+              ]"
+          />
 				</li>
 			</ul>
 		</div>
@@ -237,10 +238,50 @@ onUnmounted(() => {
 			align-content: center;
 			justify-content: space-between;
 			&__dl-indicator {
+        background-color: #0072B2;
 				width: 28px;
 				height: 28px;
 				border-radius: 50%;
 				opacity: 0.5;
+        &-0072B2 {
+          background-color: #0072B2;
+        }
+        &-9D6D00 {
+          background-color: #9D6D00;
+        }
+        &-C15500 {
+          background-color: #C15500;
+        }
+        &-008661 {
+          background-color: #008661;
+        }
+        &-7E7722 {
+          background-color: #7E7722;
+        }
+        &-A26085 {
+          background-color: #A26085;
+        }
+        &-3B7BA0 {
+          background-color: #3B7BA0;
+        }
+        &-A0522D {
+          background-color: #A0522D;
+        }
+        &-757575 {
+          background-color: #757575;
+        }
+        &-000000 {
+          background-color: #000000;
+        }
+        &-555555 {
+          background-color: #555555;
+        }
+        &-003366 {
+          background-color: #003366;
+        }
+        &-4B0082 {
+          background-color: #4B0082;
+        }
 			}
 		}
 	}

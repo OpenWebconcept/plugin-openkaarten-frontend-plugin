@@ -334,10 +334,6 @@ const handleSearch = async (query) => {
 <template v-cloak>
 	<div
 		class="owc-openkaarten-streetmap__map"
-    :style="{
-			'--owc-openkaarten-streetmap--primary-color': primaryColor,
-			'--owc-openkaarten-streetmap--cluster-color': props.primaryColor,
-		}"
 	>
 		<div class="owc-openkaarten-streetmap__controls">
 			<BaseSearchInput
@@ -409,6 +405,7 @@ const handleSearch = async (query) => {
 		border-radius: 50%;
 
 		&__circle {
+      --owc-openkaarten-streetmap--cluster-color: #328725;
 			position: absolute;
 			top: 0;
 			left: 0;
@@ -424,6 +421,45 @@ const handleSearch = async (query) => {
 				rgba(255, 255, 255, 0.05) 75%
 			);
 			background: var(--owc-cluster-background);
+      &-0072B2 {
+        --owc-openkaarten-streetmap--cluster-color: #0072B2;
+      }
+      &-9D6D00 {
+        --owc-openkaarten-streetmap--cluster-color: #9D6D00;
+      }
+      &-C15500 {
+        --owc-openkaarten-streetmap--cluster-color: #C15500;
+      }
+      &-008661 {
+        --owc-openkaarten-streetmap--cluster-color: #008661;
+      }
+      &-7E7722 {
+        --owc-openkaarten-streetmap--cluster-color: #7E7722;
+      }
+      &-A26085 {
+        --owc-openkaarten-streetmap--cluster-color: #A26085;
+      }
+      &-3B7BA0 {
+        --owc-openkaarten-streetmap--cluster-color: #3B7BA0;
+      }
+      &-A0522D {
+        --owc-openkaarten-streetmap--cluster-color: #A0522D;
+      }
+      &-757575 {
+        --owc-openkaarten-streetmap--cluster-color: #757575;
+      }
+      &-000000 {
+        --owc-openkaarten-streetmap--cluster-color: #000000;
+      }
+      &-555555 {
+        --owc-openkaarten-streetmap--cluster-color: #555555;
+      }
+      &-003366 {
+        --owc-openkaarten-streetmap--cluster-color: #003366;
+      }
+      &-4B0082 {
+        --owc-openkaarten-streetmap--cluster-color: #4B0082;
+      }
 		}
 
 		&__count {
@@ -454,11 +490,50 @@ const handleSearch = async (query) => {
 					padding: 2px;
 					border-radius: 50% 50% 50% 0;
 					background-color: #fff;
-					border: 4px solid var(--l-icon-color, #000);
+					border: 4px solid #0072B2;
 					transform: rotate(-45deg);
 					img {
 						transform: rotate(45deg);
 					}
+          &-0072B2 {
+            border: 4px solid #0072B2;
+          }
+          &-9D6D00 {
+            border: 4px solid #9D6D00;
+          }
+          &-C15500 {
+            border: 4px solid #C15500;
+          }
+          &-008661 {
+            border: 4px solid #008661;
+          }
+          &-7E7722 {
+            border: 4px solid #7E7722;
+          }
+          &-A26085 {
+            border: 4px solid #A26085;
+          }
+          &-3B7BA0 {
+            border: 4px solid #3B7BA0;
+          }
+          &-A0522D {
+            border: 4px solid #A0522D;
+          }
+          &-757575 {
+            border: 4px solid #757575;
+          }
+          &-000000 {
+            border: 4px solid #000000;
+          }
+          &-555555 {
+            border: 4px solid #555555;
+          }
+          &-003366 {
+            border: 4px solid #003366;
+          }
+          &-4B0082 {
+            border: 4px solid #4B0082;
+          }
 				}
 			}
 		}
