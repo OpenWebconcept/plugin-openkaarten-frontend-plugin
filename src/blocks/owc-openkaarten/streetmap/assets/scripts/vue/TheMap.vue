@@ -421,44 +421,44 @@ const handleSearch = async (query) => {
 				rgba(255, 255, 255, 0.05) 75%
 			);
 			background: var(--owc-cluster-background);
+      &.marker-black {
+        --owc-openkaarten-streetmap--cluster-color: #000000;
+      }
       &.marker-blue {
         --owc-openkaarten-streetmap--cluster-color: #0072B2;
-      }
-      &.marker-orange {
-        --owc-openkaarten-streetmap--cluster-color: #9D6D00;
-      }
-      &.marker-red {
-        --owc-openkaarten-streetmap--cluster-color: #C15500;
-      }
-      &.marker-green {
-        --owc-openkaarten-streetmap--cluster-color: #008661;
-      }
-      &.marker-yellow {
-        --owc-openkaarten-streetmap--cluster-color: #7E7722;
-      }
-      &.marker-purple {
-        --owc-openkaarten-streetmap--cluster-color: #A26085;
-      }
-      &.marker-turquoise {
-        --owc-openkaarten-streetmap--cluster-color: #3B7BA0;
       }
       &.marker-brown {
         --owc-openkaarten-streetmap--cluster-color: #A0522D;
       }
+      &.marker-darkgray {
+        --owc-openkaarten-streetmap--cluster-color: #555555;
+      }
+      &.marker-deep-purple {
+        --owc-openkaarten-streetmap--cluster-color: #4B0082;
+      }
       &.marker-gray {
         --owc-openkaarten-streetmap--cluster-color: #757575;
       }
-      &.marker-black {
-        --owc-openkaarten-streetmap--cluster-color: #000000;
-      }
-      &.marker-darkgray {
-        --owc-openkaarten-streetmap--cluster-color: #555555;
+      &.marker-green {
+        --owc-openkaarten-streetmap--cluster-color: #008661;
       }
       &.marker-navy-blue {
         --owc-openkaarten-streetmap--cluster-color: #003366;
       }
-      &.marker-deep-purple {
-        --owc-openkaarten-streetmap--cluster-color: #4B0082;
+      &.marker-orange {
+        --owc-openkaarten-streetmap--cluster-color: #9D6D00;
+      }
+      &.marker-purple {
+        --owc-openkaarten-streetmap--cluster-color: #A26085;
+      }
+      &.marker-red {
+        --owc-openkaarten-streetmap--cluster-color: #C15500;
+      }
+      &.marker-turquoise {
+        --owc-openkaarten-streetmap--cluster-color: #3B7BA0;
+      }
+      &.marker-yellow {
+        --owc-openkaarten-streetmap--cluster-color: #7E7722;
       }
 		}
 
@@ -495,44 +495,44 @@ const handleSearch = async (query) => {
 					img {
 						transform: rotate(45deg);
 					}
+          &.marker-black {
+            border: 4px solid #000000;
+          }
           &.marker-blue {
             border: 4px solid #0072B2;
-          }
-          &.marker-orange {
-            border: 4px solid #9D6D00;
-          }
-          &.marker-red {
-            border: 4px solid #C15500;
-          }
-          &.marker-green {
-            border: 4px solid #008661;
-          }
-          &.marker-yellow {
-            border: 4px solid #7E7722;
-          }
-          &.marker-purple {
-            border: 4px solid #A26085;
-          }
-          &.marker-turquoise {
-            border: 4px solid #3B7BA0;
           }
           &.marker-brown {
             border: 4px solid #A0522D;
           }
+          &.marker-darkgray {
+            border: 4px solid #555555;
+          }
+          &.marker-deep-purple {
+            border: 4px solid #4B0082;
+          }
           &.marker-gray {
             border: 4px solid #757575;
           }
-          &.marker-black {
-            border: 4px solid #000000;
-          }
-          &.marker-darkgray {
-            border: 4px solid #555555;
+          &.marker-green {
+            border: 4px solid #008661;
           }
           &.marker-navy-blue {
             border: 4px solid #003366;
           }
-          &.marker-deep-purple {
-            border: 4px solid #4B0082;
+          &.marker-orange {
+            border: 4px solid #9D6D00;
+          }
+          &.marker-purple {
+            border: 4px solid #A26085;
+          }
+          &.marker-red {
+            border: 4px solid #C15500;
+          }
+          &.marker-turquoise {
+            border: 4px solid #3B7BA0;
+          }
+          &.marker-yellow {
+            border: 4px solid #7E7722;
           }
 				}
 			}

@@ -243,44 +243,44 @@ onUnmounted(() => {
 				height: 28px;
 				border-radius: 50%;
 				opacity: 0.5;
+        &.marker-black {
+          background-color: #000000;
+        }
         &.marker-blue {
           background-color: #0072B2;
-        }
-        &.marker-organge {
-          background-color: #9D6D00;
-        }
-        &.marker--red {
-          background-color: #C15500;
-        }
-        &.marker-green {
-          background-color: #008661;
-        }
-        &.marker-yellow {
-          background-color: #7E7722;
-        }
-        &.marker-purple {
-          background-color: #A26085;
-        }
-        &.marker-turquoise {
-          background-color: #3B7BA0;
         }
         &.marker-brown {
           background-color: #A0522D;
         }
+        &.marker-darkgray {
+          background-color: #555555;
+        }
+        &.marker-deep-purple {
+          background-color: #4B0082;
+        }
         &.marker-gray {
           background-color: #757575;
         }
-        &.marker-black {
-          background-color: #000000;
-        }
-        &.marker-dargray {
-          background-color: #555555;
+        &.marker-green {
+          background-color: #008661;
         }
         &.marker-navy-blue {
           background-color: #003366;
         }
-        &.marker-deep-purple {
-          background-color: #4B0082;
+        &.marker-orange {
+          background-color: #9D6D00;
+        }
+        &.marker-purple {
+          background-color: #A26085;
+        }
+        &.marker-red {
+          background-color: #C15500;
+        }
+        &.marker-turquoise {
+          background-color: #3B7BA0;
+        }
+        &.marker-yellow {
+          background-color: #7E7722;
         }
 			}
 		}
