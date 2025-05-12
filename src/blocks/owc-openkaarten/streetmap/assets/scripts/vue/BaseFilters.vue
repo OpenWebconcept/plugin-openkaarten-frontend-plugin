@@ -155,7 +155,7 @@ onUnmounted(() => {
 					<div
               :class="[
               'owc-openkaarten-streetmap__filters__body__list-item__dl-indicator',
-              'owc-openkaarten-streetmap__filters__body__list-item__dl-indicator-' + getDatalayerColor(layer).replace('#', '')
+              getDatalayerColor(layer),
               ]"
           />
 				</li>
@@ -238,49 +238,49 @@ onUnmounted(() => {
 			align-content: center;
 			justify-content: space-between;
 			&__dl-indicator {
-        background-color: #0072B2;
+        background-color: #000000;
 				width: 28px;
 				height: 28px;
 				border-radius: 50%;
 				opacity: 0.5;
-        &-0072B2 {
-          background-color: #0072B2;
-        }
-        &-9D6D00 {
-          background-color: #9D6D00;
-        }
-        &-C15500 {
-          background-color: #C15500;
-        }
-        &-008661 {
-          background-color: #008661;
-        }
-        &-7E7722 {
-          background-color: #7E7722;
-        }
-        &-A26085 {
-          background-color: #A26085;
-        }
-        &-3B7BA0 {
-          background-color: #3B7BA0;
-        }
-        &-A0522D {
-          background-color: #A0522D;
-        }
-        &-757575 {
-          background-color: #757575;
-        }
-        &-000000 {
+        &.marker-black {
           background-color: #000000;
         }
-        &-555555 {
+        &.marker-blue {
+          background-color: #0072B2;
+        }
+        &.marker-brown {
+          background-color: #A0522D;
+        }
+        &.marker-darkgray {
           background-color: #555555;
         }
-        &-003366 {
+        &.marker-deep-purple {
+          background-color: #4B0082;
+        }
+        &.marker-gray {
+          background-color: #757575;
+        }
+        &.marker-green {
+          background-color: #008661;
+        }
+        &.marker-navy-blue {
           background-color: #003366;
         }
-        &-4B0082 {
-          background-color: #4B0082;
+        &.marker-orange {
+          background-color: #9D6D00;
+        }
+        &.marker-purple {
+          background-color: #A26085;
+        }
+        &.marker-red {
+          background-color: #C15500;
+        }
+        &.marker-turquoise {
+          background-color: #3B7BA0;
+        }
+        &.marker-yellow {
+          background-color: #7E7722;
         }
 			}
 		}

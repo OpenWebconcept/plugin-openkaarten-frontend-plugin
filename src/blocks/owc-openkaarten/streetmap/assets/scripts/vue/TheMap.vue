@@ -421,44 +421,44 @@ const handleSearch = async (query) => {
 				rgba(255, 255, 255, 0.05) 75%
 			);
 			background: var(--owc-cluster-background);
-      &-0072B2 {
-        --owc-openkaarten-streetmap--cluster-color: #0072B2;
-      }
-      &-9D6D00 {
-        --owc-openkaarten-streetmap--cluster-color: #9D6D00;
-      }
-      &-C15500 {
-        --owc-openkaarten-streetmap--cluster-color: #C15500;
-      }
-      &-008661 {
-        --owc-openkaarten-streetmap--cluster-color: #008661;
-      }
-      &-7E7722 {
-        --owc-openkaarten-streetmap--cluster-color: #7E7722;
-      }
-      &-A26085 {
-        --owc-openkaarten-streetmap--cluster-color: #A26085;
-      }
-      &-3B7BA0 {
-        --owc-openkaarten-streetmap--cluster-color: #3B7BA0;
-      }
-      &-A0522D {
-        --owc-openkaarten-streetmap--cluster-color: #A0522D;
-      }
-      &-757575 {
-        --owc-openkaarten-streetmap--cluster-color: #757575;
-      }
-      &-000000 {
+      &.marker-black {
         --owc-openkaarten-streetmap--cluster-color: #000000;
       }
-      &-555555 {
+      &.marker-blue {
+        --owc-openkaarten-streetmap--cluster-color: #0072B2;
+      }
+      &.marker-brown {
+        --owc-openkaarten-streetmap--cluster-color: #A0522D;
+      }
+      &.marker-darkgray {
         --owc-openkaarten-streetmap--cluster-color: #555555;
       }
-      &-003366 {
+      &.marker-deep-purple {
+        --owc-openkaarten-streetmap--cluster-color: #4B0082;
+      }
+      &.marker-gray {
+        --owc-openkaarten-streetmap--cluster-color: #757575;
+      }
+      &.marker-green {
+        --owc-openkaarten-streetmap--cluster-color: #008661;
+      }
+      &.marker-navy-blue {
         --owc-openkaarten-streetmap--cluster-color: #003366;
       }
-      &-4B0082 {
-        --owc-openkaarten-streetmap--cluster-color: #4B0082;
+      &.marker-orange {
+        --owc-openkaarten-streetmap--cluster-color: #9D6D00;
+      }
+      &.marker-purple {
+        --owc-openkaarten-streetmap--cluster-color: #A26085;
+      }
+      &.marker-red {
+        --owc-openkaarten-streetmap--cluster-color: #C15500;
+      }
+      &.marker-turquoise {
+        --owc-openkaarten-streetmap--cluster-color: #3B7BA0;
+      }
+      &.marker-yellow {
+        --owc-openkaarten-streetmap--cluster-color: #7E7722;
       }
 		}
 
@@ -490,49 +490,49 @@ const handleSearch = async (query) => {
 					padding: 2px;
 					border-radius: 50% 50% 50% 0;
 					background-color: #fff;
-					border: 4px solid #0072B2;
+					border: 4px solid #000000;
 					transform: rotate(-45deg);
 					img {
 						transform: rotate(45deg);
 					}
-          &-0072B2 {
-            border: 4px solid #0072B2;
-          }
-          &-9D6D00 {
-            border: 4px solid #9D6D00;
-          }
-          &-C15500 {
-            border: 4px solid #C15500;
-          }
-          &-008661 {
-            border: 4px solid #008661;
-          }
-          &-7E7722 {
-            border: 4px solid #7E7722;
-          }
-          &-A26085 {
-            border: 4px solid #A26085;
-          }
-          &-3B7BA0 {
-            border: 4px solid #3B7BA0;
-          }
-          &-A0522D {
-            border: 4px solid #A0522D;
-          }
-          &-757575 {
-            border: 4px solid #757575;
-          }
-          &-000000 {
+          &.marker-black {
             border: 4px solid #000000;
           }
-          &-555555 {
+          &.marker-blue {
+            border: 4px solid #0072B2;
+          }
+          &.marker-brown {
+            border: 4px solid #A0522D;
+          }
+          &.marker-darkgray {
             border: 4px solid #555555;
           }
-          &-003366 {
+          &.marker-deep-purple {
+            border: 4px solid #4B0082;
+          }
+          &.marker-gray {
+            border: 4px solid #757575;
+          }
+          &.marker-green {
+            border: 4px solid #008661;
+          }
+          &.marker-navy-blue {
             border: 4px solid #003366;
           }
-          &-4B0082 {
-            border: 4px solid #4B0082;
+          &.marker-orange {
+            border: 4px solid #9D6D00;
+          }
+          &.marker-purple {
+            border: 4px solid #A26085;
+          }
+          &.marker-red {
+            border: 4px solid #C15500;
+          }
+          &.marker-turquoise {
+            border: 4px solid #3B7BA0;
+          }
+          &.marker-yellow {
+            border: 4px solid #7E7722;
           }
 				}
 			}
