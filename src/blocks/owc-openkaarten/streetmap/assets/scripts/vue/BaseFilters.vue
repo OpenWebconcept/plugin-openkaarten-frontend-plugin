@@ -155,7 +155,7 @@ onUnmounted(() => {
 					<div
               :class="[
               'owc-openkaarten-streetmap__filters__body__list-item__dl-indicator',
-              'owc-openkaarten-streetmap__filters__body__list-item__dl-indicator-' + getDatalayerColor(layer).replace('#', '')
+              'owc-openkaarten-streetmap__filters__body__list-item__dl-indicator-' + getDatalayerColor(layer)
               ]"
           />
 				</li>
@@ -243,43 +243,43 @@ onUnmounted(() => {
 				height: 28px;
 				border-radius: 50%;
 				opacity: 0.5;
-        &-0072B2 {
+        &-marker-blue {
           background-color: #0072B2;
         }
-        &-9D6D00 {
+        &-marker-organge {
           background-color: #9D6D00;
         }
-        &-C15500 {
+        &marker--red {
           background-color: #C15500;
         }
-        &-008661 {
+        &-marker-green {
           background-color: #008661;
         }
-        &-7E7722 {
+        &-marker-yellow {
           background-color: #7E7722;
         }
-        &-A26085 {
+        &-marker-purple {
           background-color: #A26085;
         }
-        &-3B7BA0 {
+        &-marker-turquoise {
           background-color: #3B7BA0;
         }
-        &-A0522D {
+        &-marker-brown {
           background-color: #A0522D;
         }
-        &-757575 {
+        &-marker-gray {
           background-color: #757575;
         }
-        &-000000 {
+        &-marker-black {
           background-color: #000000;
         }
-        &-555555 {
+        &-marker-dargray {
           background-color: #555555;
         }
-        &-003366 {
+        &-marker-navy-blue {
           background-color: #003366;
         }
-        &-4B0082 {
+        &-marker-deep-purple {
           background-color: #4B0082;
         }
 			}

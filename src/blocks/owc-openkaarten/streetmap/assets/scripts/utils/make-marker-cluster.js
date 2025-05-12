@@ -28,7 +28,7 @@ export const makeMarkerCluster = ({
 			return L.divIcon({
 				html: `
                 <div 
-                    class="owc-openkaarten-streetmap__cluster-group__circle owc-openkaarten-streetmap__cluster-group__circle-${color.replace("#", "")}"
+                    class="owc-openkaarten-streetmap__cluster-group__circle owc-openkaarten-streetmap__cluster-group__circle-${color}"
                     >
                     <span class="owc-openkaarten-streetmap__cluster-group__count">${count}</span>
                 </div>`,
