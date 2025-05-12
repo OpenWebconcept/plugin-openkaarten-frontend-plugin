@@ -490,7 +490,7 @@ const handleSearch = async (query) => {
 					padding: 2px;
 					border-radius: 50% 50% 50% 0;
 					background-color: #fff;
-					border: 4px solid #0072B2;
+					border: 4px solid #000000;
 					transform: rotate(-45deg);
 					img {
 						transform: rotate(45deg);

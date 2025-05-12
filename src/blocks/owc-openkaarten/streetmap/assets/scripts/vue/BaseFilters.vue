@@ -238,7 +238,7 @@ onUnmounted(() => {
 			align-content: center;
 			justify-content: space-between;
 			&__dl-indicator {
-        background-color: #0072B2;
+        background-color: #000000;
 				width: 28px;
 				height: 28px;
 				border-radius: 50%;
