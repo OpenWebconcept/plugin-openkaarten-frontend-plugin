@@ -41,7 +41,6 @@ const searchStatus = computed(() => {
     <form
       @submit="handleSubmit"
       class="search-form"
-      :style="{ '--search-primary-color': primaryColor }"
     >
       <label class="sr-only" for="location-search">Zoek op straat en/of plaats of postcode</label>
       <div class="search-wrapper">
