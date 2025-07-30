@@ -14,41 +14,33 @@ msgstr ""
 "X-Domain: openkaarten-frontend-plugin\n"
 
 #. Plugin Name of the plugin
-#: openkaarten-plugin.php
+#: openkaarten-frontend-plugin.php
 msgid "OpenKaarten Frontend Plugin"
 msgstr ""
 
 #. Plugin URI of the plugin
-#: openkaarten-plugin.php
+#: openkaarten-frontend-plugin.php
 msgid "https://openwebconcept.nl/"
 msgstr ""
 
 #. Description of the plugin
-#: openkaarten-plugin.php
+#: openkaarten-frontend-plugin.php
 msgid "Adds OpenKaarten Blocks to the Gutenberg editor."
 msgstr "Voegt OpenKaarten blokken toe aan de Gutenberg editor."
 
 #. Author of the plugin
-#: openkaarten-plugin.php
+#: openkaarten-frontend-plugin.php
 msgid "Acato"
 msgstr ""
 
 #. Author URI of the plugin
-#: openkaarten-plugin.php
+#: openkaarten-frontend-plugin.php
 msgid "https://www.acato.nl"
 msgstr ""
 
 #: includes/frontend/class-frontend.php:49
 msgid "OpenKaarten Blocks"
 msgstr "OpenKaarten blokken"
-
-#: openkaarten-plugin.php:64
-msgid "This plugin requires the Openkaarten Base plugin."
-msgstr "Deze plugin benodigd de Openkaarten Base Plugin."
-
-#: openkaarten-plugin.php:64
-msgid "Openkaarten Base is not installed or active!"
-msgstr "Openkaarten Base is niet geïnstalleerd of geactiveerd!"
 
 #: src/blocks/owc-openkaarten/streetmap/block.json
 msgctxt "block title"
@@ -84,6 +76,3 @@ msgstr "kaart"
 msgctxt "block keyword"
 msgid "locations"
 msgstr "locaties"
-
-#~ msgid "Select datalayers to display:"
-#~ msgstr "Selecteer datalayers om te tonen"
