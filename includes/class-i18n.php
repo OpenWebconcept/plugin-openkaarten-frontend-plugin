@@ -22,7 +22,7 @@ namespace Openkaarten_Frontend_Plugin\Includes;
  * @since      0.1.0
  * @package    Openkaarten_Frontend_Plugin
  * @subpackage Openkaarten_Frontend_Plugin/Includes
- * @author     Acato <info@acato.nl>
+ * @author     Acato <service+openkaarten@acato.nl>
  */
 class I18n {
 
