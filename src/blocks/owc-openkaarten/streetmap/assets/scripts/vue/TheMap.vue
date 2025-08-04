@@ -13,6 +13,7 @@ import { makeListViewButtonHTML } from '../utils/make-list-view-button-html';
 import BaseSearchInput from './BaseSearchInput.vue';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
+import { setOpenkaartenMap } from '../utils/use-openkaarten-map';
 
 const props = defineProps({
 	datasets: {
@@ -278,6 +279,7 @@ const initializeMap = (datasets) => {
 	});
 	clusters.value = groupedMarkerClusters;
 	mapRef.value = map;
+  setOpenkaartenMap(map);
 };
 
 const emit = defineEmits(['toggleView', 'datasetChange']);
