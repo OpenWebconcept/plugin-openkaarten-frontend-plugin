@@ -18,7 +18,7 @@ use Openkaarten_Frontend_Plugin\Includes\Plugin;
  *
  * @package    Openkaarten_Frontend_Plugin
  * @subpackage Openkaarten_Frontend_Plugin/Includes/Frontend
- * @author     Acato <info@acato.nl>
+ * @author     Acato <service+openkaarten@acato.nl>
  */
 class Frontend {
 

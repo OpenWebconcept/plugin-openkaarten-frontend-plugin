@@ -12,7 +12,13 @@
 		"lint:js": "wp-scripts lint-js",
 		"start": "wp-scripts start src/blocks/index.js",
 		"start-assets": "npx mix watch",
-		"packages-update": "wp-scripts packages-update"
+		"packages-update": "wp-scripts packages-update",
+		"i18n": "npm run make-pot ; npm run update-po ; npm run make-mo ; npm run make-json ; npm run make-php",
+		"make-pot": "wp i18n make-pot . languages/openkaarten-frontend-plugin.pot --exclude=node_modules,build,languages",
+		"update-po": "wp i18n update-po languages/openkaarten-frontend-plugin.pot languages/",
+		"make-mo": "wp i18n make-mo languages/",
+		"make-json": "wp i18n make-json languages/ --no-purge",
+		"make-php": "wp i18n make-php languages/"
 	},
 	"devDependencies": {
 		"@vue/compiler-sfc": "^3.3.2",

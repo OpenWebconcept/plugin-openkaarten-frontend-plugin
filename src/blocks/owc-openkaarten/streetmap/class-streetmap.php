@@ -22,7 +22,7 @@ use Openkaarten_Frontend_Plugin\Includes\Base_Block;
  * @since      0.1.0
  * @package    Openkaarten_Frontend_Plugin
  * @subpackage Openkaarten_Frontend_Plugin/Src/Blocks/OWC_Openkaarten/Streetmap
- * @author     Acato <info@acato.nl>
+ * @author     Acato <service+openkaarten@acato.nl>
  */
 class Streetmap extends Base_Block {
 	/**
