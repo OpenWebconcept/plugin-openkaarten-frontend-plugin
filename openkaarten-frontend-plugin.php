@@ -12,7 +12,7 @@
  * Plugin Name:       OpenKaarten Frontend Plugin
  * Plugin URI:        https://openwebconcept.nl/
  * Description:       Adds OpenKaarten Blocks to the Gutenberg editor.
- * Version:           0.2.0
+ * Version:           0.2.1
  * Author:            Acato
  * Author URI:        https://www.acato.nl
  * Text Domain:       openkaarten-frontend-plugin
@@ -38,7 +38,7 @@ foreach ( glob( plugin_dir_path( __FILE__ ) . DIRECTORY_SEPARATOR . 'filters' . 
 }
 
 if ( ! defined( 'OPENKAARTEN_FRONTEND_VERSION' ) ) {
-	define( 'OPENKAARTEN_FRONTEND_VERSION', '0.2.0' );
+	define( 'OPENKAARTEN_FRONTEND_VERSION', '0.2.1' );
 }
 
 if ( ! defined( 'OPENKAARTEN_FRONTEND_PLUGIN_NAME' ) ) {
