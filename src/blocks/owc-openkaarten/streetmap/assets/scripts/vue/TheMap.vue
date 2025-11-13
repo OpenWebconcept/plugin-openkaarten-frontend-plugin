@@ -46,7 +46,7 @@ const clusterOptions = {
   showCoverageOnHover: false,
   zoomToBoundsOnClick: true,
   maxClusterRadius: 40,
-  disableClusteringAtZoom: 13,
+  disableClusteringAtZoom: 15,
   iconCreateFunction: (cluster) => {
     const count = cluster.getChildCount();
     return L.divIcon({
