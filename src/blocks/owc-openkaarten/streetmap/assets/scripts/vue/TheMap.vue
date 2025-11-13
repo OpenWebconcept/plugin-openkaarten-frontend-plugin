@@ -89,16 +89,61 @@ const datasetChange = (id, checked) => {
 	}
 };
 
+let selectedLayer = null;
+let highlightLayer = null;
+let overlappingLayers = [];
+let overlapIndex = 0;
+
 // Move attachEvents outside of initializeMap
 const attachEvents = (marker, location, set) => {
-	marker.on('click', () => {
-		tooltipCard.value = makeTooltipCard(location, set);
-	});
-	marker.on('keydown', ({ originalEvent }) => {
-		if (originalEvent.keyCode === 13) {
-			tooltipCard.value = makeTooltipCard(location, set);
-		}
-	});
+  marker.on('click', (e) => {
+    tooltipCard.value = makeTooltipCard(location, set);
+
+    const map = mapRef.value;
+
+    // get all polygons of the map.
+    const polygons = [];
+    map.eachLayer(layer => {
+      if (layer instanceof L.Polygon) {
+        polygons.push(layer);
+      }
+    });
+
+    // find all polygons.
+    overlappingLayers = polygons.filter(p => p.getBounds().contains(e.latlng));
+
+    if (overlappingLayers.length === 0) {
+      if (highlightLayer) {
+        highlightLayer.remove();
+        highlightLayer = null;
+      }
+      selectedLayer = null;
+      return;
+    }
+
+    // cycling selection.
+    overlapIndex = (overlapIndex + 1) % overlappingLayers.length;
+    const newLayer = overlappingLayers[overlapIndex];
+
+    // remove old selected highlight.
+    if (highlightLayer) {
+      highlightLayer.remove();
+      highlightLayer = null;
+    }
+
+    // highlight the newly selected polygon.
+    selectedLayer = newLayer;
+    highlightLayer = L.geoJSON(selectedLayer.toGeoJSON(), {
+      style: { color: '#0377fc', weight: 6, opacity: 0.9 },
+      interactive: false
+    }).addTo(map);
+  });
+
+  marker.on('keydown', ({ originalEvent }) => {
+    if (originalEvent.keyCode === 13) {
+      tooltipCard.value = makeTooltipCard(location, set);
+    }
+  });
 };
 
 // Helper function to get color from marker config
