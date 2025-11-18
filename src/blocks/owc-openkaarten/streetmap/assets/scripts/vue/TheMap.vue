@@ -102,16 +102,36 @@ const attachEvents = (marker, location, set) => {
 	});
 };
 
-// Helper function to get color from marker config
-const getColorFromMarker = (markerConfig) => {
+// Helper function to get color from marker config.
+const getColorFromMarker = (markerConfig, props) => {
+  const colorMap = {
+    "marker-black": "#000000",
+    "marker-blue": "#0072B2",
+    "marker-brown": "#A0522D",
+    "marker-darkgray": "#555555",
+    "marker-deep-purple": "#4B0082",
+    "marker-gray": "#757575",
+    "marker-green": "#008661",
+    "marker-navy-blue": "#003366",
+    "marker-orange": "#9D6D00",
+    "marker-purple": "#A26085",
+    "marker-red": "#C15500",
+    "marker-turquoise": "#3B7BA0",
+    "marker-yellow": "#7E7722",
+  };
+
   if (!markerConfig) return props.primaryColor;
-  
+
   // If marker has a custom color, use that
-  if (markerConfig.color) return markerConfig.color;
-  
+  if (markerConfig.color) {
+    return colorMap[markerConfig.color];
+  }
+
   // If marker has a custom icon with color, use that
-  if (markerConfig.icon?.color) return markerConfig.icon.color;
-  
+  if (markerConfig.icon?.color) {
+    return colorMap[markerConfig.icon.color];
+  }
+
   return props.primaryColor;
 };
 
