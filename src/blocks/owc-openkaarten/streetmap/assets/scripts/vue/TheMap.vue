@@ -35,7 +35,7 @@ const props = defineProps({
 });
 
 const tooltipCard = ref(null);
-const showFiltersCard = ref(false);
+const showFiltersCard = ref(true);
 const mapRef = ref(null);
 const clusters = ref([]);
 const searchQuery = ref('');
@@ -203,11 +203,16 @@ const initializeMap = async (datasets) => {
 		zoom: config.defaultZoom,
 		minZoom: config.minimumZoom,
 		maxZoom: config.maximumZoom,
-		zoomControl: config.enableZoomControl,
+		zoomControl: false,
 		boxZoom: config.enableBoxZoomControl,
 		defaultExtentControl: config.enableHomeControl,
 	});
+
 	map.setView([config.centerX, config.centerY], config.defaultZoom);
+
+  if (config.enableZoomControl) {
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+  }
 
   const filteredDatasets = datasets.filter((dataset) => props.selectedDatasets.includes(dataset.id));
 
@@ -357,7 +362,10 @@ const handleSearch = async (query) => {
 
 <template v-cloak>
 	<div
-		class="owc-openkaarten-streetmap__map"
+    :class="{
+      'owc-openkaarten-streetmap__map': true,
+      'filters-open': showFiltersCard,
+      }"
 	>
 		<div class="owc-openkaarten-streetmap__controls">
 			<BaseSearchInput
@@ -475,6 +483,7 @@ $marker-colors: (
 	}
 
 	&__map {
+    border: 1px solid var(--Neutral-300, #E5E5E6);
     padding-top: 80px;
 		position: relative;
 		overflow: hidden;
@@ -522,6 +531,17 @@ $marker-colors: (
 				}
 			}
 		}
+    &.filters-open {
+      @media only screen and (min-width: 768px) {
+        .leaflet-bottom.leaflet-right {
+          transform: translateX(-282px);
+          transition: transform 0.2s ease-in-out;
+        }
+        .leaflet-top.leaflet-left {
+          transform: translateX(-132px);
+          transition: transform 0.2s ease-in-out;      }
+      }
+    }
 	}
 
 	&__overlay {
@@ -567,9 +587,14 @@ $marker-colors: (
     @media only screen and (min-width: 768px) {
       inset-inline-start: 20px;
       max-inline-size: min(300px, calc(100% - 2rem));
+      top: 1rem;
+      z-index: 9999;
     }
     @media only screen and (min-width: 900px) {
       max-inline-size: min(450px, calc(100% - 2rem));
+    }
+    @media only screen and (min-width: 1040px) {
+      max-inline-size: min(586px, calc(100% - 2rem));
     }
 	}
 }

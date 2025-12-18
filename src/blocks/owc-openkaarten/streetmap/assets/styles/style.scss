@@ -2,61 +2,55 @@
 // Leaflet controls duplicate controls bug:
 // https://github.com/alex3165/react-leaflet-draw/issues/150
 .leaflet-control-container {
-	display: none;
+	display: block;
+	@media only screen and (min-width: 768px) {
+		height: 100%;
+	}
 }
 
 .leaflet-control-container ~ .leaflet-control-container {
 	display: block;
 }
-
-.leaflet-top {
+.leaflet-top, .leaflet-bottom {
+	transition: transform 0.2s ease-in-out;
+}
+.leaflet-top:not(.leaflet-right) {
 	align-items: center;
 	display: flex;
+	padding: .5rem;
 	width: 100%;
 	@media only screen and (min-width: 768px) {
+		background-color: var(--Neutral-300, #E5E5E6);
+		gap: 1rem;
 		justify-content: flex-end;
+		padding: 1rem;
 	}
 	> .leaflet-control {
-		margin-top: 10px !important;
+		margin-block-start: 10px !important;
+		@media only screen and (min-width: 768px) {
+			margin-block-start: 0;
+		}
 	}
 
 	> :last-child {
-		margin-right: 10px;
+		margin-inline-end: 10px;
+		@media only screen and (min-width: 768px) {
+			margin-inline-end: 0;
+		}
 	}
 
 	@media only screen and (min-width: 768px) {
 		> .leaflet-control {
 			margin-top: 20px !important;
+			@media only screen and (min-width: 768px) {
+				margin-block-start: 0 !important;
+			}
 		}
 
 		> :last-child {
 			margin-right: 20px;
-		}
-	}
-
-	.leaflet-control-zoom {
-		align-items: center;
-		border: 1px solid var(--owc-openkaarten-streetmap--primary-color) !important;
-		border-radius: 3px;
-		display: flex;
-		flex-direction: row-reverse;
-		justify-content: space-between;
-		margin-right: 8px;
-		a {
-			align-items: center;
-			border: none;
-			border-radius: 3px;
-			color: var(--owc-openkaarten-streetmap--primary-color);
-			display: flex;
-			height: 48px !important;
-			justify-content: center;
-			width: 44px !important;
-			&:first-child {
-				border-bottom-right-radius: 3px;
-				border-bottom-left-radius: 0;
-				border-left: 1px solid var(--owc-openkaarten-streetmap--primary-color) !important;
-				border-top-left-radius: 3px;
-				border-top-right-radius: 0;
+			@media only screen and (min-width: 768px) {
+				margin-right: 0;
 			}
 		}
 	}
@@ -100,5 +94,42 @@
 
 	.leaflet-control-list-view {
 		margin-inline-end: 1rem;
+		@media only screen and (min-width: 768px) {
+			margin-inline-end: 0;
+		}
+	}
+}
+.leaflet-bottom {
+	bottom: auto;
+	top: 1rem;
+	@media only screen and (min-width: 768px) {
+		bottom: 0;
+		top: auto;
+	}
+	.leaflet-control-zoom {
+		align-items: center;
+		border: 1px solid var(--owc-openkaarten-streetmap--primary-color) !important;
+		border-radius: 3px;
+		display: flex;
+		flex-direction: row-reverse;
+		justify-content: space-between;
+		margin-right: 8px;
+		a {
+			align-items: center;
+			border: none;
+			border-radius: 3px;
+			color: var(--owc-openkaarten-streetmap--primary-color);
+			display: flex;
+			height: 48px !important;
+			justify-content: center;
+			width: 44px !important;
+			&:first-child {
+				border-bottom-right-radius: 3px;
+				border-bottom-left-radius: 0;
+				border-left: 1px solid var(--owc-openkaarten-streetmap--primary-color) !important;
+				border-top-left-radius: 3px;
+				border-top-right-radius: 0;
+			}
+		}
 	}
 }

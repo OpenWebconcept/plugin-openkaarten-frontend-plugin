@@ -202,13 +202,16 @@ onUnmounted(() => {
 	border: none;
 	padding: 0;
 	margin: 0;
-
+  @media only screen and (min-width: 768px) {
+    width: 276px;
+    max-height: none;
+  }
 	&__header {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		padding: var(--owc-filters-card-padding);
-		border-bottom: 1px solid #d2d2d2;
+		border-bottom: 1px solid var(--Neutral-300, #E5E5E6);
 		h5 {
 			padding: 0;
 			margin: 0;
@@ -288,7 +291,7 @@ onUnmounted(() => {
 
 	&__footer {
 		padding: var(--owc-filters-card-padding);
-		border-top: 1px solid #d2d2d2;
+		border-top: 1px solid var(--Neutral-300, #E5E5E6);
 
 		&__btn {
 			display: flex;
