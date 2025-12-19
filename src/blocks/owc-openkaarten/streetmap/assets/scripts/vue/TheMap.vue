@@ -136,7 +136,7 @@ const getColorFromMarker = (markerConfig, props) => {
 };
 
 // Helper function to create appropriate layer based on feature type
-const createLayer = (feature, dataset) => {
+const createLayer = async (feature, dataset) => {
   if (feature.geometry.type === 'Polygon') {
     return new L.GeoJSON(feature, {
       style: () => {
@@ -154,31 +154,33 @@ const createLayer = (feature, dataset) => {
   // Handle MultiPoint features
   if (feature.geometry.type === 'MultiPoint') {
     const markers = L.featureGroup();
-    feature.geometry.coordinates.forEach(coord => {
+    for (const coord of feature.geometry.coordinates) {
       const latlng = L.latLng(coord[1], coord[0]);
-      const icon = makeMarkerIcon(L, {
+      const icon = await makeMarkerIcon(L, {
         marker: feature.properties?.marker,
         defaultColor: props.primaryColor,
       });
       const marker = new L.Marker(latlng, { icon });
       markers.addLayer(marker);
-    });
+    };
     return markers;
   }
 
   // Handle regular points using GeoJSON
+  // Since GeoJSON's pointToLayer callback can't be async, we create the icon first
+  const icon = await makeMarkerIcon(L, {
+    marker: feature.properties?.marker,
+    defaultColor: props.primaryColor,
+  });
+
   return new L.GeoJSON(feature, {
     pointToLayer: (feature, latlng) => {
-      const icon = makeMarkerIcon(L, {
-        marker: feature.properties?.marker,
-        defaultColor: props.primaryColor,
-      });
       return new L.Marker(latlng, { icon });
     }
   });
 };
 
-const initializeMap = (datasets) => {
+const initializeMap = async (datasets) => {
 	const bounds = calculateBounds(datasets);
 	const { lat, long } = calculateCenter(bounds);
 
@@ -208,31 +210,33 @@ const initializeMap = (datasets) => {
 	});
 	map.setView([config.centerX, config.centerY], config.defaultZoom);
 
-	const groupedMarkerClusters = datasets
-		.filter((dataset) => props.selectedDatasets.includes(dataset.id))
-		.map((dataset) => {
-			// Create a pane for this dataset
-			const pane = map.createPane(dataset.title.replace(' ', '_'));
-			const cluster = L.markerClusterGroup({
-				...clusterOptions,
-				clusterPane: pane
-			});
+  const filteredDatasets = datasets.filter((dataset) => props.selectedDatasets.includes(dataset.id));
+
+  const groupedMarkerClusters = await Promise.all(
+    filteredDatasets.map(async (dataset) => {
+      // Create a pane for this dataset
+      const pane = map.createPane(dataset.title.replace(' ', '_'));
+      const cluster = L.markerClusterGroup({
+        ...clusterOptions,
+        clusterPane: pane
+      });
 
 			if (dataset.features.constructor !== Array) {
 				dataset.features = [dataset.features];
 			}
 
-			dataset.features.forEach((feature) => {
-				const layer = createLayer(feature, dataset);
-				attachEvents(layer, feature, dataset);
-				cluster.addLayer(layer);
-			});
+      for (const feature of dataset.features) {
+        const layer = await createLayer(feature, dataset);
+        attachEvents(layer, feature, dataset);
+        cluster.addLayer(layer);
+      }
 
 			return {
 				id: dataset.id,
 				cluster,
 			};
-		});
+		})
+  );
 
 	L.Control.DataLayerFilters = L.Control.extend({
 		options: {
@@ -306,7 +310,7 @@ const emit = defineEmits(['toggleView', 'datasetChange']);
 
 onMounted(async () => {
 	if (document.getElementById('dataset-map')) {
-		initializeMap(props.datasets);
+		await initializeMap(props.datasets);
 	}
 });
 
@@ -400,6 +404,22 @@ const handleSearch = async (query) => {
 </template>
 
 <style lang="scss">
+$marker-colors: (
+	'black': #000000,
+	'blue': #0072B2,
+	'brown': #A0522D,
+	'darkgray': #555555,
+	'deep-purple': #4B0082,
+	'gray': #757575,
+	'green': #008661,
+	'navy-blue': #003366,
+	'orange': #9D6D00,
+	'purple': #A26085,
+	'red': #C15500,
+	'turquoise': #3B7BA0,
+	'yellow': #7E7722
+);
+
 #dataset-map {
 	height: 80dvh;
 	max-height: 661px;
@@ -443,45 +463,12 @@ const handleSearch = async (query) => {
 				rgba(255, 255, 255, 0.05) 75%
 			);
 			background: var(--owc-cluster-background);
-      &.marker-black {
-        --owc-openkaarten-streetmap--cluster-color: #000000;
-      }
-      &.marker-blue {
-        --owc-openkaarten-streetmap--cluster-color: #0072B2;
-      }
-      &.marker-brown {
-        --owc-openkaarten-streetmap--cluster-color: #A0522D;
-      }
-      &.marker-darkgray {
-        --owc-openkaarten-streetmap--cluster-color: #555555;
-      }
-      &.marker-deep-purple {
-        --owc-openkaarten-streetmap--cluster-color: #4B0082;
-      }
-      &.marker-gray {
-        --owc-openkaarten-streetmap--cluster-color: #757575;
-      }
-      &.marker-green {
-        --owc-openkaarten-streetmap--cluster-color: #008661;
-      }
-      &.marker-navy-blue {
-        --owc-openkaarten-streetmap--cluster-color: #003366;
-      }
-      &.marker-orange {
-        --owc-openkaarten-streetmap--cluster-color: #9D6D00;
-      }
-      &.marker-purple {
-        --owc-openkaarten-streetmap--cluster-color: #A26085;
-      }
-      &.marker-red {
-        --owc-openkaarten-streetmap--cluster-color: #C15500;
-      }
-      &.marker-turquoise {
-        --owc-openkaarten-streetmap--cluster-color: #3B7BA0;
-      }
-      &.marker-yellow {
-        --owc-openkaarten-streetmap--cluster-color: #7E7722;
-      }
+
+			@each $name, $color in $marker-colors {
+				&.marker-#{$name} {
+					--owc-openkaarten-streetmap--cluster-color: #{$color};
+				}
+			}
 		}
 
 		&__count {
@@ -517,45 +504,23 @@ const handleSearch = async (query) => {
 					img {
 						transform: rotate(45deg);
 					}
-          &.marker-black {
-            border: 4px solid #000000;
-          }
-          &.marker-blue {
-            border: 4px solid #0072B2;
-          }
-          &.marker-brown {
-            border: 4px solid #A0522D;
-          }
-          &.marker-darkgray {
-            border: 4px solid #555555;
-          }
-          &.marker-deep-purple {
-            border: 4px solid #4B0082;
-          }
-          &.marker-gray {
-            border: 4px solid #757575;
-          }
-          &.marker-green {
-            border: 4px solid #008661;
-          }
-          &.marker-navy-blue {
-            border: 4px solid #003366;
-          }
-          &.marker-orange {
-            border: 4px solid #9D6D00;
-          }
-          &.marker-purple {
-            border: 4px solid #A26085;
-          }
-          &.marker-red {
-            border: 4px solid #C15500;
-          }
-          &.marker-turquoise {
-            border: 4px solid #3B7BA0;
-          }
-          &.marker-yellow {
-            border: 4px solid #7E7722;
-          }
+					@each $name, $color in $marker-colors {
+						&.marker-#{$name} {
+							border-color: $color;
+						}
+					}
+				}
+			}
+			&--inline-svg {
+				border-radius: 100%;
+				padding: 6px;
+				@each $name, $color in $marker-colors {
+					&.marker-#{$name} {
+						background-color: $color;
+					}
+				}
+				svg path {
+					fill: white;
 				}
 			}
 		}
