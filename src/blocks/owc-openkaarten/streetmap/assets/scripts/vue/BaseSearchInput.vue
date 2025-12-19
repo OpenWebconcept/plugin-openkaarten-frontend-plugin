@@ -123,7 +123,7 @@ const searchStatus = computed(() => {
 
 .search-input {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.55rem 1rem;
   padding-inline-end: 4.5rem; // Space for both buttons
   border: 1px solid #7a7a7a;
   border-radius: 4px;
