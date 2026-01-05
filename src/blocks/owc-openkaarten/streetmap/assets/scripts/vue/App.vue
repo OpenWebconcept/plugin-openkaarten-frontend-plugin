@@ -111,6 +111,8 @@ async function getLocations() {
       password: password.value
     };
 
+    console.log( "Proxy payload prepared:", proxyPayload);
+
     await fetch('/wp-json/openkaarten-frontend-plugin/v1/proxy-datasets', {
       method: 'POST',
       headers: {
@@ -135,6 +137,7 @@ async function getLocations() {
           return response.json();
         })
         .then(data => {
+          console.log("Raw data received from proxy:", data);
           // Check if data is a string and might need additional parsing.
           if (typeof data === "string") {
             try {
@@ -147,6 +150,7 @@ async function getLocations() {
           }
 
           if (data && data.type === "DatasetCollection" && Array.isArray(data.datasets)) {
+            console.log("Datasets fetched successfully:", data.datasets);
             datasets.value = data.datasets;
             initializeSelectedDatasets(); // Initialize after datasets are loaded
           } else {
