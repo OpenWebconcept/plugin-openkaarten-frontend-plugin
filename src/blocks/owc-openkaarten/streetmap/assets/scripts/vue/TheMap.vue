@@ -23,6 +23,10 @@ const props = defineProps({
 		type: Array,
 		required: true
 	},
+	settings: {
+		type: Array,
+		default: () => [],
+	},
 	primaryColor: {
 		type: String,
 		required: true,
@@ -179,11 +183,13 @@ const createLayer = (feature, dataset) => {
   });
 };
 
-const initializeMap = (datasets) => {
+const initializeMap = (datasets, settings) => {
 	console.log('Initializing map with datasets:', datasets);
+	console.log('Initializing map with settings:', settings);
 	const bounds = calculateBounds(datasets);
-	let lat = '52.1326'; // Default lat (Netherlands center)
-	let long = '5.2913'; // Default long (Netherlands center)
+	let lat = settings.default_lat ?? '52.1326'; // Default lat (Netherlands center)
+	let long = settings.default_lng ?? '5.2913'; // Default long (Netherlands center)
+	let zoom = settings.default_zoom ?? 12; // Default zoom
 
 	if ( !bounds ) {
 		console.info("No valid bounds could be calculated from the datasets.");
@@ -200,7 +206,7 @@ const initializeMap = (datasets) => {
 		centerY: long,
 		minimumZoom: 4,
 		maximumZoom: 18,
-		defaultZoom: 12,
+		defaultZoom: zoom,
 		enableHomeControl: true,
 		enableZoomControl: true,
 		enableBoxZoomControl: true
@@ -210,11 +216,6 @@ const initializeMap = (datasets) => {
 		config.maxBounds = [
 			[bounds.minLat, bounds.minLong],
 			[bounds.maxLat, bounds.maxLong],
-		];
-	} else {
-		config.maxBounds = [
-			[50.5, 3.0],
-			[54.0, 7.5],
 		];
 	}
 
@@ -334,7 +335,7 @@ const emit = defineEmits(['toggleView', 'datasetChange']);
 
 onMounted(async () => {
 	if (document.getElementById('dataset-map')) {
-		initializeMap(props.datasets);
+		initializeMap(props.datasets, props.settings);
 	}
 });
 
