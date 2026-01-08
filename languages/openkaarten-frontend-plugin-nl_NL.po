@@ -14,41 +14,33 @@ msgstr ""
 "X-Domain: openkaarten-frontend-plugin\n"
 
 #. Plugin Name of the plugin
-#: openkaarten-plugin.php
+#: openkaarten-frontend-plugin.php
 msgid "OpenKaarten Frontend Plugin"
 msgstr ""
 
 #. Plugin URI of the plugin
-#: openkaarten-plugin.php
+#: openkaarten-frontend-plugin.php
 msgid "https://openwebconcept.nl/"
 msgstr ""
 
 #. Description of the plugin
-#: openkaarten-plugin.php
+#: openkaarten-frontend-plugin.php
 msgid "Adds OpenKaarten Blocks to the Gutenberg editor."
 msgstr "Voegt OpenKaarten blokken toe aan de Gutenberg editor."
 
 #. Author of the plugin
-#: openkaarten-plugin.php
+#: openkaarten-frontend-plugin.php
 msgid "Acato"
 msgstr ""
 
 #. Author URI of the plugin
-#: openkaarten-plugin.php
+#: openkaarten-frontend-plugin.php
 msgid "https://www.acato.nl"
 msgstr ""
 
 #: includes/frontend/class-frontend.php:49
 msgid "OpenKaarten Blocks"
 msgstr "OpenKaarten blokken"
-
-#: openkaarten-plugin.php:64
-msgid "This plugin requires the Openkaarten Base plugin."
-msgstr "Deze plugin benodigd de Openkaarten Base Plugin."
-
-#: openkaarten-plugin.php:64
-msgid "Openkaarten Base is not installed or active!"
-msgstr "Openkaarten Base is niet geïnstalleerd of geactiveerd!"
 
 #: src/blocks/owc-openkaarten/streetmap/block.json
 msgctxt "block title"
@@ -85,5 +77,49 @@ msgctxt "block keyword"
 msgid "locations"
 msgstr "locaties"
 
-#~ msgid "Select datalayers to display:"
-#~ msgstr "Selecteer datalayers om te tonen"
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:14
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:16
+msgid "Invalid URL"
+msgstr "Ongeldige URL"
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:59
+msgid "Error parsing nested JSON"
+msgstr "Fout bij het parsen van geneste JSON"
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:70
+msgid "Unexpected response format or 'datasets' is not an array."
+msgstr "Onverwachte opbouw van antwoord, of 'datasets' is geen array."
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:76
+msgid "Fetching datasets failed"
+msgstr "Het ophalen van datasets is mislukt"
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:95
+msgid "Select the datalayers you want to display on the map"
+msgstr "Selecteer de datalagen die u op de kaart wilt weergeven"
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:95
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:156
+msgid "No datalayers found"
+msgstr "Geen datalagen gevonden"
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:111
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:162
+msgid "No datalayers selected"
+msgstr "Geen datalagen geselecteerd"
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:131
+msgid "URL to rest-endpoint or Domain URL"
+msgstr "URL naar rest-eindpunt of domein-URL"
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:151
+msgid "Select datalayers:"
+msgstr "Selecteer datalagen:"
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:161
+msgid "Selected datalayers"
+msgstr "Geselecteerde datalagen"
+
+#: src/blocks/owc-openkaarten/streetmap/assets/scripts/edit.js:166
+msgid "URL template for tile layer"
+msgstr "URL-sjabloon voor tegel-laag"
