@@ -245,6 +245,7 @@ const initializeMap = (datasets, settings) => {
 				return {
 					id: dataset.id,
 					cluster,
+          hasFeatures: false
 				};
 			}
 
@@ -261,6 +262,7 @@ const initializeMap = (datasets, settings) => {
 			return {
 				id: dataset.id,
 				cluster,
+        hasFeatures: true
 			};
 		});
 
@@ -319,7 +321,11 @@ const initializeMap = (datasets, settings) => {
 	const listViewToggle = new L.Control.ListViewToggle();
 
 	map.addLayer(tileLayerUri);
-	map.addControl(listViewToggle);
+
+  if (groupedMarkerClusters?.some(item => item.hasFeatures)) {
+    map.addControl(listViewToggle);
+  }
+
 	if (groupedMarkerClusters?.length > 1) {
 		map.addControl(datalayerFilters);
 	}
@@ -405,7 +411,7 @@ const handleSearch = async (query) => {
 			<BaseFilters
 				v-if="datasets && datasets.length > 1 && showFiltersCard"
 				:open="showFiltersCard"
-				:datasets="datasets.filter((set) => set.features.length)"
+				:datasets="datasets.filter((set) => set.features?.length)"
 				:selectedDatasets="selectedDatasets"
 				:primaryColor="primaryColor"
 				@closeFilters="closeFilters"
