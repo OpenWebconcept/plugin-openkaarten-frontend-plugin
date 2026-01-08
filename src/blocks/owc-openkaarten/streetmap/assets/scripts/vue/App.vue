@@ -41,9 +41,18 @@ const showListView = ref(false);
 // Move selectedDatasets to App.vue
 const selectedDatasets = ref([]);
 
+// Initialize settings
+const settings = ref({});
+
 // Initialize selectedDatasets when datasets are loaded
 const initializeSelectedDatasets = () => {
   selectedDatasets.value = datasets.value.map(d => d.id);
+};
+
+const initializeSettings = () => {
+  if (datasets.settings) {
+    settings.value = datasets.settings;
+  }
 };
 
 // Add datasetChange handler
@@ -153,6 +162,8 @@ async function getLocations() {
             console.log("Datasets fetched successfully:", data.datasets);
             datasets.value = data.datasets;
             initializeSelectedDatasets(); // Initialize after datasets are loaded
+            datasets.settings = data.settings || {};
+            initializeSettings(); // Initialize settings if available
           } else {
             error.value = "Unexpected response format or 'datasets' is not an array."
             console.error("Unexpected response format or 'datasets' is not an array.");
@@ -223,6 +234,7 @@ onMounted(() => {
           title="map"
           :datasets="datasets"
           :selectedDatasets="selectedDatasets"
+          :settings="settings"
           :tileLayerUri="tileLayerUri"
           :primaryColor="primaryColor"
           @toggleView="toggleViewAndFocus"
