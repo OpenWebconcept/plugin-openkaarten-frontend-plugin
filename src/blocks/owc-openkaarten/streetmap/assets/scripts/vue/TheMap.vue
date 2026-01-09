@@ -535,10 +535,10 @@ $marker-colors: (
 		.leaflet-custom-icon {
 			&--hosted-svg {
 				.leaflet-svg {
-					width: 32px;
-					height: 32px;
+					width: 44px;
+					height: 44px;
 					padding: 2px;
-					border-radius: 50% 50% 50% 0;
+					border-radius: 50%;
 					background-color: #fff;
 					border: 4px solid #000000;
 					transform: rotate(-45deg);
@@ -547,7 +547,7 @@ $marker-colors: (
 					}
 					@each $name, $color in $marker-colors {
 						&.marker-#{$name} {
-							border-color: $color;
+              border-color: $color;
 						}
 					}
 				}
