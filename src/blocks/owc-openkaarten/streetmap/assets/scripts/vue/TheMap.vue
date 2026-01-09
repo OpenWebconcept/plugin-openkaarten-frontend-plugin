@@ -547,7 +547,10 @@ $marker-colors: (
 				}
 			}
 			&--inline-svg {
+        align-items: center;
 				border-radius: 100%;
+        display: flex;
+        justify-content: center;
 				padding: 6px;
 				@each $name, $color in $marker-colors {
 					&.marker-#{$name} {
