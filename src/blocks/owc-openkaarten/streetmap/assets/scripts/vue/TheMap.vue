@@ -414,12 +414,6 @@ const handleSearch = async (query) => {
 			/>
 		</div>
 		<div id="dataset-map"></div>
-<!--		<Transition name="fade">-->
-<!--			<div-->
-<!--				v-if="showFiltersCard"-->
-<!--				class="owc-openkaarten-streetmap__overlay"-->
-<!--			></div>-->
-<!--		</Transition>-->
 		<Transition name="slide">
 			<BaseFilters
 				v-if="datasets && datasets.length > 1 && showFiltersCard"
@@ -584,17 +578,6 @@ $marker-colors: (
       }
     }
 	}
-
-	//&__overlay {
-	//	background-color: var(--owc-map-overlay, rgba(0, 0, 0, 0.25));
-	//	position: absolute;
-	//	content: '';
-	//	top: 0;
-	//	left: 0;
-	//	width: 100%;
-	//	height: 100%;
-	//	z-index: 999;
-	//}
 
 	.fade-enter-active,
 	.fade-leave-active {
