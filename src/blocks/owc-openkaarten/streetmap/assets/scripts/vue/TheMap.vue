@@ -241,7 +241,7 @@ const initializeMap = async (datasets, settings) => {
 
   const groupedMarkerClusters = await Promise.all(
     filteredDatasets.map(async (dataset) => {
-      // Create a pane for this dataset
+      // Create a pane for this dataset.
       const pane = map.createPane(dataset.title.replace(' ', '_'));
       const cluster = L.markerClusterGroup({
         ...clusterOptions,
