@@ -73,14 +73,6 @@ const handleKeyup = (e) => {
 	}
 };
 
-const handleClickOutside = (e) => {
-	if (!props.open) return;
-	
-	if (filterContainer.value && !filterContainer.value.contains(e.target)) {
-		closeFiltersWithX();
-	}
-};
-
 const closeFiltersWithX = () => {
 	const filterButton = document.querySelector('.leaflet-control-filters');
 	if (filterButton) {
@@ -111,13 +103,11 @@ watch(() => props.open, async (newValue) => {
 onMounted(() => {
 	document.addEventListener('keydown', handleTab);
 	document.addEventListener('keyup', handleKeyup);
-	document.addEventListener('mousedown', handleClickOutside);
 });
 
 onUnmounted(() => {
 	document.removeEventListener('keydown', handleTab);
 	document.removeEventListener('keyup', handleKeyup);
-	document.removeEventListener('mousedown', handleClickOutside);
 });
 </script>
 
@@ -212,6 +202,7 @@ onUnmounted(() => {
 		justify-content: space-between;
 		padding: var(--owc-filters-card-padding);
 		border-bottom: 1px solid var(--Neutral-300, #E5E5E6);
+    height: 80px;
 		h5 {
 			padding: 0;
 			margin: 0;

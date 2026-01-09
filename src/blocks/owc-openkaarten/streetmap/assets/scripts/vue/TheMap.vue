@@ -40,7 +40,7 @@ const props = defineProps({
 });
 
 const tooltipCard = ref(null);
-const showFiltersCard = ref(true);
+const showFiltersCard = ref(false);
 const mapRef = ref(null);
 const clusters = ref([]);
 const searchQuery = ref('');
@@ -242,7 +242,7 @@ const initializeMap = async (datasets, settings) => {
 
   const groupedMarkerClusters = await Promise.all(
     filteredDatasets.map(async (dataset) => {
-      // Create a pane for this dataset
+      // Create a pane for this dataset.
       const pane = map.createPane(dataset.title.replace(' ', '_'));
       const cluster = L.markerClusterGroup({
         ...clusterOptions,
@@ -338,6 +338,7 @@ const initializeMap = async (datasets, settings) => {
 
 	if (groupedMarkerClusters?.length > 1) {
 		map.addControl(datalayerFilters);
+    showFiltersCard.value = true;
 	}
 
 	groupedMarkerClusters.forEach(({ cluster }) => {
@@ -351,7 +352,7 @@ const initializeMap = async (datasets, settings) => {
 const emit = defineEmits(['toggleView', 'datasetChange']);
 
 onMounted(async () => {
-	if (document.getElementById('dataset-map')) {
+	if (document.getElementById('dataset-map') && props.datasets.length > 0) {
 		await initializeMap(props.datasets, props.settings);
 	}
 });
@@ -415,12 +416,6 @@ const handleSearch = async (query) => {
 			/>
 		</div>
 		<div id="dataset-map"></div>
-		<Transition name="fade">
-			<div
-				v-if="showFiltersCard"
-				class="owc-openkaarten-streetmap__overlay"
-			></div>
-		</Transition>
 		<Transition name="slide">
 			<BaseFilters
 				v-if="datasets && datasets.length > 1 && showFiltersCard"
@@ -558,7 +553,10 @@ $marker-colors: (
 				}
 			}
 			&--inline-svg {
-				border-radius: 100%;
+        align-items: center;
+        border-radius: 100%;
+        display: flex;
+        justify-content: center;
 				padding: 6px;
 				@each $name, $color in $marker-colors {
 					&.marker-#{$name} {
@@ -581,17 +579,6 @@ $marker-colors: (
           transition: transform 0.2s ease-in-out;      }
       }
     }
-	}
-
-	&__overlay {
-		background-color: var(--owc-map-overlay, rgba(0, 0, 0, 0.25));
-		position: absolute;
-		content: '';
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		z-index: 999;
 	}
 
 	.fade-enter-active,
