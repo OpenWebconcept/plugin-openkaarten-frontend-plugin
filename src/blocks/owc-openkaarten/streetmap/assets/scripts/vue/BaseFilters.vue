@@ -212,6 +212,7 @@ onUnmounted(() => {
 		justify-content: space-between;
 		padding: var(--owc-filters-card-padding);
 		border-bottom: 1px solid var(--Neutral-300, #E5E5E6);
+    height: 80px;
 		h5 {
 			padding: 0;
 			margin: 0;

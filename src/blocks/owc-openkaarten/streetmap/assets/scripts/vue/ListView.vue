@@ -26,7 +26,7 @@ const searchQuery = ref('');
 const filteredLocations = computed(() => {
   let locations = props.datasets
     .filter(dataset => props.selectedDatasets.includes(dataset.id))
-    .flatMap(dataset => dataset.features.map(feature => {
+    .flatMap(dataset => dataset.features?.map(feature => {
       const tooltipData = feature.properties?.tooltip || [];
       const coords = feature.geometry.coordinates;
       
@@ -148,7 +148,7 @@ const handleSearch = (query) => {
       <BaseFilters
         v-if="showFilters"
         :open="showFilters"
-        :datasets="datasets.filter((set) => set.features.length && !set.features.every(feature => feature.geometry?.type === 'Polygon'))"
+        :datasets="datasets.filter((set) => set.features?.length && !set.features?.every(feature => feature.geometry?.type === 'Polygon'))"
         :selectedDatasets="selectedDatasets"
         :primaryColor="primaryColor"
         @closeFilters="closeFilters"
@@ -159,12 +159,13 @@ const handleSearch = (query) => {
     <ul class="list-view__results">
       <li
         v-for="(location, index) in paginatedLocations"
-        :key="`${location.datasetId}-${location.properties.id}`"
+        :key="`${location?.datasetId}-${location?.properties.id}`"
         class="list-view__item"
         :ref="el => { listItemRefs[index] = el }"
         tabindex="0"
       >
         <BaseListCard
+          v-if="location"
           :title="location.title || location.datasetTitle"
           :address="location.meta"
           :description="location.text"
@@ -316,10 +317,10 @@ const handleSearch = (query) => {
   background-color: var(--owc-map-overlay, rgba(0, 0, 0, 0.25));
   position: absolute;
   content: '';
-  top: 0;
+  top: 80px;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 80px);
   z-index: 999;
 }
 </style>

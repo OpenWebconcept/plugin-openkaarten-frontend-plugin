@@ -23,6 +23,10 @@ const props = defineProps({
 		type: Array,
 		required: true
 	},
+	settings: {
+		type: Array,
+		default: () => [],
+	},
 	primaryColor: {
 		type: String,
 		required: true,
@@ -35,7 +39,7 @@ const props = defineProps({
 });
 
 const tooltipCard = ref(null);
-const showFiltersCard = ref(true);
+const showFiltersCard = ref(false);
 const mapRef = ref(null);
 const clusters = ref([]);
 const searchQuery = ref('');
@@ -73,6 +77,7 @@ const closeFilters = () => {
 };
 
 const datasetChange = (id, checked) => {
+	console.log('datasetChange called with:', id, checked);
 	if (!id) return null;
 	emit('datasetChange', id, checked);
 	const map = mapRef.value;
@@ -136,6 +141,7 @@ const getColorFromMarker = (markerConfig, props) => {
 
 // Helper function to create appropriate layer based on feature type
 const createLayer = async (feature, dataset) => {
+  console.log('Creating layer for feature:', feature);
   if (feature.geometry.type === 'Polygon') {
     return new L.GeoJSON(feature, {
       style: () => {
@@ -149,7 +155,7 @@ const createLayer = async (feature, dataset) => {
       }
     });
   }
-  
+
   // Handle MultiPoint features
   if (feature.geometry.type === 'MultiPoint') {
     const markers = L.featureGroup();
@@ -179,24 +185,41 @@ const createLayer = async (feature, dataset) => {
   });
 };
 
-const initializeMap = async (datasets) => {
+const initializeMap = async (datasets, settings) => {
+	console.log('Initializing map with datasets:', datasets);
+	console.log('Initializing map with settings:', settings);
 	const bounds = calculateBounds(datasets);
-	const { lat, long } = calculateCenter(bounds);
+	let lat = settings.default_lat ?? '52.1326'; // Default lat (Netherlands center)
+	let long = settings.default_lng ?? '5.2913'; // Default long (Netherlands center)
+	let zoom = settings.default_zoom ?? 12; // Default zoom
+
+	if ( !bounds ) {
+		console.info("No valid bounds could be calculated from the datasets.");
+	} else {
+		const center = calculateCenter(bounds);
+		lat = center.lat;
+		long = center.long;
+	}
+
+	console.log('Center calculated as:', { lat, long });
 
 	const config = {
 		centerX: lat,
 		centerY: long,
 		minimumZoom: 4,
 		maximumZoom: 18,
-		defaultZoom: 12,
+		defaultZoom: zoom,
 		enableHomeControl: true,
 		enableZoomControl: true,
-		enableBoxZoomControl: true,
-		maxBounds: [
+		enableBoxZoomControl: true
+	};
+
+	if ( bounds ) {
+		config.maxBounds = [
 			[bounds.minLat, bounds.minLong],
 			[bounds.maxLat, bounds.maxLong],
-		],
-	};
+		];
+	}
 
 	const map = new L.Map('dataset-map', {
 		center: [config.centerX, config.centerY],
@@ -225,6 +248,15 @@ const initializeMap = async (datasets) => {
         clusterPane: pane
       });
 
+			// Check if features is empty. If so, return early.
+			if (!dataset.features || dataset.features.length === 0) {
+				return {
+					id: dataset.id,
+					cluster,
+          hasFeatures: false
+				};
+			}
+
 			if (dataset.features.constructor !== Array) {
 				dataset.features = [dataset.features];
 			}
@@ -238,6 +270,7 @@ const initializeMap = async (datasets) => {
 			return {
 				id: dataset.id,
 				cluster,
+        hasFeatures: true
 			};
 		})
   );
@@ -297,9 +330,14 @@ const initializeMap = async (datasets) => {
 	const listViewToggle = new L.Control.ListViewToggle();
 
 	map.addLayer(tileLayerUri);
-	map.addControl(listViewToggle);
+
+  if (groupedMarkerClusters?.some(item => item.hasFeatures)) {
+    map.addControl(listViewToggle);
+  }
+
 	if (groupedMarkerClusters?.length > 1) {
 		map.addControl(datalayerFilters);
+    showFiltersCard.value = true;
 	}
 
 	groupedMarkerClusters.forEach(({ cluster }) => {
@@ -312,8 +350,8 @@ const initializeMap = async (datasets) => {
 const emit = defineEmits(['toggleView', 'datasetChange']);
 
 onMounted(async () => {
-	if (document.getElementById('dataset-map')) {
-		await initializeMap(props.datasets);
+	if (document.getElementById('dataset-map') && props.datasets.length > 0) {
+		await initializeMap(props.datasets, props.settings);
 	}
 });
 
@@ -386,7 +424,7 @@ const handleSearch = async (query) => {
 			<BaseFilters
 				v-if="datasets && datasets.length > 1 && showFiltersCard"
 				:open="showFiltersCard"
-				:datasets="datasets.filter((set) => set.features.length)"
+				:datasets="datasets.filter((set) => set.features?.length)"
 				:selectedDatasets="selectedDatasets"
 				:primaryColor="primaryColor"
 				@closeFilters="closeFilters"
