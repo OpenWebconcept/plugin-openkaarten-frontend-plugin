@@ -317,10 +317,10 @@ const handleSearch = (query) => {
   background-color: var(--owc-map-overlay, rgba(0, 0, 0, 0.25));
   position: absolute;
   content: '';
-  top: 80px;
+  top: 0;
   left: 0;
   width: 100%;
-  height: calc(100% - 80px);
+  height: 100%;
   z-index: 999;
 }
 </style>
