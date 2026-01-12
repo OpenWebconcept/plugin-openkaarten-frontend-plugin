@@ -145,7 +145,7 @@ const attachEvents = (marker, location, set) => {
   });
 
   marker.on('keydown', ({ originalEvent }) => {
-    if (originalEvent.keyCode === 13) {
+    if (originalEvent.key === 'Enter') {
       tooltipCard.value = makeTooltipCard(location, set);
     }
   });
