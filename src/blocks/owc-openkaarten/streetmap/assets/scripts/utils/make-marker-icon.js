@@ -4,48 +4,8 @@
  * @returns {Promise<string|null>}
  */
 
-// In-memory cache for SVGs.
-const svgCache = new Map();
-const inFlightRequests = new Map();
 
-const fetchAndInlineSvg = async (url) => {
-  // Check cache first.
-  if (svgCache.has(url)) {
-    return svgCache.get(url);
-  }
-
-  // Check if there is a fetch running.
-  if (inFlightRequests.has(url)) {
-    return inFlightRequests.get(url);
-  }
-
-  const controller = new AbortController();
-  const { signal } = controller;
-
-  const promise = (async () => {
-    try {
-      const response = await fetch(url, { signal });
-      if (!response.ok) {
-        throw new Error(`Failed to fetch SVG: ${response.status}`);
-      }
-      const text = await response.text();
-      svgCache.set(url, text); // save to cache.
-      return text;
-    } catch (error) {
-      if (error.name !== 'AbortError') {
-        console.error('Error fetching SVG:', error);
-      }
-      return null;
-    } finally {
-      inFlightRequests.delete(url);
-    }
-  })();
-
-  inFlightRequests.set(url, promise);
-  return promise;
-};
-
-export const makeMarkerIcon = async (L, { marker, defaultColor }) => {
+export const makeMarkerIcon = (L, { marker, defaultColor }) => {
   const iconColor = marker?.color || defaultColor;
 
   // Fallback inline SVG.
@@ -56,19 +16,13 @@ export const makeMarkerIcon = async (L, { marker, defaultColor }) => {
     </g>
   </svg>`;
 
+  let iconInstance = {}
   let iconType = 'inline-svg'; // start with fallback
 
   // If there is a hosted SVG, use that temporarily.
   if (marker?.icon) {
     icon = marker.icon;
     iconType = 'hosted-svg';
-
-    // Fetch inline SVG async.
-    const inlinedSvg = await fetchAndInlineSvg(marker.icon);
-    if (inlinedSvg) {
-      icon = inlinedSvg;
-      iconType = 'inline-svg';
-    }
   }
 
   const iconSettings = {
@@ -78,7 +32,7 @@ export const makeMarkerIcon = async (L, { marker, defaultColor }) => {
 
   // Make divIcon dependent on type.
   if (iconType === 'inline-svg') {
-    return L.divIcon({
+    iconInstance = L.divIcon({
       className: `leaflet-custom-icon--inline-svg ${iconColor}`,
       html: L.Util.template(iconSettings.iconUrl, iconSettings),
       iconAnchor: [12, 32],
@@ -86,7 +40,7 @@ export const makeMarkerIcon = async (L, { marker, defaultColor }) => {
       popupAnchor: [0, -28],
     });
   } else {
-    return L.divIcon({
+    iconInstance = L.divIcon({
       className: 'leaflet-custom-icon--hosted-svg',
       html: L.Util.template(
         `<div class="leaflet-svg ${iconColor}"><img src=${iconSettings.iconUrl} /></div>`,
@@ -97,4 +51,26 @@ export const makeMarkerIcon = async (L, { marker, defaultColor }) => {
       popupAnchor: [0, -28],
     });
   }
+
+  // try to fetch hosted SVG async.
+  if (marker?.icon) {
+    fetch(marker.icon)
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`Failed to fetch SVG: ${res.status}`);
+        const text = await res.text();
+        // Replace fallback SVG with fetched inline SVG
+        const newHtml = text.replace(/fill=".*?"/g, `fill="${iconColor}"`); // optioneel kleur aanpassen
+        iconInstance.options.html = newHtml;
+
+        // force Leaflet to redraw icon.
+        if (marker.ref) {
+          marker.ref.setIcon(iconInstance);
+        }
+      })
+      .catch((err) => {
+        console.warn('SVG fetch failed, using fallback:', err);
+      });
+  }
+
+  return iconInstance;
 };
