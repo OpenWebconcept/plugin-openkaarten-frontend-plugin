@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, ref, watch, nextTick } from 'vue';
+import { onMounted, onUnmounted, ref, watch, nextTick, reactive } from 'vue';
 import BaseFiltersCheckbox from './BaseFiltersCheckbox.vue';
 import BaseTooltipCardClose from './BaseTooltipCardClose.vue';
 
@@ -26,9 +26,22 @@ const props = defineProps({
 
 const emit = defineEmits(['closeFilters', 'datasetChange']);
 
-const getDatalayerColor = (layer) => {
-	const firstMarker = layer.features[0]?.properties?.marker?.color;
-	return firstMarker || props.primaryColor;
+const getDatalayerSvg = async (layer) => {
+  const markerData = layer.features[0]?.properties?.marker;
+  if (!markerData?.icon) return null;
+
+  const response = await fetch(markerData.icon);
+  let svgText = await response.text();
+
+  if (svgText.includes('fill=')) {
+    svgText = svgText.replace(/fill="[^"]*"/g, `fill="#fff`);
+  } else {
+    svgText = svgText.replace('<path', `<path fill="#fff"`);
+  }
+
+  const colorClass = markerData.color ?? 'marker-blue';
+
+  return { svgText, colorClass };
 };
 
 const datasetChange = (id, checked) => {
@@ -107,11 +120,15 @@ watch(() => props.open, async (newValue) => {
 		closeButton.value?.focus();
 	}
 });
+const layerSvg = reactive({});
 
-onMounted(() => {
+onMounted( async() => {
 	document.addEventListener('keydown', handleTab);
 	document.addEventListener('keyup', handleKeyup);
 	document.addEventListener('mousedown', handleClickOutside);
+  for (const layer of props.datasets) {
+    layerSvg[layer.id] = await getDatalayerSvg(layer);
+  }
 });
 
 onUnmounted(() => {
@@ -152,13 +169,13 @@ onUnmounted(() => {
 						:selected="selectedDatasets.includes(layer.id)"
 						@onChange="datasetChange"
 					/>
-					<div
-              :class="[
-              'owc-openkaarten-streetmap__filters__body__list-item__dl-indicator',
-              getDatalayerColor(layer),
-              ]"
-          />
-				</li>
+          <div
+              v-if="layerSvg[layer.id]"
+              class="owc-openkaarten-streetmap__filters__body__list-item__dl-indicator"
+              :class="layerSvg[layer.id].colorClass"
+              v-html="layerSvg[layer.id].svgText"
+          ></div>
+        </li>
 			</ul>
 		</div>
 		<div class="owc-openkaarten-streetmap__filters__footer">
@@ -238,11 +255,14 @@ onUnmounted(() => {
 			align-content: center;
 			justify-content: space-between;
 			&__dl-indicator {
+        align-items: center;
         background-color: #000000;
-				width: 28px;
-				height: 28px;
-				border-radius: 50%;
-				opacity: 0.5;
+        border-radius: 50%;
+        display: flex;
+				height: 30px;
+        justify-content: center;
+        padding: 3px;
+        width: 30px;
         &.marker-black {
           background-color: #000000;
         }
