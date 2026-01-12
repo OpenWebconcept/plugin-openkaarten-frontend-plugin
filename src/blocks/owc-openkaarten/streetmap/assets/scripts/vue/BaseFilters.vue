@@ -165,6 +165,12 @@ onUnmounted(() => {
               :class="layerSvg[layer.id].colorClass"
               v-html="layerSvg[layer.id].svgText"
           ></div>
+          <img
+          v-else-if="layer.features[0]?.properties?.marker.icon"
+          :src="layer.features[0]?.properties?.marker.icon"
+          class="owc-openkaarten-streetmap__filters__body__list-item__dl-indicator hosted-svg"
+          :class="layer.features[0]?.properties?.marker.color"
+          />
         </li>
 			</ul>
 		</div>
@@ -257,44 +263,62 @@ onUnmounted(() => {
         justify-content: center;
         padding: 3px;
         width: 30px;
+        &.hosted-svg {
+          background-color: #fff!important;
+          border: 4px solid #000000;
+          padding: 0;
+        }
         &.marker-black {
           background-color: #000000;
+          border-color: #000000;
         }
         &.marker-blue {
           background-color: #0072B2;
+          border-color: #0072B2;
         }
         &.marker-brown {
           background-color: #A0522D;
+          border-color: #A0522D;
         }
         &.marker-darkgray {
           background-color: #555555;
+          border-color: #555555;
         }
         &.marker-deep-purple {
           background-color: #4B0082;
+          border-color: #4B0082;
         }
         &.marker-gray {
           background-color: #757575;
+          border-color: #757575;
         }
         &.marker-green {
           background-color: #008661;
+          border-color: #008661;
         }
         &.marker-navy-blue {
           background-color: #003366;
+          border-color: #003366;
         }
         &.marker-orange {
           background-color: #9D6D00;
+          border-color: #9D6D00;
         }
         &.marker-purple {
           background-color: #A26085;
+          border-color: #A26085;
         }
         &.marker-red {
           background-color: #C15500;
+          border-color: #C15500;
         }
         &.marker-turquoise {
           background-color: #3B7BA0;
+          border-color: #3B7BA0;
         }
         &.marker-yellow {
           background-color: #7E7722;
+          border-color: #7E7722;
         }
 			}
 		}
