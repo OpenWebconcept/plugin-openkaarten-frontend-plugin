@@ -8,7 +8,7 @@
  *
  * @package    Openkaarten_Frontend_Plugin
  * @subpackage Openkaarten_Frontend_Plugin/Src/Blocks
- * @author     Acato info@acato.nl>
+ * @author     Acato <service+openkaarten@acato.nl>
  */
 
 return [
