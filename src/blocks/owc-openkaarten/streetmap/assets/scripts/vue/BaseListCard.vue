@@ -54,10 +54,14 @@ defineProps({
 
   background-color: #fff;
 	display: flex;
+  flex-direction: column-reverse;
 	gap: 1rem;
 	border: 1px solid #cacaca;
 	border-radius: 6px;
   margin-block-end: 1rem;
+  @media only screen and (min-width: 768px) {
+    flex-direction: row;
+  }
   .filters-open & {
     margin-inline-end: 1rem;
   }
