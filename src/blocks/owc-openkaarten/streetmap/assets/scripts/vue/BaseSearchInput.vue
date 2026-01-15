@@ -103,7 +103,7 @@ const searchStatus = computed(() => {
   display: block;
   flex-grow: 1;
   width: 100%;
-  margin-inline-end: 1.5rem;
+  margin-inline-end: 1rem;
   @media only screen and (min-width: 768px) {
     width: auto;
     margin-inline-end: 0;
