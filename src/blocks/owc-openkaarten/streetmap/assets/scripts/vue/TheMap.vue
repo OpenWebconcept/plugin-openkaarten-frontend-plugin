@@ -518,7 +518,7 @@ $marker-colors: (
 }
 
 .owc-openkaarten-streetmap {
-  &__filters__body__list-item__dl-indicator{
+  &__filters__body__list-item__dl-indicator {
     align-items: center;
     background-color: #000000;
     border-radius: 50%;
@@ -526,6 +526,7 @@ $marker-colors: (
     height: 30px;
     justify-content: center;
     padding: 3px;
+    min-width: 30px;
     width: 30px;
     @each $name, $color in $marker-colors {
       &.marker-#{$name} {
