@@ -2,6 +2,7 @@
 import { onMounted, onUnmounted, ref, watch, nextTick, reactive } from 'vue';
 import BaseFiltersCheckbox from './BaseFiltersCheckbox.vue';
 import BaseTooltipCardClose from './BaseTooltipCardClose.vue';
+import BaseIcon from './BaseIcon.vue';
 
 const props = defineProps({
 	open: Boolean,
@@ -25,24 +26,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['closeFilters', 'datasetChange']);
-
-const getDatalayerSvg = async (layer) => {
-  const markerData = layer.features[0]?.properties?.marker;
-  if (!markerData?.icon) return null;
-
-  const response = await fetch(markerData.icon);
-  let svgText = await response.text();
-
-  if (svgText.includes('fill=')) {
-    svgText = svgText.replace(/fill="[^"]*"/g, `fill="#fff`);
-  } else {
-    svgText = svgText.replace('<path', `<path fill="#fff"`);
-  }
-
-  const colorClass = markerData.color ?? 'marker-blue';
-
-  return { svgText, colorClass };
-};
 
 const datasetChange = (id, checked) => {
 	emit('datasetChange', id, checked);
@@ -112,14 +95,10 @@ watch(() => props.open, async (newValue) => {
 		closeButton.value?.focus();
 	}
 });
-const layerSvg = reactive({});
 
 onMounted( async() => {
 	document.addEventListener('keydown', handleTab);
 	document.addEventListener('keyup', handleKeyup);
-  for (const layer of props.datasets) {
-    layerSvg[layer.id] = await getDatalayerSvg(layer);
-  }
 });
 
 onUnmounted(() => {
@@ -159,18 +138,7 @@ onUnmounted(() => {
 						:selected="selectedDatasets.includes(layer.id)"
 						@onChange="datasetChange"
 					/>
-          <div
-              v-if="layerSvg[layer.id]"
-              class="owc-openkaarten-streetmap__filters__body__list-item__dl-indicator"
-              :class="layerSvg[layer.id].colorClass"
-              v-html="layerSvg[layer.id].svgText"
-          ></div>
-          <img
-          v-else-if="layer.features[0]?.properties?.marker.icon"
-          :src="layer.features[0]?.properties?.marker.icon"
-          class="owc-openkaarten-streetmap__filters__body__list-item__dl-indicator hosted-svg"
-          :class="layer.features[0]?.properties?.marker.color"
-          />
+          <BaseIcon :marker="layer.features[0]?.properties?.marker" />
         </li>
 			</ul>
 		</div>
@@ -217,7 +185,7 @@ onUnmounted(() => {
 	margin: 0;
   @media only screen and (min-width: 768px) {
     width: 276px;
-    max-height: none;
+    border-right: 1px solid var(--Neutral-300,#e5e5e6);
   }
 	&__header {
 		display: flex;
@@ -254,73 +222,6 @@ onUnmounted(() => {
 			display: flex;
 			align-content: center;
 			justify-content: space-between;
-			&__dl-indicator {
-        align-items: center;
-        background-color: #000000;
-        border-radius: 50%;
-        display: flex;
-				height: 30px;
-        justify-content: center;
-        padding: 3px;
-        width: 30px;
-        &.hosted-svg {
-          background-color: #fff!important;
-          border: 4px solid #000000;
-          padding: 0;
-        }
-        &.marker-black {
-          background-color: #000000;
-          border-color: #000000;
-        }
-        &.marker-blue {
-          background-color: #0072B2;
-          border-color: #0072B2;
-        }
-        &.marker-brown {
-          background-color: #A0522D;
-          border-color: #A0522D;
-        }
-        &.marker-darkgray {
-          background-color: #555555;
-          border-color: #555555;
-        }
-        &.marker-deep-purple {
-          background-color: #4B0082;
-          border-color: #4B0082;
-        }
-        &.marker-gray {
-          background-color: #757575;
-          border-color: #757575;
-        }
-        &.marker-green {
-          background-color: #008661;
-          border-color: #008661;
-        }
-        &.marker-navy-blue {
-          background-color: #003366;
-          border-color: #003366;
-        }
-        &.marker-orange {
-          background-color: #9D6D00;
-          border-color: #9D6D00;
-        }
-        &.marker-purple {
-          background-color: #A26085;
-          border-color: #A26085;
-        }
-        &.marker-red {
-          background-color: #C15500;
-          border-color: #C15500;
-        }
-        &.marker-turquoise {
-          background-color: #3B7BA0;
-          border-color: #3B7BA0;
-        }
-        &.marker-yellow {
-          background-color: #7E7722;
-          border-color: #7E7722;
-        }
-			}
 		}
 	}
 

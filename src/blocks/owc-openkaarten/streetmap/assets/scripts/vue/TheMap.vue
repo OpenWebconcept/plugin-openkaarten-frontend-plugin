@@ -461,6 +461,12 @@ const handleSearch = async (query) => {
 			/>
 		</div>
 		<div id="dataset-map"></div>
+    <Transition name="fade">
+      <div
+          v-if="showFiltersCard"
+          class="owc-openkaarten-streetmap__overlay"
+      ></div>
+    </Transition>
 		<Transition name="slide">
 			<BaseFilters
 				v-if="datasets && datasets.length > 1 && showFiltersCard"
@@ -512,6 +518,22 @@ $marker-colors: (
 }
 
 .owc-openkaarten-streetmap {
+  &__filters__body__list-item__dl-indicator{
+    align-items: center;
+    background-color: #000000;
+    border-radius: 50%;
+    display: flex;
+    height: 30px;
+    justify-content: center;
+    padding: 3px;
+    width: 30px;
+    @each $name, $color in $marker-colors {
+      &.marker-#{$name} {
+        background-color: #{$color};
+        border-color: #{$color};
+      }
+    }
+  }
 	&__results {
 		display: flex;
 		flex-direction: column;
@@ -578,30 +600,15 @@ $marker-colors: (
 		}
 
 		.leaflet-custom-icon {
-			&--hosted-svg {
-				.leaflet-svg {
-          align-items: center;
-          background-color: #fff;
-          border: 4px solid #000000;
-          border-radius: 50%;
-          display: flex;
-          height: 44px;
-          justify-content: center;
-					padding: 2px;
-          width: 44px;
-					@each $name, $color in $marker-colors {
-						&.marker-#{$name} {
-              border-color: $color;
-						}
-					}
-				}
-			}
 			&--inline-svg {
         align-items: center;
         border-radius: 100%;
         display: flex;
         justify-content: center;
 				padding: 6px;
+        .leaflet-svg {
+          width: 44px;
+        }
 				@each $name, $color in $marker-colors {
 					&.marker-#{$name} {
 						background-color: $color;
@@ -624,6 +631,20 @@ $marker-colors: (
       }
     }
 	}
+
+  &__overlay {
+    background-color: var(--owc-map-overlay, rgba(0, 0, 0, 0.25));
+    position: absolute;
+    content: '';
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    @media only screen and (min-width: 768px) {
+      display: none;
+    }
+  }
 
 	.fade-enter-active,
 	.fade-leave-active {

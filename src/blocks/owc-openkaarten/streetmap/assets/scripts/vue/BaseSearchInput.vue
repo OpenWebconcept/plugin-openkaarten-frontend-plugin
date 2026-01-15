@@ -103,10 +103,10 @@ const searchStatus = computed(() => {
   display: block;
   flex-grow: 1;
   width: 100%;
-  margin-inline-end: 1.5rem;
+  margin-inline-end: 1rem;
   @media only screen and (min-width: 768px) {
     width: auto;
-    margin-inline-end: 1.5rem;
+    margin-inline-end: 0;
   }
 }
 
@@ -123,7 +123,7 @@ const searchStatus = computed(() => {
 
 .search-input {
   width: 100%;
-  padding: 0.55rem 1rem;
+  padding: 9px 1rem;
   padding-inline-end: 4.5rem; // Space for both buttons
   border: 1px solid #7a7a7a;
   border-radius: 4px;
