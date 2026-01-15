@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted } from 'vue';
 import BaseTooltipCardClose from './BaseTooltipCardClose.vue';
+import BaseIcon from './BaseIcon.vue';
 
 const props = defineProps({
 	id: Number,
@@ -13,17 +14,9 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
-	text: {
-		type: String,
-		default: '',
-	},
 	button: {
 		type: Object,
 		default: null,
-	},
-	image: {
-		type: String,
-		default: '',
 	},
 	properties: {
 		type: Object,
@@ -64,25 +57,20 @@ onMounted(() => {
 		class="owc-openkaarten-streetmap__tooltip-card"
 		tabindex="0"
 	>
-		<div class="owc-openkaarten-streetmap__tooltip-card__wraper">
-			<div v-if="image" class="owc-openkaarten-streetmap__tooltip-card__image">
-				<img :src="image" :alt="title" />
-			</div>
+		<div class="owc-openkaarten-streetmap__tooltip-card__wrapper">
 			<div class="owc-openkaarten-streetmap__tooltip-card__content">
-				<div class="owc-openkaarten-streetmap__tooltip-card__header">
-					<h4 class="owc-openkaarten-streetmap__tooltip-card__title">
-						{{ title }}
-					</h4>
-					<BaseTooltipCardClose
-						:primaryColor="primaryColor"
-						@closeCard="$emit('closeCard')"
-					/>
-				</div>
+        <div class="owc-openkaarten-streetmap__tooltip-card__header">
+          <BaseIcon :marker="properties.marker" />
+          <BaseTooltipCardClose
+              :primaryColor="primaryColor"
+              @closeCard="$emit('closeCard')"
+          />
+        </div>
+        <h4 v-if="title" class="owc-openkaarten-streetmap__tooltip-card__title">
+          {{ title }}
+        </h4>
 				<div v-if="meta" class="owc-openkaarten-streetmap__tooltip-card__meta">
 					{{ meta }}
-				</div>
-				<div v-if="text" class="owc-openkaarten-streetmap__tooltip-card__text">
-					{{ text }}
 				</div>
 				<a
 					v-if="button"
@@ -105,13 +93,13 @@ onMounted(() => {
 		background-color: #fff;
 		position: absolute;
 		bottom: 24px;
-		left: 12px;
-		right: 12px;
+		left: 50%;
 		z-index: 400;
 		inline-size: min(100%, 360px);
 		border-radius: 4px;
+    transform: translate(-50%, 0);
 
-		&__wraper {
+		&__wrapper {
 			border-radius: 4px;
 		}
 
@@ -119,14 +107,15 @@ onMounted(() => {
 			display: flex;
 			flex-direction: column;
 			align-items: flex-start;
-			gap: 16px;
+			gap: 8px;
 			padding: 16px;
 		}
 
 		@media only screen and (min-width: 768px) {
 			left: auto;
 			bottom: 24px;
-			right: 16px;
+			left: 16px;
+      transform: translate(0);
 		}
 
 		&:focus {
@@ -134,20 +123,17 @@ onMounted(() => {
 		}
 
 		&__header {
+      align-items: center;
 			display: flex;
-			align-items: center;
+      gap: 24px;
 			justify-content: space-between;
-			gap: 24px;
+      width: 100%;
 		}
 
 		&__title {
 			margin-block: 0;
 			color: #001d5f;
 			font-weight: bold;
-		}
-
-		&:not(:has(img)) &__header {
-			max-inline-size: 85%;
 		}
 
 		&__list {

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, nextTick } from 'vue';
+import { computed, ref, nextTick, onMounted } from 'vue';
 import BaseListCard from './BaseListCard.vue';
 import { makeFilterButtonHTML } from '../utils/make-filter-button-html';
 import { makeMapButtonHTML } from '../utils/make-map-button-html';
@@ -49,6 +49,8 @@ const filteredLocations = computed(() => {
         title: tooltipData.find(t => t.layout === 'title')?.title || feature.title,
         meta: tooltipData.find(t => t.layout === 'meta')?.meta || '',
         text: tooltipData.find(t => t.layout === 'text')?.text || '',
+        image: tooltipData.find(t => t.layout === 'image')?.image_url || '',
+        button: tooltipData.find(t => t.layout === 'button') || null,
         searchableText: searchableText.toLowerCase()
       };
     }));
@@ -114,11 +116,21 @@ const loadMore = () => {
 const handleSearch = (query) => {
   searchQuery.value = query;
 };
+
+onMounted(() => {
+  if (window.innerWidth > 768) {
+    showFilters.value = true;
+  }
+});
+
 </script>
 
 <template>
   <div
     class="list-view"
+    :class="{
+      'filters-open': showFilters,
+      }"
   >
     <div class="list-view__controls">
       <BaseSearchInput 
@@ -171,6 +183,7 @@ const handleSearch = (query) => {
           :description="location.text"
           :image="location.image"
           :primaryColor="primaryColor"
+          :marker="location.properties.marker"
         >
           <template #footer>
             <a
@@ -179,7 +192,7 @@ const handleSearch = (query) => {
               class="base-list-card__button"
             >
               <svg aria-hidden="true" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10.243 4.41a.833.833 0 0 1 1.178 0l5 5a.833.833 0 0 1 0 1.18l-5 5a.833.833 0 0 1-1.178-1.18l3.577-3.577H4.165a.833.833 0 0 1 0-1.667h9.655L10.243 5.59a.833.833 0 0 1 0-1.178Z" fill="#1261A3"/>
+                <path d="M10.243 4.41a.833.833 0 0 1 1.178 0l5 5a.833.833 0 0 1 0 1.18l-5 5a.833.833 0 0 1-1.178-1.18l3.577-3.577H4.165a.833.833 0 0 1 0-1.667h9.655L10.243 5.59a.833.833 0 0 1 0-1.178Z" fill="#fff"/>
               </svg>
               {{ location.button.button_text }}
               <span class="sr-only">over {{ location.title }}</span>
@@ -202,21 +215,30 @@ const handleSearch = (query) => {
 
 <style lang="scss">
 .list-view {
+  background-color: #E5E5E6;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
   min-block-size: 660px;
-  padding: 0.25rem;
-  position: relative;
+  padding: 1rem;
+  padding-block-start: 0;
+  position: absolute;
   overflow-x: clip;
-
+  width: 100%;
+  z-index: 9999;
   &__controls {
+    align-items: center;
+    border-bottom: 1px solid var(--Neutral-300, #e5e5e6);
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-block-end: 0.5rem;
+    gap: 1rem;
+    height: 76px;
+    margin-block-end: 2.5rem;
     @media only screen and (min-width: 768px) {
       justify-content: flex-end;
+      margin-block-end: 0;
+      .filters-open & {
+        margin-inline-end: 130px;
+      }
     }
     button:not([class*="search"]) {
       align-items: center;
@@ -227,7 +249,7 @@ const handleSearch = (query) => {
       justify-content: space-between;
       gap: 8px;
       min-width: 44px;
-      min-height: 50px;
+      min-height: 48px;
       padding: 10px 24px;
 
       span {
@@ -252,9 +274,13 @@ const handleSearch = (query) => {
   &__results {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    padding: 0;
     margin: 0;
+    max-height: 555px;
+    padding: 0;
+    overflow: scroll;
+    .filters-open & {
+      max-width: calc(100% - 267px);
+    }
   }
 
   &__item {
