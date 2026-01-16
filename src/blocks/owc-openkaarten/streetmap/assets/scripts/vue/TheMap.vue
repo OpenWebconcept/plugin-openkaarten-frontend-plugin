@@ -628,7 +628,7 @@ $marker-colors: (
           transition: transform 0.2s ease-in-out;
         }
         .leaflet-top.leaflet-left {
-          transform: translateX(-132px);
+          transform: translateX(-146px);
           transition: transform 0.2s ease-in-out;      }
       }
     }
@@ -670,24 +670,22 @@ $marker-colors: (
 	}
 
 	&__controls {
-		position: absolute;
-		inset-block-start: 20px;
-		inset-inline-start: 10px;
-		z-index: 1000;
 		display: flex;
 		gap: 0.5rem;
+    inset-block-start: 20px;
+    inset-inline-start: 10px;
+    position: absolute;
+    transition: all 0.2s ease-in-out;
 		width: 100%;
+    z-index: 1000;
     @media only screen and (min-width: 768px) {
       inset-inline-start: 20px;
-      max-inline-size: min(300px, calc(100% - 2rem));
+      max-inline-size: calc( 100% - 287px);
       top: 1rem;
       z-index: 9999;
-    }
-    @media only screen and (min-width: 900px) {
-      max-inline-size: min(450px, calc(100% - 2rem));
-    }
-    @media only screen and (min-width: 1040px) {
-      max-inline-size: min(586px, calc(100% - 2rem));
+      .filters-open & {
+        max-inline-size: calc( 100% - 435px);
+      }
     }
 	}
 }
