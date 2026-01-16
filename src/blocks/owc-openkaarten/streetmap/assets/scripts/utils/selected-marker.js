@@ -20,7 +20,7 @@ export const highlightSelectedMarker = (activeLayer) => {
     });
   }
 
-  // Add class to DOM respective elements.
+  // Add class to respective DOM elements.
   markers.forEach(marker => {
     const el = marker.getElement();
     if (el) {

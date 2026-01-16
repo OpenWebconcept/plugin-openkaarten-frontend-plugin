@@ -1,18 +1,18 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import L from 'leaflet';
+import { MarkerClusterGroup } from 'leaflet.markercluster/src';
 import BaseFilters from './BaseFilters.vue';
 import BaseTooltipCard from './BaseTooltipCard.vue';
 import { calculateBounds } from '../utils/calculate-bounds';
 import { calculateCenter } from '../utils/calculate-center';
-import { makeMarkerCluster } from '../utils/make-marker-cluster';
 import { makeMarkerIcon } from '../utils/make-marker-icon';
 import { makeTooltipCard } from '../utils/make-tooltip-card';
 import { makeFilterButtonHTML } from '../utils/make-filter-button-html';
 import { makeListViewButtonHTML } from '../utils/make-list-view-button-html';
-import { highlightSelectedMarker } from '../utils/panes';
-import { resetMarkers } from '../utils/panes';
-import { activeMarkerRef } from '../utils/panes';
+import { highlightSelectedMarker } from '../utils/selected-marker';
+import { resetMarkers } from '../utils/selected-marker';
+import { activeMarkerRef } from '../utils/selected-marker';
 import BaseSearchInput from './BaseSearchInput.vue';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
