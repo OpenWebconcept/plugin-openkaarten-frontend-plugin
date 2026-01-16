@@ -638,6 +638,7 @@ $marker-colors: (
 						background-color: $color;
             &.active, &:where(:hover, :focus-visible) {
               box-shadow: 0 0 0 3px white, 0 0 0 6px $color;
+              opacity: 1 !important;
             }
 					}
 				}
