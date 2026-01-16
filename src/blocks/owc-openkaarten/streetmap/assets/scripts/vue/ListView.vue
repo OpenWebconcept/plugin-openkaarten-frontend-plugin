@@ -238,7 +238,11 @@ onMounted(() => {
       justify-content: flex-end;
       margin-block-end: 0;
       .filters-open & {
-        margin-inline-end: 149px;
+        margin-inline-end: 155px;
+        .list-view__filters-button {
+          opacity: 0;
+          pointer-events: none;
+        }
       }
     }
     button:not([class*="search"]) {
