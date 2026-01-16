@@ -1,15 +1,18 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import L from 'leaflet';
+import { MarkerClusterGroup } from 'leaflet.markercluster/src';
 import BaseFilters from './BaseFilters.vue';
 import BaseTooltipCard from './BaseTooltipCard.vue';
 import { calculateBounds } from '../utils/calculate-bounds';
 import { calculateCenter } from '../utils/calculate-center';
-import { makeMarkerCluster } from '../utils/make-marker-cluster';
 import { makeMarkerIcon } from '../utils/make-marker-icon';
 import { makeTooltipCard } from '../utils/make-tooltip-card';
 import { makeFilterButtonHTML } from '../utils/make-filter-button-html';
 import { makeListViewButtonHTML } from '../utils/make-list-view-button-html';
+import { highlightSelectedMarker } from '../utils/selected-marker';
+import { resetMarkers } from '../utils/selected-marker';
+import { activeMarkerRef } from '../utils/selected-marker';
 import BaseSearchInput from './BaseSearchInput.vue';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -70,7 +73,8 @@ const clusterOptions = {
 
 const closeTooltipCard = () => {
 	tooltipCard.value = null;
-	document.getElementById('dataset-map')?.focus();
+  resetMarkers();
+  document.getElementById('dataset-map')?.focus();
 };
 
 const closeFilters = () => {
@@ -104,6 +108,7 @@ let overlapIndex = 0;
 const attachEvents = (marker, location, set) => {
   marker.on('click', (e) => {
     tooltipCard.value = makeTooltipCard(location, set);
+    highlightSelectedMarker(marker);
 
     const map = mapRef.value;
 
@@ -148,6 +153,7 @@ const attachEvents = (marker, location, set) => {
   marker.on('keydown', ({ originalEvent }) => {
     if (originalEvent.key === 'Enter') {
       tooltipCard.value = makeTooltipCard(location, set);
+      highlightSelectedMarker(e.target);
     }
   });
 };
@@ -388,6 +394,11 @@ const initializeMap = async (datasets, settings) => {
 
 	groupedMarkerClusters.forEach(({ cluster }) => {
 		map.addLayer(cluster);
+    cluster.on('animationend layeradd spiderfied', () => {
+      if (activeMarkerRef.value) {
+        highlightSelectedMarker(activeMarkerRef.value);
+      }
+    });
 	});
 	clusters.value = groupedMarkerClusters;
 	mapRef.value = map;
@@ -598,7 +609,11 @@ $marker-colors: (
 				outline-color: var(--owc-openkaarten-streetmap--primary-color);
 				aspect-ratio: 1 / 1;
 			}
-		}
+      &.dimmed {
+        opacity: 0.4 !important;
+        transition: opacity 0.2s ease-in-out, filter 0.2s ease-in-out;
+      }
+    }
 
 		.leaflet-custom-icon {
 			&--inline-svg {
@@ -614,6 +629,13 @@ $marker-colors: (
 				@each $name, $color in $marker-colors {
 					&.marker-#{$name} {
 						background-color: $color;
+            &.active, &:where(:hover, :focus-visible) {
+              border-radius: 50%;
+              box-shadow: 0 0 0 3px white, 0 0 0 6px $color;
+              opacity: 1 !important;
+              outline: none;
+              transition: all 0.2s ease-in-out;
+            }
 					}
 				}
 				svg path {
