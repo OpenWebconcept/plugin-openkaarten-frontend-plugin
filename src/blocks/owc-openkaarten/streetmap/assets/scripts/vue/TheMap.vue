@@ -520,7 +520,7 @@ $marker-colors: (
 .owc-openkaarten-streetmap {
   &__filters__body__list-item__dl-indicator {
     align-items: center;
-    background-color: #000000;
+    background-color: #0072B2;
     border-radius: 50%;
     display: flex;
     height: 30px;
@@ -603,6 +603,7 @@ $marker-colors: (
 		.leaflet-custom-icon {
 			&--inline-svg {
         align-items: center;
+        background-color: #0072B2;
         border-radius: 100%;
         display: flex;
         justify-content: center;
