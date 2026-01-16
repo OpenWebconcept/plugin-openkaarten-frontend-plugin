@@ -59,16 +59,16 @@
 	.leaflet-control-filters,
 	.leaflet-control-list-view {
 		align-items: center;
-		border: 1px solid var(--owc-openkaarten-streetmap--primary-color) !important;
 		background-color: #fff;
+		border: 1px solid var(--owc-openkaarten-streetmap--primary-color) !important;
 		border-radius: 3px;
 		display: flex;
-		justify-content: space-between;
 		gap: 8px;
-		min-width: 44px;
-		min-height: 48px;
-		padding: 10px 24px;
+		justify-content: space-between;
 		margin-left: 0 !important;
+		min-height: 48px;
+		min-width: 44px;
+		padding: 10px 17px;
 
 		&__control-text {
 			color: var(--owc-openkaarten-streetmap--primary-color);

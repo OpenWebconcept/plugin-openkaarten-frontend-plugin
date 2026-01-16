@@ -233,11 +233,12 @@ onMounted(() => {
     gap: 1rem;
     height: 76px;
     margin-block-end: 2.5rem;
+    transition: all 0.2s ease-in-out;
     @media only screen and (min-width: 768px) {
       justify-content: flex-end;
       margin-block-end: 0;
       .filters-open & {
-        margin-inline-end: 130px;
+        margin-inline-end: 149px;
       }
     }
     button:not([class*="search"]) {
@@ -250,7 +251,7 @@ onMounted(() => {
       gap: 8px;
       min-width: 44px;
       min-height: 48px;
-      padding: 10px 24px;
+      padding: 10px 17px;
 
       span {
         color: #328725;
