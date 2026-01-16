@@ -167,11 +167,11 @@ const getColorFromMarker = (markerConfig, props) => {
     "marker-darkgray": "#555555",
     "marker-deep-purple": "#4B0082",
     "marker-gray": "#757575",
-    "marker-green": "#008661",
-    "marker-navy-blue": "#003366",
-    "marker-orange": "#9D6D00",
-    "marker-purple": "#A26085",
-    "marker-red": "#C15500",
+    "marker-green": "#328725",
+    "marker-navy-blue": "#001D5F",
+    "marker-orange": "#F4801B",
+    "marker-purple": "#792487",
+    "marker-red": "#9F0000",
     "marker-turquoise": "#3B7BA0",
     "marker-yellow": "#7E7722",
   };
@@ -513,11 +513,11 @@ $marker-colors: (
 	'darkgray': #555555,
 	'deep-purple': #4B0082,
 	'gray': #757575,
-	'green': #008661,
-	'navy-blue': #003366,
-	'orange': #9D6D00,
-	'purple': #A26085,
-	'red': #C15500,
+	'green': #328725,
+	'navy-blue': #001D5F,
+	'orange': #F4801B,
+	'purple': #792487,
+	'red': #9F0000,
 	'turquoise': #3B7BA0,
 	'yellow': #7E7722
 );
@@ -626,15 +626,18 @@ $marker-colors: (
         .leaflet-svg {
           width: 44px;
         }
+        &.active, &:where(:hover, :focus-visible) {
+          border-radius: 50%;
+          box-shadow: 0 0 0 3px white, 0 0 0 6px #0072B2;
+          opacity: 1 !important;
+          outline: none;
+          transition: all 0.2s ease-in-out;
+        }
 				@each $name, $color in $marker-colors {
 					&.marker-#{$name} {
 						background-color: $color;
             &.active, &:where(:hover, :focus-visible) {
-              border-radius: 50%;
               box-shadow: 0 0 0 3px white, 0 0 0 6px $color;
-              opacity: 1 !important;
-              outline: none;
-              transition: all 0.2s ease-in-out;
             }
 					}
 				}
