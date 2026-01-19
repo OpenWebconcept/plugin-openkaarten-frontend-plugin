@@ -25,7 +25,6 @@
 		"@wordpress/eslint-plugin": "^17.12.0",
 		"@wordpress/prettier-config": "^3.12.0",
 		"@wordpress/scripts": "^27.6.0",
-		"fs": "0.0.1-security",
 		"laravel-mix": "^6.0.49",
 		"leaflet": "*",
 		"leaflet.markercluster": "*",
