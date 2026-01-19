@@ -13,6 +13,8 @@ import { makeListViewButtonHTML } from '../utils/make-list-view-button-html';
 import { highlightSelectedMarker } from '../utils/selected-marker';
 import { resetMarkers } from '../utils/selected-marker';
 import { activeMarkerRef } from '../utils/selected-marker';
+import { selectOverlappingPolygon } from '../utils/selected-polygon';
+import { resetPolygonSelection } from '../utils/selected-polygon';
 import BaseSearchInput from './BaseSearchInput.vue';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -74,6 +76,7 @@ const clusterOptions = {
 const closeTooltipCard = () => {
 	tooltipCard.value = null;
   resetMarkers();
+  resetPolygonSelection();
   document.getElementById('dataset-map')?.focus();
 };
 
@@ -99,61 +102,24 @@ const datasetChange = (id, checked) => {
 	}
 };
 
-let selectedLayer = null;
-let highlightLayer = null;
-let overlappingLayers = [];
-let overlapIndex = 0;
-
 // Move attachEvents outside of initializeMap
 const attachEvents = (marker, location, set) => {
   marker.on('click', (e) => {
     tooltipCard.value = makeTooltipCard(location, set);
     highlightSelectedMarker(marker);
 
-    const map = mapRef.value;
-
-    // get all polygons of the map.
-    const polygons = [];
-    map.eachLayer(layer => {
-      if (layer instanceof L.Polygon) {
-        polygons.push(layer);
-      }
-    });
-
-    // find all polygons.
-    overlappingLayers = polygons.filter(p => p.getBounds().contains(e.latlng));
-
-    if (overlappingLayers.length === 0) {
-      if (highlightLayer) {
-        highlightLayer.remove();
-        highlightLayer = null;
-      }
-      selectedLayer = null;
+    if (location.geometry?.type !== 'Polygon') {
+      resetPolygonSelection();
       return;
     }
 
-    // cycling selection.
-    overlapIndex = (overlapIndex + 1) % overlappingLayers.length;
-    const newLayer = overlappingLayers[overlapIndex];
-
-    // remove old selected highlight.
-    if (highlightLayer) {
-      highlightLayer.remove();
-      highlightLayer = null;
-    }
-
-    // highlight the newly selected polygon.
-    selectedLayer = newLayer;
-    highlightLayer = L.geoJSON(selectedLayer.toGeoJSON(), {
-      style: { color: '#0377fc', weight: 4, opacity: 0.9 },
-      interactive: false
-    }).addTo(map);
+    selectOverlappingPolygon(mapRef.value, e.latlng);
   });
 
   marker.on('keydown', ({ originalEvent }) => {
     if (originalEvent.key === 'Enter') {
       tooltipCard.value = makeTooltipCard(location, set);
-      highlightSelectedMarker(e.target);
+      highlightSelectedMarker(marker);
     }
   });
 };
@@ -612,6 +578,9 @@ $marker-colors: (
       &.dimmed {
         opacity: 0.4 !important;
         transition: opacity 0.2s ease-in-out, filter 0.2s ease-in-out;
+        &:where(:hover, :focus-visible) {
+          opacity: 1 !important;
+        }
       }
     }
 
@@ -638,7 +607,6 @@ $marker-colors: (
 						background-color: $color;
             &.active, &:where(:hover, :focus-visible) {
               box-shadow: 0 0 0 3px white, 0 0 0 6px $color;
-              opacity: 1 !important;
             }
 					}
 				}
