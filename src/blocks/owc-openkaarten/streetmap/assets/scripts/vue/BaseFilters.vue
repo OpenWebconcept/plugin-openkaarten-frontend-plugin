@@ -23,12 +23,22 @@ const props = defineProps({
 		type: String,
 		default: 'Bevestigen',
 	},
+  clear: {
+		type: String,
+		default: 'Wis alle filters',
+	},
 });
 
 const emit = defineEmits(['closeFilters', 'datasetChange']);
 
 const datasetChange = (id, checked) => {
 	emit('datasetChange', id, checked);
+};
+
+const clearAllFilters = () => {
+	props.selectedDatasets.forEach(id => {
+		emit('datasetChange', id, false);
+	});
 };
 
 const filterContainer = ref(null);
@@ -141,6 +151,15 @@ onUnmounted(() => {
           <BaseIcon :marker="layer.features[0]?.properties?.marker" />
         </li>
 			</ul>
+			<button
+				v-if="selectedDatasets.length > 0"
+				class="owc-openkaarten-streetmap__filters__body__clear"
+				@click.stop.prevent="clearAllFilters"
+        @keydown.enter.stop.prevent="clearAllFilters"
+				type="button"
+			>
+				{{ clear }}
+			</button>
 		</div>
 		<div class="owc-openkaarten-streetmap__filters__footer">
 			<button
@@ -222,6 +241,30 @@ onUnmounted(() => {
 			display: flex;
 			align-content: center;
 			justify-content: space-between;
+		}
+
+		&__clear {
+			margin-top: 16px;
+			padding: 0;
+			background: none;
+			border: none;
+			color: var(--owc-openkaarten-streetmap--primary-color);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 700;
+			line-height: 160%;
+			text-decoration: underline;
+			cursor: pointer;
+			text-align: left;
+
+			&:hover {
+				opacity: 0.8;
+			}
+
+			&:focus-visible {
+				outline: 2px solid var(--owc-openkaarten-streetmap--primary-color);
+				outline-offset: 2px;
+			}
 		}
 	}
 
