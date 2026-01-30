@@ -19,10 +19,6 @@ const props = defineProps({
 		type: String,
 		default: 'Filters',
 	},
-	confirm: {
-		type: String,
-		default: 'Bevestigen',
-	},
   clear: {
 		type: String,
 		default: 'Wis alle filters',
@@ -159,15 +155,6 @@ onUnmounted(() => {
 				type="button"
 			>
 				{{ clear }}
-			</button>
-		</div>
-		<div class="owc-openkaarten-streetmap__filters__footer">
-			<button
-				class="owc-openkaarten-streetmap__filters__footer__btn"
-				@click.stop.prevent="closeFiltersWithConfirm"
-				@keydown.enter.stop.prevent="closeFiltersWithConfirm"
-			>
-				{{ confirm }}
 			</button>
 		</div>
 	</div>

@@ -140,7 +140,7 @@ onMounted(() => {
       />
       <button @click="toggleView" class="list-view__map-button" v-html="mapButtonHTML"></button>
       <button
-        v-if="datasets.length > 1"
+        v-if="datasets.length > 0"
         @click="toggleFilters"
         class="list-view__filters-button"
         v-html="filterButtonHTML"

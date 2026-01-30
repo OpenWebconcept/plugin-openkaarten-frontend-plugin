@@ -372,7 +372,7 @@ const initializeMap = async (datasets, settings) => {
     map.addControl(listViewToggle);
   }
 
-	if (groupedMarkerClusters?.length > 1) {
+	if (groupedMarkerClusters?.length > 0) {
 		map.addControl(datalayerFilters);
     showFiltersCard.value = true;
 	}
@@ -465,7 +465,7 @@ const handleSearch = async (query) => {
     </Transition>
 		<Transition name="slide">
 			<BaseFilters
-				v-if="datasets && datasets.length > 1 && showFiltersCard"
+				v-if="datasets && datasets.length > 0 && showFiltersCard"
 				:open="showFiltersCard"
 				:datasets="datasets.filter((set) => set.features?.length)"
 				:selectedDatasets="selectedDatasets"
@@ -641,7 +641,7 @@ $marker-colors: (
           transition: transform 0.2s ease-in-out;
         }
         .leaflet-top.leaflet-left {
-          transform: translateX(-146px);
+          transform: translateX(-145px);
           transition: transform 0.2s ease-in-out;      }
       }
     }
