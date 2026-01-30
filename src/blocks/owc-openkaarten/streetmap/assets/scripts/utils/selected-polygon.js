@@ -16,7 +16,7 @@ export const resetPolygonSelection = () => {
 };
 
 export const selectOverlappingPolygon = (map, latlng) => {
-  if (!map) return;
+  if (!map) return null;
 
     // get all polygons of the map.
     const polygons = [];
@@ -35,7 +35,7 @@ export const selectOverlappingPolygon = (map, latlng) => {
         highlightLayer = null;
       }
       selectedLayer = null;
-      return;
+      return null;
     }
 
     // cycling selection.
@@ -54,4 +54,7 @@ export const selectOverlappingPolygon = (map, latlng) => {
       style: {color: '#0377fc', weight: 4, opacity: 0.9},
       interactive: false
     }).addTo(map);
+
+    // Return the selected layer so caller can access its data.
+    return selectedLayer;
 };

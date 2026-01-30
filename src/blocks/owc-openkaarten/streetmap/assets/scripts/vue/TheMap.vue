@@ -105,15 +105,24 @@ const datasetChange = (id, checked) => {
 // Move attachEvents outside of initializeMap
 const attachEvents = (marker, location, set) => {
   marker.on('click', (e) => {
-    tooltipCard.value = makeTooltipCard(location, set);
     highlightSelectedMarker(marker);
 
     if (location.geometry?.type !== 'Polygon') {
       resetPolygonSelection();
+      tooltipCard.value = makeTooltipCard(location, set);
       return;
     }
 
-    selectOverlappingPolygon(mapRef.value, e.latlng);
+    // For polygons, select overlapping polygon and use its data for tooltip.
+    const selectedLayer = selectOverlappingPolygon(mapRef.value, e.latlng);
+
+    // Use the selected layer's data for the tooltip if available.
+    if (selectedLayer && selectedLayer._featureData && selectedLayer._datasetData) {
+      tooltipCard.value = makeTooltipCard(selectedLayer._featureData, selectedLayer._datasetData);
+    } else {
+      // Fallback to original data if layer data not found.
+      tooltipCard.value = makeTooltipCard(location, set);
+    }
   });
 
   marker.on('keydown', ({ originalEvent }) => {
@@ -281,6 +290,16 @@ const initializeMap = async (datasets, settings) => {
 
       for (const feature of dataset.features) {
         const layer = await createLayer(feature, dataset);
+        // Store feature and dataset data on the layer for later retrieval.
+        layer._featureData = feature;
+        layer._datasetData = dataset;
+        // Also store on child layers if this is a layer group (like GeoJSON).
+        if (layer.getLayers) {
+          layer.eachLayer(childLayer => {
+            childLayer._featureData = feature;
+            childLayer._datasetData = dataset;
+          });
+        }
         attachEvents(layer, feature, dataset);
         cluster.addLayer(layer);
       }
