@@ -1,18 +1,24 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import L from 'leaflet';
+import { MarkerClusterGroup } from 'leaflet.markercluster/src';
 import BaseFilters from './BaseFilters.vue';
 import BaseTooltipCard from './BaseTooltipCard.vue';
 import { calculateBounds } from '../utils/calculate-bounds';
 import { calculateCenter } from '../utils/calculate-center';
-import { makeMarkerCluster } from '../utils/make-marker-cluster';
 import { makeMarkerIcon } from '../utils/make-marker-icon';
 import { makeTooltipCard } from '../utils/make-tooltip-card';
 import { makeFilterButtonHTML } from '../utils/make-filter-button-html';
 import { makeListViewButtonHTML } from '../utils/make-list-view-button-html';
+import { highlightSelectedMarker } from '../utils/selected-marker';
+import { resetMarkers } from '../utils/selected-marker';
+import { activeMarkerRef } from '../utils/selected-marker';
+import { selectOverlappingPolygon } from '../utils/selected-polygon';
+import { resetPolygonSelection } from '../utils/selected-polygon';
 import BaseSearchInput from './BaseSearchInput.vue';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
+import { setOpenkaartenMap } from '../utils/use-openkaarten-map';
 
 const props = defineProps({
 	datasets: {
@@ -69,7 +75,9 @@ const clusterOptions = {
 
 const closeTooltipCard = () => {
 	tooltipCard.value = null;
-	document.getElementById('dataset-map')?.focus();
+  resetMarkers();
+  resetPolygonSelection();
+  document.getElementById('dataset-map')?.focus();
 };
 
 const closeFilters = () => {
@@ -96,14 +104,33 @@ const datasetChange = (id, checked) => {
 
 // Move attachEvents outside of initializeMap
 const attachEvents = (marker, location, set) => {
-	marker.on('click', () => {
-		tooltipCard.value = makeTooltipCard(location, set);
-	});
-	marker.on('keydown', ({ originalEvent }) => {
-		if (originalEvent.keyCode === 13) {
-			tooltipCard.value = makeTooltipCard(location, set);
-		}
-	});
+  marker.on('click', (e) => {
+    highlightSelectedMarker(marker);
+
+    if (location.geometry?.type !== 'Polygon') {
+      resetPolygonSelection();
+      tooltipCard.value = makeTooltipCard(location, set);
+      return;
+    }
+
+    // For polygons, select overlapping polygon and use its data for tooltip.
+    const selectedLayer = selectOverlappingPolygon(mapRef.value, e.latlng);
+
+    // Use the selected layer's data for the tooltip if available.
+    if (selectedLayer && selectedLayer._featureData && selectedLayer._datasetData) {
+      tooltipCard.value = makeTooltipCard(selectedLayer._featureData, selectedLayer._datasetData);
+    } else {
+      // Fallback to original data if layer data not found.
+      tooltipCard.value = makeTooltipCard(location, set);
+    }
+  });
+
+  marker.on('keydown', ({ originalEvent }) => {
+    if (originalEvent.key === 'Enter') {
+      tooltipCard.value = makeTooltipCard(location, set);
+      highlightSelectedMarker(marker);
+    }
+  });
 };
 
 // Helper function to get color from marker config.
@@ -115,11 +142,11 @@ const getColorFromMarker = (markerConfig, props) => {
     "marker-darkgray": "#555555",
     "marker-deep-purple": "#4B0082",
     "marker-gray": "#757575",
-    "marker-green": "#008661",
-    "marker-navy-blue": "#003366",
-    "marker-orange": "#9D6D00",
-    "marker-purple": "#A26085",
-    "marker-red": "#C15500",
+    "marker-green": "#328725",
+    "marker-navy-blue": "#001D5F",
+    "marker-orange": "#F4801B",
+    "marker-purple": "#792487",
+    "marker-red": "#9F0000",
     "marker-turquoise": "#3B7BA0",
     "marker-yellow": "#7E7722",
   };
@@ -140,7 +167,7 @@ const getColorFromMarker = (markerConfig, props) => {
 };
 
 // Helper function to create appropriate layer based on feature type
-const createLayer = (feature, dataset) => {
+const createLayer = async (feature, dataset) => {
   console.log('Creating layer for feature:', feature);
   if (feature.geometry.type === 'Polygon') {
     return new L.GeoJSON(feature, {
@@ -159,31 +186,33 @@ const createLayer = (feature, dataset) => {
   // Handle MultiPoint features
   if (feature.geometry.type === 'MultiPoint') {
     const markers = L.featureGroup();
-    feature.geometry.coordinates.forEach(coord => {
+    for (const coord of feature.geometry.coordinates) {
       const latlng = L.latLng(coord[1], coord[0]);
-      const icon = makeMarkerIcon(L, {
+      const icon = await makeMarkerIcon(L, {
         marker: feature.properties?.marker,
         defaultColor: props.primaryColor,
       });
       const marker = new L.Marker(latlng, { icon });
       markers.addLayer(marker);
-    });
+    };
     return markers;
   }
 
   // Handle regular points using GeoJSON
+  // Since GeoJSON's pointToLayer callback can't be async, we create the icon first
+  const icon = await makeMarkerIcon(L, {
+    marker: feature.properties?.marker,
+    defaultColor: props.primaryColor,
+  });
+
   return new L.GeoJSON(feature, {
     pointToLayer: (feature, latlng) => {
-      const icon = makeMarkerIcon(L, {
-        marker: feature.properties?.marker,
-        defaultColor: props.primaryColor,
-      });
       return new L.Marker(latlng, { icon });
     }
   });
 };
 
-const initializeMap = (datasets, settings) => {
+const initializeMap = async (datasets, settings) => {
 	console.log('Initializing map with datasets:', datasets);
 	console.log('Initializing map with settings:', settings);
 	const bounds = calculateBounds(datasets);
@@ -224,21 +253,27 @@ const initializeMap = (datasets, settings) => {
 		zoom: config.defaultZoom,
 		minZoom: config.minimumZoom,
 		maxZoom: config.maximumZoom,
-		zoomControl: config.enableZoomControl,
+		zoomControl: false,
 		boxZoom: config.enableBoxZoomControl,
 		defaultExtentControl: config.enableHomeControl,
 	});
+
 	map.setView([config.centerX, config.centerY], config.defaultZoom);
 
-	const groupedMarkerClusters = datasets
-		.filter((dataset) => props.selectedDatasets.includes(dataset.id))
-		.map((dataset) => {
-			// Create a pane for this dataset
-			const pane = map.createPane(dataset.title.replace(' ', '_'));
-			const cluster = L.markerClusterGroup({
-				...clusterOptions,
-				clusterPane: pane
-			});
+  if (config.enableZoomControl) {
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+  }
+
+  const filteredDatasets = datasets.filter((dataset) => props.selectedDatasets.includes(dataset.id));
+
+  const groupedMarkerClusters = await Promise.all(
+    filteredDatasets.map(async (dataset) => {
+      // Create a pane for this dataset.
+      const pane = map.createPane(dataset.title.replace(' ', '_'));
+      const cluster = L.markerClusterGroup({
+        ...clusterOptions,
+        clusterPane: pane
+      });
 
 			// Check if features is empty. If so, return early.
 			if (!dataset.features || dataset.features.length === 0) {
@@ -253,18 +288,29 @@ const initializeMap = (datasets, settings) => {
 				dataset.features = [dataset.features];
 			}
 
-			dataset.features.forEach((feature) => {
-				const layer = createLayer(feature, dataset);
-				attachEvents(layer, feature, dataset);
-				cluster.addLayer(layer);
-			});
+      for (const feature of dataset.features) {
+        const layer = await createLayer(feature, dataset);
+        // Store feature and dataset data on the layer for later retrieval.
+        layer._featureData = feature;
+        layer._datasetData = dataset;
+        // Also store on child layers if this is a layer group (like GeoJSON).
+        if (layer.getLayers) {
+          layer.eachLayer(childLayer => {
+            childLayer._featureData = feature;
+            childLayer._datasetData = dataset;
+          });
+        }
+        attachEvents(layer, feature, dataset);
+        cluster.addLayer(layer);
+      }
 
 			return {
 				id: dataset.id,
 				cluster,
         hasFeatures: true
 			};
-		});
+		})
+  );
 
 	L.Control.DataLayerFilters = L.Control.extend({
 		options: {
@@ -326,22 +372,29 @@ const initializeMap = (datasets, settings) => {
     map.addControl(listViewToggle);
   }
 
-	if (groupedMarkerClusters?.length > 1) {
+	if (groupedMarkerClusters?.length > 0) {
 		map.addControl(datalayerFilters);
+    showFiltersCard.value = true;
 	}
 
 	groupedMarkerClusters.forEach(({ cluster }) => {
 		map.addLayer(cluster);
+    cluster.on('animationend layeradd spiderfied', () => {
+      if (activeMarkerRef.value) {
+        highlightSelectedMarker(activeMarkerRef.value);
+      }
+    });
 	});
 	clusters.value = groupedMarkerClusters;
 	mapRef.value = map;
+  setOpenkaartenMap(map);
 };
 
 const emit = defineEmits(['toggleView', 'datasetChange']);
 
 onMounted(async () => {
-	if (document.getElementById('dataset-map')) {
-		initializeMap(props.datasets, props.settings);
+	if (document.getElementById('dataset-map') && props.datasets.length > 0) {
+		await initializeMap(props.datasets, props.settings);
 	}
 });
 
@@ -390,7 +443,10 @@ const handleSearch = async (query) => {
 
 <template v-cloak>
 	<div
-		class="owc-openkaarten-streetmap__map"
+    :class="{
+      'owc-openkaarten-streetmap__map': true,
+      'filters-open': showFiltersCard,
+      }"
 	>
 		<div class="owc-openkaarten-streetmap__controls">
 			<BaseSearchInput
@@ -401,15 +457,15 @@ const handleSearch = async (query) => {
 			/>
 		</div>
 		<div id="dataset-map"></div>
-		<Transition name="fade">
-			<div
-				v-if="showFiltersCard"
-				class="owc-openkaarten-streetmap__overlay"
-			></div>
-		</Transition>
+    <Transition name="fade">
+      <div
+          v-if="showFiltersCard"
+          class="owc-openkaarten-streetmap__overlay"
+      ></div>
+    </Transition>
 		<Transition name="slide">
 			<BaseFilters
-				v-if="datasets && datasets.length > 1 && showFiltersCard"
+				v-if="datasets && datasets.length > 0 && showFiltersCard"
 				:open="showFiltersCard"
 				:datasets="datasets.filter((set) => set.features?.length)"
 				:selectedDatasets="selectedDatasets"
@@ -435,6 +491,22 @@ const handleSearch = async (query) => {
 </template>
 
 <style lang="scss">
+$marker-colors: (
+	'black': #000000,
+	'blue': #0072B2,
+	'brown': #A0522D,
+	'darkgray': #555555,
+	'deep-purple': #4B0082,
+	'gray': #757575,
+	'green': #328725,
+	'navy-blue': #001D5F,
+	'orange': #F4801B,
+	'purple': #792487,
+	'red': #9F0000,
+	'turquoise': #3B7BA0,
+	'yellow': #7E7722
+);
+
 #dataset-map {
 	height: 80dvh;
 	max-height: 661px;
@@ -442,6 +514,23 @@ const handleSearch = async (query) => {
 }
 
 .owc-openkaarten-streetmap {
+  &__filters__body__list-item__dl-indicator {
+    align-items: center;
+    background-color: #0072B2;
+    border-radius: 50%;
+    display: flex;
+    height: 30px;
+    justify-content: center;
+    padding: 3px;
+    min-width: 30px;
+    width: 30px;
+    @each $name, $color in $marker-colors {
+      &.marker-#{$name} {
+        background-color: #{$color};
+        border-color: #{$color};
+      }
+    }
+  }
 	&__results {
 		display: flex;
 		flex-direction: column;
@@ -478,45 +567,12 @@ const handleSearch = async (query) => {
 				rgba(255, 255, 255, 0.05) 75%
 			);
 			background: var(--owc-cluster-background);
-      &.marker-black {
-        --owc-openkaarten-streetmap--cluster-color: #000000;
-      }
-      &.marker-blue {
-        --owc-openkaarten-streetmap--cluster-color: #0072B2;
-      }
-      &.marker-brown {
-        --owc-openkaarten-streetmap--cluster-color: #A0522D;
-      }
-      &.marker-darkgray {
-        --owc-openkaarten-streetmap--cluster-color: #555555;
-      }
-      &.marker-deep-purple {
-        --owc-openkaarten-streetmap--cluster-color: #4B0082;
-      }
-      &.marker-gray {
-        --owc-openkaarten-streetmap--cluster-color: #757575;
-      }
-      &.marker-green {
-        --owc-openkaarten-streetmap--cluster-color: #008661;
-      }
-      &.marker-navy-blue {
-        --owc-openkaarten-streetmap--cluster-color: #003366;
-      }
-      &.marker-orange {
-        --owc-openkaarten-streetmap--cluster-color: #9D6D00;
-      }
-      &.marker-purple {
-        --owc-openkaarten-streetmap--cluster-color: #A26085;
-      }
-      &.marker-red {
-        --owc-openkaarten-streetmap--cluster-color: #C15500;
-      }
-      &.marker-turquoise {
-        --owc-openkaarten-streetmap--cluster-color: #3B7BA0;
-      }
-      &.marker-yellow {
-        --owc-openkaarten-streetmap--cluster-color: #7E7722;
-      }
+
+			@each $name, $color in $marker-colors {
+				&.marker-#{$name} {
+					--owc-openkaarten-streetmap--cluster-color: #{$color};
+				}
+			}
 		}
 
 		&__count {
@@ -525,6 +581,7 @@ const handleSearch = async (query) => {
 	}
 
 	&__map {
+    border: 1px solid var(--Neutral-300, #E5E5E6);
     padding-top: 80px;
 		position: relative;
 		overflow: hidden;
@@ -537,75 +594,72 @@ const handleSearch = async (query) => {
 				outline-color: var(--owc-openkaarten-streetmap--primary-color);
 				aspect-ratio: 1 / 1;
 			}
-		}
+      &.dimmed {
+        opacity: 0.4 !important;
+        transition: opacity 0.2s ease-in-out, filter 0.2s ease-in-out;
+        &:where(:hover, :focus-visible) {
+          opacity: 1 !important;
+        }
+      }
+    }
 
 		.leaflet-custom-icon {
-			&--hosted-svg {
-				.leaflet-svg {
-					width: 32px;
-					height: 32px;
-					padding: 2px;
-					border-radius: 50% 50% 50% 0;
-					background-color: #fff;
-					border: 4px solid #000000;
-					transform: rotate(-45deg);
-					img {
-						transform: rotate(45deg);
+			&--inline-svg {
+        align-items: center;
+        background-color: #0072B2;
+        border-radius: 100%;
+        display: flex;
+        justify-content: center;
+				padding: 6px;
+        .leaflet-svg {
+          width: 44px;
+        }
+        &.active, &:where(:hover, :focus-visible) {
+          border-radius: 50%;
+          box-shadow: 0 0 0 3px white, 0 0 0 6px #0072B2;
+          opacity: 1 !important;
+          outline: none;
+          transition: all 0.2s ease-in-out;
+        }
+				@each $name, $color in $marker-colors {
+					&.marker-#{$name} {
+						background-color: $color;
+            &.active, &:where(:hover, :focus-visible) {
+              box-shadow: 0 0 0 3px white, 0 0 0 6px $color;
+            }
 					}
-          &.marker-black {
-            border: 4px solid #000000;
-          }
-          &.marker-blue {
-            border: 4px solid #0072B2;
-          }
-          &.marker-brown {
-            border: 4px solid #A0522D;
-          }
-          &.marker-darkgray {
-            border: 4px solid #555555;
-          }
-          &.marker-deep-purple {
-            border: 4px solid #4B0082;
-          }
-          &.marker-gray {
-            border: 4px solid #757575;
-          }
-          &.marker-green {
-            border: 4px solid #008661;
-          }
-          &.marker-navy-blue {
-            border: 4px solid #003366;
-          }
-          &.marker-orange {
-            border: 4px solid #9D6D00;
-          }
-          &.marker-purple {
-            border: 4px solid #A26085;
-          }
-          &.marker-red {
-            border: 4px solid #C15500;
-          }
-          &.marker-turquoise {
-            border: 4px solid #3B7BA0;
-          }
-          &.marker-yellow {
-            border: 4px solid #7E7722;
-          }
+				}
+				svg path {
+					fill: white;
 				}
 			}
 		}
+    &.filters-open {
+      @media only screen and (min-width: 768px) {
+        .leaflet-bottom.leaflet-right {
+          transform: translateX(-282px);
+          transition: transform 0.2s ease-in-out;
+        }
+        .leaflet-top.leaflet-left {
+          transform: translateX(-145px);
+          transition: transform 0.2s ease-in-out;      }
+      }
+    }
 	}
 
-	&__overlay {
-		background-color: var(--owc-map-overlay, rgba(0, 0, 0, 0.25));
-		position: absolute;
-		content: '';
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		z-index: 999;
-	}
+  &__overlay {
+    background-color: var(--owc-map-overlay, rgba(0, 0, 0, 0.25));
+    position: absolute;
+    content: '';
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    @media only screen and (min-width: 768px) {
+      display: none;
+    }
+  }
 
 	.fade-enter-active,
 	.fade-leave-active {
@@ -629,19 +683,22 @@ const handleSearch = async (query) => {
 	}
 
 	&__controls {
-		position: absolute;
-		inset-block-start: 20px;
-		inset-inline-start: 10px;
-		z-index: 1000;
 		display: flex;
 		gap: 0.5rem;
+    inset-block-start: 20px;
+    inset-inline-start: 10px;
+    position: absolute;
+    transition: all 0.2s ease-in-out;
 		width: 100%;
+    z-index: 1000;
     @media only screen and (min-width: 768px) {
       inset-inline-start: 20px;
-      max-inline-size: min(300px, calc(100% - 2rem));
-    }
-    @media only screen and (min-width: 900px) {
-      max-inline-size: min(450px, calc(100% - 2rem));
+      max-inline-size: calc( 100% - 287px);
+      top: 1rem;
+      z-index: 9999;
+      .filters-open & {
+        max-inline-size: calc( 100% - 435px);
+      }
     }
 	}
 }

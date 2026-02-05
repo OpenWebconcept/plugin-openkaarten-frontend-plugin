@@ -230,7 +230,7 @@ onMounted(() => {
     >
       <BaseLoader :loading="loading"/>
       <TheMap
-          v-if="!loading && !showListView"
+          v-if="!loading"
           title="map"
           :datasets="datasets"
           :selectedDatasets="selectedDatasets"
@@ -279,6 +279,10 @@ onMounted(() => {
 
 .owc-openkaarten-streetmap *:focus-visible {
   outline-offset: 0.25em;
+}
+
+.owc-openkaarten-streetmap__results{
+  position: relative;
 }
 
 @container (max-width: 990px) {
