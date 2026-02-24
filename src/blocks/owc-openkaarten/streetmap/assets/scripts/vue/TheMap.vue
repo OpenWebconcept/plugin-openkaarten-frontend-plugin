@@ -391,12 +391,12 @@ const initializeMap = async (datasets, settings) => {
     setOpenkaartenMap(map);
 
     if (window.openkaarten && typeof window.openkaarten.registerMap === 'function') {
-      window.openkaarten.registerMap('dataset-map', map);
+		window.openkaarten.registerMap(map);
     }
 
-    window.dispatchEvent(new CustomEvent('openkaarten:map-ready', {
-      detail: { mapId: 'dataset-map', map }
-    }));
+	window.dispatchEvent(new CustomEvent('openkaarten:map-ready', {
+		detail: { map }
+	}));
 };
 
 const emit = defineEmits(['toggleView', 'datasetChange']);
