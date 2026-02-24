@@ -387,7 +387,11 @@ const initializeMap = async (datasets, settings) => {
 	});
 	clusters.value = groupedMarkerClusters;
 	mapRef.value = map;
-  setOpenkaartenMap(map);
+  	setOpenkaartenMap(map);
+
+	window.dispatchEvent(new CustomEvent('openkaarten:map-ready', {
+		detail: { mapId: 'dataset-map', map }
+	}));
 };
 
 const emit = defineEmits(['toggleView', 'datasetChange']);
@@ -396,7 +400,30 @@ onMounted(async () => {
 	if (document.getElementById('dataset-map') && props.datasets.length > 0) {
 		await initializeMap(props.datasets, props.settings);
 	}
+	handleAddMarkerEvent(mapRef);
 });
+
+const handleAddMarkerEvent = (mapRef) => {
+  window.addEventListener('openkaarten:add-marker', (event) => {
+    const map = mapRef.value;
+    if (!map) return;
+    const {
+      lat,
+      lng,
+      popup,
+      markerOptions = {},
+      flyTo = true,
+      flyToOptions = {},
+      onAdd
+    } = event.detail || {};
+    if (typeof lat !== 'number' || typeof lng !== 'number') return;
+
+    const marker = L.marker([lat, lng], markerOptions).addTo(map);
+    if (popup) marker.bindPopup(popup);
+    if (flyTo) map.flyTo([lat, lng], flyToOptions.zoom || 15, { animate: true, duration: 1, ...flyToOptions });
+    if (typeof onAdd === 'function') onAdd(marker, map);
+  });
+}
 
 // Add search handler
 const handleSearch = async (query) => {
