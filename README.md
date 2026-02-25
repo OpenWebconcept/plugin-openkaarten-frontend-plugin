@@ -90,7 +90,7 @@ npm run watch
 
 ## Extending
 
-The Openkaarten block exposes a small global API for interacting with the Leaflet map from outside the Vue component. Available methods:
+The Openkaarten block exposes a small global API for interacting with the Leaflet map from outside the Vue component. It assumes there is only one Openkaarten map instance on the page.
 
 ```js
 window.openkaarten.map
@@ -129,7 +129,7 @@ window.addEventListener('openkaarten:map-ready', () => {
 
 ### Removing Markers
 
-Removes all markers from a layer:
+Removes markers from a specific layer, or from the default layer if no name is provided:
 
 ```js
 window.openkaarten.clearLayer('external');

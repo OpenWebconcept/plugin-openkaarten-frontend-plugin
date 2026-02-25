@@ -1,25 +1,25 @@
 import L from 'leaflet';
 
+/**
+ * Ensure global namespace exists
+ */
 if (!window.openkaarten) {
 	window.openkaarten = {};
 }
 
+/**
+ * Internal state container
+ */
 const state = {
 	map: null,
 	layers: new Map(),
 };
 
-const ensureLayer = (name = 'default') => {
-	if (!state.map) return null;
-
-	if (!state.layers.has(name)) {
-		const layerGroup = L.layerGroup().addTo(state.map);
-		state.layers.set(name, layerGroup);
-	}
-
-	return state.layers.get(name);
-};
-
+/**
+ * Registers the Leaflet map instance. Called from the Vue Map component.
+ *
+ * @param {L.Map} mapInstance
+ */
 window.openkaarten.registerMap = (mapInstance) => {
 	if (!mapInstance) return;
 
@@ -27,6 +27,9 @@ window.openkaarten.registerMap = (mapInstance) => {
 	window.openkaarten.map = mapInstance;
 };
 
+/**
+ * Adds a marker to the map
+ */
 window.openkaarten.addMarker = ({
 	lat,
 	lng,
@@ -71,9 +74,27 @@ window.openkaarten.addMarker = ({
 	return marker;
 };
 
+/**
+ * Clears all markers inside a named layer
+ */
 window.openkaarten.clearLayer = (name = 'default') => {
 	const layer = state.layers.get(name);
 	if (!layer) return;
 
 	layer.clearLayers();
+};
+
+/**
+ * Ensures a named LayerGroup exists. If it does not exist yet, it will be created
+ * and added to the map.
+ */
+const ensureLayer = (name = 'default') => {
+	if (!state.map) return null;
+
+	if (!state.layers.has(name)) {
+		const layerGroup = L.layerGroup().addTo(state.map);
+		state.layers.set(name, layerGroup);
+	}
+
+	return state.layers.get(name);
 };

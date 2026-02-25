@@ -402,9 +402,9 @@ const initializeMap = async (datasets, settings) => {
 const emit = defineEmits(['toggleView', 'datasetChange']);
 
 onMounted(async () => {
-  if (document.getElementById('dataset-map') && props.datasets.length > 0) {
-    await initializeMap(props.datasets, props.settings);
-  }
+	if (document.getElementById('dataset-map') && props.datasets.length > 0) {
+		await initializeMap(props.datasets, props.settings);
+	}
 });
 
 // Add search handler
