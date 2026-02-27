@@ -1,4 +1,16 @@
 import L from 'leaflet';
+import { fallbackMarkerSvg } from './make-marker-icon';
+
+/**
+ * Default marker icon – reuses the fallback SVG from make-marker-icon.js
+ */
+const defaultIcon = L.divIcon({
+	html: `<div class="leaflet-svg fallback">${fallbackMarkerSvg}</div>`,
+	className: 'leaflet-custom-icon--inline-svg',
+	iconSize: [44, 44],
+	iconAnchor: [12, 32],
+	popupAnchor: [0, -28],
+});
 
 /**
  * Ensure global namespace exists
@@ -45,6 +57,10 @@ window.openkaarten.addMarker = ({
 
 	const targetLayer = ensureLayer(layer);
 	if (!targetLayer) return null;
+
+	if (!markerOptions.icon) {
+		markerOptions.icon = defaultIcon;
+	}
 
 	const marker = L.marker([lat, lng], markerOptions);
 	targetLayer.addLayer(marker);

@@ -622,6 +622,9 @@ $marker-colors: (
 				padding: 6px;
         .leaflet-svg {
           width: 44px;
+          &.fallback svg {
+            margin: auto;
+          }
         }
         &.active, &:where(:hover, :focus-visible) {
           border-radius: 50%;
