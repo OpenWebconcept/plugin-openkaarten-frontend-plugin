@@ -19,6 +19,7 @@ import BaseSearchInput from './BaseSearchInput.vue';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import { setOpenkaartenMap } from '../utils/use-openkaarten-map';
+import '../utils/map-window-api';
 
 const props = defineProps({
 	datasets: {
@@ -387,7 +388,15 @@ const initializeMap = async (datasets, settings) => {
 	});
 	clusters.value = groupedMarkerClusters;
 	mapRef.value = map;
-  setOpenkaartenMap(map);
+    setOpenkaartenMap(map);
+
+    if (window.openkaarten && typeof window.openkaarten.registerMap === 'function') {
+		window.openkaarten.registerMap(map);
+    }
+
+	window.dispatchEvent(new CustomEvent('openkaarten:map-ready', {
+		detail: { map }
+	}));
 };
 
 const emit = defineEmits(['toggleView', 'datasetChange']);
@@ -613,6 +622,9 @@ $marker-colors: (
 				padding: 6px;
         .leaflet-svg {
           width: 44px;
+          &.fallback svg {
+            margin: auto;
+          }
         }
         &.active, &:where(:hover, :focus-visible) {
           border-radius: 50%;
