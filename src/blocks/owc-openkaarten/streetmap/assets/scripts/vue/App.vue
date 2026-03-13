@@ -28,7 +28,7 @@ const props = defineProps({
 });
 
 const error = ref(null);
-const loading = ref(false);
+const loading = ref(true);
 
 // Fetched data & default values
 const username = ref(null)
