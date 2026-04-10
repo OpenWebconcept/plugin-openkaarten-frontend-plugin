@@ -1,7 +1,8 @@
 <script setup>
-import { onMounted, onUnmounted, ref, watch, nextTick } from 'vue';
+import { onMounted, onUnmounted, ref, watch, nextTick, reactive } from 'vue';
 import BaseFiltersCheckbox from './BaseFiltersCheckbox.vue';
 import BaseTooltipCardClose from './BaseTooltipCardClose.vue';
+import BaseIcon from './BaseIcon.vue';
 
 const props = defineProps({
 	open: Boolean,
@@ -18,21 +19,22 @@ const props = defineProps({
 		type: String,
 		default: 'Filters',
 	},
-	confirm: {
+  clear: {
 		type: String,
-		default: 'Bevestigen',
+		default: 'Wis alle filters',
 	},
 });
 
 const emit = defineEmits(['closeFilters', 'datasetChange']);
 
-const getDatalayerColor = (layer) => {
-	const firstMarker = layer.features[0]?.properties?.marker?.color;
-	return firstMarker || props.primaryColor;
-};
-
 const datasetChange = (id, checked) => {
 	emit('datasetChange', id, checked);
+};
+
+const clearAllFilters = () => {
+	props.selectedDatasets.forEach(id => {
+		emit('datasetChange', id, false);
+	});
 };
 
 const filterContainer = ref(null);
@@ -73,14 +75,6 @@ const handleKeyup = (e) => {
 	}
 };
 
-const handleClickOutside = (e) => {
-	if (!props.open) return;
-	
-	if (filterContainer.value && !filterContainer.value.contains(e.target)) {
-		closeFiltersWithX();
-	}
-};
-
 const closeFiltersWithX = () => {
 	const filterButton = document.querySelector('.leaflet-control-filters');
 	if (filterButton) {
@@ -108,16 +102,14 @@ watch(() => props.open, async (newValue) => {
 	}
 });
 
-onMounted(() => {
+onMounted( async() => {
 	document.addEventListener('keydown', handleTab);
 	document.addEventListener('keyup', handleKeyup);
-	document.addEventListener('mousedown', handleClickOutside);
 });
 
 onUnmounted(() => {
 	document.removeEventListener('keydown', handleTab);
 	document.removeEventListener('keyup', handleKeyup);
-	document.removeEventListener('mousedown', handleClickOutside);
 });
 </script>
 
@@ -152,22 +144,17 @@ onUnmounted(() => {
 						:selected="selectedDatasets.includes(layer.id)"
 						@onChange="datasetChange"
 					/>
-					<div
-              :class="[
-              'owc-openkaarten-streetmap__filters__body__list-item__dl-indicator',
-              getDatalayerColor(layer),
-              ]"
-          />
-				</li>
+          <BaseIcon :marker="layer.features[0]?.properties?.marker" />
+        </li>
 			</ul>
-		</div>
-		<div class="owc-openkaarten-streetmap__filters__footer">
 			<button
-				class="owc-openkaarten-streetmap__filters__footer__btn"
-				@click.stop.prevent="closeFiltersWithConfirm"
-				@keydown.enter.stop.prevent="closeFiltersWithConfirm"
+				v-if="selectedDatasets.length > 0"
+				class="owc-openkaarten-streetmap__filters__body__clear"
+				@click.stop.prevent="clearAllFilters"
+        @keydown.enter.stop.prevent="clearAllFilters"
+				type="button"
 			>
-				{{ confirm }}
+				{{ clear }}
 			</button>
 		</div>
 	</div>
@@ -202,13 +189,17 @@ onUnmounted(() => {
 	border: none;
 	padding: 0;
 	margin: 0;
-
+  @media only screen and (min-width: 768px) {
+    width: 276px;
+    border-right: 1px solid var(--Neutral-300,#e5e5e6);
+  }
 	&__header {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		padding: var(--owc-filters-card-padding);
-		border-bottom: 1px solid #d2d2d2;
+		border-bottom: 1px solid var(--Neutral-300, #E5E5E6);
+    height: 80px;
 		h5 {
 			padding: 0;
 			margin: 0;
@@ -237,58 +228,36 @@ onUnmounted(() => {
 			display: flex;
 			align-content: center;
 			justify-content: space-between;
-			&__dl-indicator {
-        background-color: #000000;
-				width: 28px;
-				height: 28px;
-				border-radius: 50%;
-				opacity: 0.5;
-        &.marker-black {
-          background-color: #000000;
-        }
-        &.marker-blue {
-          background-color: #0072B2;
-        }
-        &.marker-brown {
-          background-color: #A0522D;
-        }
-        &.marker-darkgray {
-          background-color: #555555;
-        }
-        &.marker-deep-purple {
-          background-color: #4B0082;
-        }
-        &.marker-gray {
-          background-color: #757575;
-        }
-        &.marker-green {
-          background-color: #008661;
-        }
-        &.marker-navy-blue {
-          background-color: #003366;
-        }
-        &.marker-orange {
-          background-color: #9D6D00;
-        }
-        &.marker-purple {
-          background-color: #A26085;
-        }
-        &.marker-red {
-          background-color: #C15500;
-        }
-        &.marker-turquoise {
-          background-color: #3B7BA0;
-        }
-        &.marker-yellow {
-          background-color: #7E7722;
-        }
+		}
+
+		&__clear {
+			margin-top: 16px;
+			padding: 0;
+			background: none;
+			border: none;
+			color: var(--owc-openkaarten-streetmap--primary-color);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 700;
+			line-height: 160%;
+			text-decoration: underline;
+			cursor: pointer;
+			text-align: left;
+
+			&:hover {
+				opacity: 0.8;
+			}
+
+			&:focus-visible {
+				outline: 2px solid var(--owc-openkaarten-streetmap--primary-color);
+				outline-offset: 2px;
 			}
 		}
 	}
 
 	&__footer {
 		padding: var(--owc-filters-card-padding);
-		border-top: 1px solid #d2d2d2;
+		border-top: 1px solid var(--Neutral-300, #E5E5E6);
 
 		&__btn {
 			display: flex;
