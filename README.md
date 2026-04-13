@@ -30,8 +30,8 @@ If you chose for option 2 (new WordPress installation), you will probably need t
 
 The OpenKaarten Frontend plugin works best with the following plugins, which can be installed on a different WordPress installation:
 
-- [OpenKaarten Base](https://github.com/openwebconcept/plugin-openkaarten-base): This plugin adds Datalayers and Locations to WordPress which can be retrieved via the OpenKaarten REST API.
-- [OpenKaarten GeoData](https://github.com/OpenWebconcept/plugin-openkaarten-geodata-for-posts): This plugin adds GeoData fields to the OpenPub Items post type and creates a REST endpoint to retrieve OpenPub Items with geodata.
+* [OpenKaarten Base](https://github.com/openwebconcept/plugin-openkaarten-base): This plugin adds Datalayers and Locations to WordPress which can be retrieved via the OpenKaarten REST API.
+* [OpenKaarten GeoData](https://github.com/OpenWebconcept/plugin-openkaarten-geodata-for-posts): This plugin adds GeoData fields to the OpenPub Items post type and creates a REST endpoint to retrieve OpenPub Items with geodata.
 
 ## Installation
 
@@ -50,6 +50,7 @@ You can download the latest release from the [releases page](https://github.com/
 ## Usage
 
 ### Add a Gutenberg blok to show a map with locations
+
 In the WordPress admin panel, go to the page or post where you want to show the map with locations. Add a new block and search for the 'OWC Openmaps Openstreet Map' block.
 Add this block to the page or post, add a URL where the OpenKaarten Base plugin is installed and select the datalayer(s) you want to show on the map.
 
@@ -57,28 +58,79 @@ Add this block to the page or post, add a URL where the OpenKaarten Base plugin 
 
 ### Coding Standards
 
-Please remember, we use the WordPress PHP Coding Standards for this plugin! (https://make.wordpress.org/core/handbook/best-practices/coding-standards/php/) To check if your changes are compatible with these standards:
+Please remember, we use the WordPress PHP Coding Standards for this plugin! (<https://make.wordpress.org/core/handbook/best-practices/coding-standards/php/>) To check if your changes are compatible with these standards:
 
-*  `cd /wp-content/plugins/openkaarten-frontend`
-*  `composer install` (this step is only needed once after installing the plugin)
-*  `./vendor/bin/phpcs --standard=phpcs.xml.dist .`
-*  See the output if you have made any errors.
-    *  Errors marked with `[x]` can be fixed automatically by phpcbf, to do so run: `./vendor/bin/phpcbf --standard=phpcs.xml.dist .`
+* `cd /wp-content/plugins/openkaarten-frontend`
+* `composer install` (this step is only needed once after installing the plugin)
+* `./vendor/bin/phpcs --standard=phpcs.xml.dist .`
+* See the output if you have made any errors.
+  * Errors marked with `[x]` can be fixed automatically by phpcbf, to do so run: `./vendor/bin/phpcbf --standard=phpcs.xml.dist .`
 
 N.B. the `composer install` command will also install a git hook, preventing you from committing code that isn't compatible with the coding standards.
 
 ### NPM
+
 The plugin uses NPM for managing the JavaScript dependencies and building the leaflet map for showing locations within a datalayer. To install the dependencies, run the following command:
+
 ```
 npm install
 ```
 
 To deploy the JavaScript files, run the following command:
+
 ```
 npm run build
 ```
 
 To watch the JavaScript files for changes, run the following command:
+
 ```
 npm run watch
+```
+
+## Extending
+
+The Openkaarten block exposes a small global API for interacting with the Leaflet map from outside the Vue component. It assumes there is only one Openkaarten map instance on the page.
+
+```js
+window.openkaarten.map
+window.openkaarten.addMarker(options)
+window.openkaarten.clearLayer(layerName?)
+```
+
+### Accessing the Leaflet Instance
+
+```js
+const map = window.openkaarten.map;
+```
+
+
+### Adding a Marker
+
+```js
+window.addEventListener('openkaarten:map-ready', () => {
+    window.openkaarten.addMarker({
+        lat: 52.0907, // Required
+        lng: 5.1214, // Required
+        popup: 'Hallo vanuit Utrecht!',
+        markerOptions: {}, // Leaflet marker options
+        layer: 'external', // Optional layer name
+        flyTo: true,
+        flyToOptions: { // Leaflet flyTo options
+            zoom: 17,
+            duration: 2,
+        },
+        onAdd: (marker, map) => {
+            // Do something with the marker or map after it's added 
+        },
+    });
+});
+```
+
+### Removing Markers
+
+Removes markers from a specific layer, or from the default layer if no name is provided:
+
+```js
+window.openkaarten.clearLayer('external');
 ```
