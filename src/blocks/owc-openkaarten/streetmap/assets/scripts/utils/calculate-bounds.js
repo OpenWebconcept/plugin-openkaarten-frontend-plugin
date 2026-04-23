@@ -53,10 +53,26 @@ export const calculateBounds = (datasets) => {
 		return;
 	}
 
+// Derive an appropriate zoom level from the span of the bounding box.
+// Based on Web Mercator: at zoom 0 the world is 360° wide, every
+// zoom step halves the visible range. The largest span (lat or
+// long) is leading. The +1 compensates for a typical map viewport
+// and simultaneously provides some padding around the markers.
+//
+// If the bounding box has no surface area (e.g. a single marker,
+// or multiple markers at exactly the same location) no meaningful
+// zoom can be derived from the bounds. In that case we return `null`
+// so that the caller can fall back on their own default.
+	const latSpan = Math.abs(maxLat - minLat);
+	const lngSpan = Math.abs(maxLong - minLong);
+	const span = Math.max(latSpan, lngSpan);
+	const zoom = span > 0 ? Math.floor(Math.log2(360 / span)) + 1 : null;
+
 	return {
 		minLat,
 		maxLat,
 		minLong,
 		maxLong,
+		zoom,
 	};
 };

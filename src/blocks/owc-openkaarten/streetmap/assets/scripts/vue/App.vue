@@ -120,7 +120,7 @@ async function getLocations() {
       password: password.value
     };
 
-    console.log( "Proxy payload prepared:", proxyPayload);
+    // console.log( "Proxy payload prepared:", proxyPayload);
 
     await fetch('/wp-json/openkaarten-frontend-plugin/v1/proxy-datasets', {
       method: 'POST',
