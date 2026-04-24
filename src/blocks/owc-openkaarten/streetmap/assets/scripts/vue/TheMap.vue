@@ -167,8 +167,22 @@ const getColorFromMarker = (markerConfig, props) => {
   return props.primaryColor;
 };
 
-// Helper function to create appropriate layer based on feature type
-const createLayer = async (feature, dataset) => {
+/**
+ * Build the correct Leaflet layer for a GeoJSON feature.
+ *
+ * Synchronous by design: marker icons are applied as lightweight placeholders immediately
+ * and upgraded to the processed SVG in the background once `fetchAndProcessSvg` resolves.
+ * This keeps map initialization off the critical path of the SVG network requests, so the
+ * tile layer and all markers are visible right away instead of blocking on a potentially
+ * slow `/opengemeenten-iconenset/` fetch.
+ *
+ * @author Merel Voorn - van Uffelen
+ *
+ * @param {object} feature  A single GeoJSON feature from the dataset.
+ * @param {object} dataset  The parent dataset — retained for debug logging / future use.
+ * @returns {object} A Leaflet layer ready to be added to a cluster / map.
+ */
+const createLayer = (feature, dataset) => {
   console.log('Creating layer for feature:', feature);
   if (feature.geometry.type === 'Polygon') {
     return new L.GeoJSON(feature, {
@@ -184,33 +198,53 @@ const createLayer = async (feature, dataset) => {
     });
   }
 
-  // Handle MultiPoint features
+  // Handle MultiPoint features.
   if (feature.geometry.type === 'MultiPoint') {
     const markers = L.featureGroup();
     for (const coord of feature.geometry.coordinates) {
       const latlng = L.latLng(coord[1], coord[0]);
-      const icon = await makeMarkerIcon(L, {
+      // Get the placeholder icon synchronously, then upgrade it per-marker when the SVG lands.
+      const { icon, ready } = makeMarkerIcon(L, {
         marker: feature.properties?.marker,
         defaultColor: props.primaryColor,
       });
       const marker = new L.Marker(latlng, { icon });
+      ready.then((upgradedIcon) => {
+        if (upgradedIcon) {
+          marker.setIcon(upgradedIcon);
+        }
+      });
       markers.addLayer(marker);
     };
     return markers;
   }
 
-  // Handle regular points using GeoJSON
-  // Since GeoJSON's pointToLayer callback can't be async, we create the icon first
-  const icon = await makeMarkerIcon(L, {
+  // Handle regular points using GeoJSON.
+  // All markers in this feature share one icon config, so we create one placeholder up front
+  // and upgrade every generated marker at once when the SVG fetch resolves.
+  const { icon, ready } = makeMarkerIcon(L, {
     marker: feature.properties?.marker,
     defaultColor: props.primaryColor,
   });
 
-  return new L.GeoJSON(feature, {
+  const pendingMarkers = [];
+
+  const layer = new L.GeoJSON(feature, {
     pointToLayer: (feature, latlng) => {
-      return new L.Marker(latlng, { icon });
+      const marker = new L.Marker(latlng, { icon });
+      pendingMarkers.push(marker);
+      return marker;
     }
   });
+
+  ready.then((upgradedIcon) => {
+    if (!upgradedIcon) {
+      return;
+    }
+    pendingMarkers.forEach((marker) => marker.setIcon(upgradedIcon));
+  });
+
+  return layer;
 };
 
 const initializeMap = async (datasets, settings) => {
@@ -273,6 +307,13 @@ const initializeMap = async (datasets, settings) => {
     L.control.zoom({ position: 'bottomright' }).addTo(map);
   }
 
+  // Add the tile layer *before* building the marker clusters so the base map is visible
+  // immediately, even while individual marker SVGs are still being fetched in the background.
+  // Previously this lived at the bottom of this function, which caused the whole map to
+  // appear blank whenever an SVG fetch was slow.
+  const tileLayerUri = new L.TileLayer(props.tileLayerUri);
+  map.addLayer(tileLayerUri);
+
   const filteredDatasets = datasets.filter((dataset) => props.selectedDatasets.includes(dataset.id));
 
   const groupedMarkerClusters = await Promise.all(
@@ -298,7 +339,9 @@ const initializeMap = async (datasets, settings) => {
 			}
 
       for (const feature of dataset.features) {
-        const layer = await createLayer(feature, dataset);
+        // createLayer is now synchronous: placeholders are applied immediately and each
+        // marker upgrades itself when its SVG finishes fetching in the background.
+        const layer = createLayer(feature, dataset);
         // Store feature and dataset data on the layer for later retrieval.
         layer._featureData = feature;
         layer._datasetData = dataset;
@@ -371,11 +414,9 @@ const initializeMap = async (datasets, settings) => {
 		},
 	});
 
-	const tileLayerUri = new L.TileLayer(props.tileLayerUri);
+	// Tile layer is already added near the top of initializeMap so the base map renders immediately.
 	const datalayerFilters = new L.Control.DataLayerFilters();
 	const listViewToggle = new L.Control.ListViewToggle();
-
-	map.addLayer(tileLayerUri);
 
   if (groupedMarkerClusters?.some(item => item.hasFeatures)) {
     map.addControl(listViewToggle);

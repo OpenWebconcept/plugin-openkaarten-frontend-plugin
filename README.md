@@ -88,6 +88,27 @@ To watch the JavaScript files for changes, run the following command:
 npm run watch
 ```
 
+### Debugging
+
+#### Verifying the active plugin version
+
+Every frontend page that loads the plugin prints the active plugin name and version to the browser console. Open the DevTools console (F12 / ⌥⌘I) and you will see a line like:
+
+```
+OpenKaarten Frontend Plugin v0.4.0
+```
+
+The value is printed via `console.info`, so you can filter on the "Info" log level. The version comes directly from the `OPENKAARTEN_FRONTEND_VERSION` constant in `openkaarten-frontend-plugin.php`, so it tracks every release automatically.
+
+#### Marker loading behaviour
+
+When a map is rendered the tile layer is added to Leaflet **before** marker SVGs are fetched, and each marker is initially rendered with a lightweight placeholder icon (either the configured `<img>` URL, or a built-in fallback SVG when no icon is configured). As soon as the processed SVG from `openkaarten-base/opengemeenten-iconenset/` arrives, each marker upgrades itself in-place via `marker.setIcon()`.
+
+This means:
+
+* A slow `opengemeenten-iconenset` response never blocks the base map from appearing.
+* If a single SVG fetch fails, only that marker keeps its placeholder — the rest of the map is unaffected.
+
 ## Extending
 
 The Openkaarten block exposes a small global API for interacting with the Leaflet map from outside the Vue component. It assumes there is only one Openkaarten map instance on the page.
