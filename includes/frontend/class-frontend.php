@@ -34,6 +34,31 @@ class Frontend {
 
 		add_action( 'enqueue_block_assets', [ $this, 'enqueue_block_assets' ] );
 		add_action( 'enqueue_block_assets', [ $this, 'dequeue_block_assets' ] );
+		add_action( 'wp_head', [ $this, 'print_version_to_console' ] );
+	}
+
+	/**
+	 * Print an inline script that logs the current plugin version to the browser console.
+	 *
+	 * Makes it possible to verify which version of the OpenKaarten Frontend Plugin is active
+	 * on a given site by opening the browser DevTools console. Uses `console.info` so it is
+	 * grouped under the informational log level and easy to filter.
+	 *
+	 * @return void
+	 */
+	public function print_version_to_console() {
+		// Build the message with the plugin name and version constants defined in the bootstrap file.
+		$openkaarten_frontend_plugin_console_message = sprintf(
+			'%1$s v%2$s',
+			OPENKAARTEN_FRONTEND_PLUGIN_NAME,
+			OPENKAARTEN_FRONTEND_VERSION
+		);
+
+		// Output the inline script. `wp_json_encode` guarantees the string is safely escaped for a JS context.
+		printf(
+			'<script>console.info(%s);</script>' . "\n",
+			wp_json_encode( $openkaarten_frontend_plugin_console_message )
+		);
 	}
 
 	/**
