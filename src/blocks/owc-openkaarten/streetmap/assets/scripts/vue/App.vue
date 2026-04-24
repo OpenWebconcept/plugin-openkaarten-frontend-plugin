@@ -28,7 +28,7 @@ const props = defineProps({
 });
 
 const error = ref(null);
-const loading = ref(false);
+const loading = ref(true);
 
 // Fetched data & default values
 const username = ref(null)
@@ -120,7 +120,7 @@ async function getLocations() {
       password: password.value
     };
 
-    console.log( "Proxy payload prepared:", proxyPayload);
+    // console.log( "Proxy payload prepared:", proxyPayload);
 
     await fetch('/wp-json/openkaarten-frontend-plugin/v1/proxy-datasets', {
       method: 'POST',
