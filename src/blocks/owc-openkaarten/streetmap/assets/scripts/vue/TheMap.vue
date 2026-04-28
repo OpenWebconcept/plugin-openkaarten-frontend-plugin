@@ -256,22 +256,18 @@ const initializeMap = async (datasets, settings) => {
 // Default_zoom from the settings is only a fallback for when there are
 // no markers (or all markers are in exactly the same place).
 // As soon as there is a bounding box, calculateBounds automatically derives a
-// suitable zoom and we overwrite it below.
+// suitable zoom and we overwrite it further with map.fitBounds().
+// This ensures that the default_zoom setting is only used when there are no features to show, or when all features have the same coordinates (and thus no bounds can be calculated).
 	let zoom = settings.default_zoom ?? 12;
 
 	if ( !bounds ) {
 		console.info("No valid bounds could be calculated from the datasets.");
+		console.log("Center calculated as:", { lat, long, zoom });
 	} else {
 		const center = calculateCenter(bounds);
 		lat = center.lat;
 		long = center.long;
-
-		if ( bounds.zoom !== null && bounds.zoom !== undefined ) {
-			zoom = bounds.zoom;
-		}
 	}
-
-	console.log('Center calculated as:', { lat, long, zoom });
 
 	const config = {
 		centerX: lat,
@@ -283,13 +279,6 @@ const initializeMap = async (datasets, settings) => {
 		enableZoomControl: true,
 		enableBoxZoomControl: true
 	};
-
-	if ( bounds ) {
-		config.maxBounds = [
-			[bounds.minLat, bounds.minLong],
-			[bounds.maxLat, bounds.maxLong],
-		];
-	}
 
 	const map = new L.Map('dataset-map', {
 		center: [config.centerX, config.centerY],
@@ -426,6 +415,21 @@ const initializeMap = async (datasets, settings) => {
 		map.addControl(datalayerFilters);
     showFiltersCard.value = true;
 	}
+
+  // Fit map view to marker bounds.
+  if (bounds) {
+    map.fitBounds([
+      [bounds.minLat, bounds.minLong],
+      [bounds.maxLat, bounds.maxLong],
+    ], {
+      padding: [40, 40],
+      maxZoom: 15
+    });
+
+    // Calculate zoom based on bounds.
+    zoom = map.getZoom();
+    console.log('Center calculated as:', { lat, long, zoom });
+  }
 
 	groupedMarkerClusters.forEach(({ cluster }) => {
 		map.addLayer(cluster);
