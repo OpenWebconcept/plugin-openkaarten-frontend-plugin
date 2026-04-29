@@ -45,6 +45,10 @@ if ( ! defined( 'OPENKAARTEN_FRONTEND_PLUGIN_NAME' ) ) {
 	define( 'OPENKAARTEN_FRONTEND_PLUGIN_NAME', 'OpenKaarten Frontend Plugin' );
 }
 
+if ( ! defined( 'OPENKAARTEN_FRONTEND_URL' ) ) {
+	define( 'OPENKAARTEN_FRONTEND_URL', esc_url( trailingslashit( plugins_url( '', __FILE__ ) ) ) );
+}
+
 /**
  * Begins execution of the plugin.
  */
