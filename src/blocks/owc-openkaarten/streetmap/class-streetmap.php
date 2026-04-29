@@ -50,15 +50,14 @@ class Streetmap extends Base_Block {
 	}
 
 	/**
-	 * Localize the streetmap view script with the icon base URL derived from
-	 * the openkaarten-base plugin's location.
+	 * Localize the streetmap view script with the icon base URL.
 	 */
 	public function localize_script() {
 		wp_localize_script(
 			'owc-openkaarten-streetmap-block',
 			'openkaartenStreetmap',
 			[
-				'iconBaseUrl' => plugins_url( 'plugin-openkaarten-base/opengemeenten-iconenset/Regular/' ),
+				'iconBaseUrl' => trailingslashit( OPENKAARTEN_FRONTEND_URL ) . 'opengemeenten-iconenset/Regular/'
 			]
 		);
 	}
