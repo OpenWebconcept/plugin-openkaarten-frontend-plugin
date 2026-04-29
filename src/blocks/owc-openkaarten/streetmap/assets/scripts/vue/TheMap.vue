@@ -20,6 +20,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import { setOpenkaartenMap } from '../utils/use-openkaarten-map';
 import '../utils/map-window-api';
+import { getColorFromMarker } from '../utils/get-color-from-marker';
 
 const props = defineProps({
 	datasets: {
@@ -115,7 +116,7 @@ const attachEvents = (marker, location, set) => {
     }
 
     // For polygons, select overlapping polygon and use its data for tooltip.
-    const selectedLayer = selectOverlappingPolygon(mapRef.value, e.latlng);
+    const selectedLayer = selectOverlappingPolygon(mapRef.value, e.latlng, location.properties?.marker);
 
     // Use the selected layer's data for the tooltip if available.
     if (selectedLayer && selectedLayer._featureData && selectedLayer._datasetData) {
@@ -132,39 +133,6 @@ const attachEvents = (marker, location, set) => {
       highlightSelectedMarker(marker);
     }
   });
-};
-
-// Helper function to get color from marker config.
-const getColorFromMarker = (markerConfig, props) => {
-  const colorMap = {
-    "marker-black": "#000000",
-    "marker-blue": "#0072B2",
-    "marker-brown": "#A0522D",
-    "marker-darkgray": "#555555",
-    "marker-deep-purple": "#4B0082",
-    "marker-gray": "#757575",
-    "marker-green": "#328725",
-    "marker-navy-blue": "#001D5F",
-    "marker-orange": "#F4801B",
-    "marker-purple": "#792487",
-    "marker-red": "#9F0000",
-    "marker-turquoise": "#3B7BA0",
-    "marker-yellow": "#7E7722",
-  };
-
-  if (!markerConfig) return props.primaryColor;
-
-  // If marker has a custom color, use that
-  if (markerConfig.color) {
-    return colorMap[markerConfig.color];
-  }
-
-  // If marker has a custom icon with color, use that
-  if (markerConfig.icon?.color) {
-    return colorMap[markerConfig.icon.color];
-  }
-
-  return props.primaryColor;
 };
 
 /**
@@ -184,10 +152,10 @@ const getColorFromMarker = (markerConfig, props) => {
  */
 const createLayer = (feature, dataset) => {
   console.log('Creating layer for feature:', feature);
-  if (feature.geometry.type === 'Polygon') {
+  if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
     return new L.GeoJSON(feature, {
       style: () => {
-        const color = getColorFromMarker(feature.properties?.marker);
+        const color = getColorFromMarker(feature.properties?.marker, props.primaryColor);
         return {
           color: color,
           fillColor: color,

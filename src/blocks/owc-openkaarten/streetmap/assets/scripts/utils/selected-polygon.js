@@ -1,9 +1,12 @@
 import L from 'leaflet';
+import { getColorFromMarker } from './get-color-from-marker';
 
 let selectedLayer = null;
 let highlightLayer = null;
 let overlappingLayers = [];
 let overlapIndex = 0;
+
+const primaryColor = '#328725';
 
 export const resetPolygonSelection = () => {
   if (highlightLayer) {
@@ -15,7 +18,7 @@ export const resetPolygonSelection = () => {
   overlapIndex = 0;
 };
 
-export const selectOverlappingPolygon = (map, latlng) => {
+export const selectOverlappingPolygon = (map, latlng, marker) => {
   if (!map) return null;
 
     // get all polygons of the map.
@@ -49,9 +52,10 @@ export const selectOverlappingPolygon = (map, latlng) => {
     }
 
     // highlight the newly selected polygon.
+    const markerColor = getColorFromMarker(marker, primaryColor);
     selectedLayer = newLayer;
     highlightLayer = L.geoJSON(selectedLayer.toGeoJSON(), {
-      style: {color: '#0377fc', weight: 4, opacity: 0.9},
+      style: {color: markerColor, weight: 4, opacity: 0.9},
       interactive: false
     }).addTo(map);
 
