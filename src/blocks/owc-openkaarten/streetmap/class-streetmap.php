@@ -26,6 +26,14 @@ use Openkaarten_Frontend_Plugin\Includes\Base_Block;
  */
 class Streetmap extends Base_Block {
 	/**
+	 * Streetmap constructor.
+	 */
+	public function __construct() {
+		parent::__construct();
+		add_action( 'enqueue_block_assets', [ $this, 'localize_script' ], 11 );
+	}
+
+	/**
 	 * Render the blocks HTML.
 	 *
 	 * @param array  $attributes An array of block attributes.
@@ -39,6 +47,19 @@ class Streetmap extends Base_Block {
 		$output = ob_get_clean();
 
 		return $output;
+	}
+
+	/**
+	 * Localize the streetmap view script with the icon base URL.
+	 */
+	public function localize_script() {
+		wp_localize_script(
+			'owc-openkaarten-streetmap-block',
+			'openkaartenStreetmap',
+			[
+				'iconBaseUrl' => trailingslashit( OPENKAARTEN_FRONTEND_URL ) . 'opengemeenten-iconenset/Regular/'
+			]
+		);
 	}
 }
 

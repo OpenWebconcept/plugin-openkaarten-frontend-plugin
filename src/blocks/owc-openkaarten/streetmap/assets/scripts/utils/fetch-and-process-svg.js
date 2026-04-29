@@ -2,7 +2,7 @@ const svgCache = {};
 
 /**
  * Fetches an SVG from a URL and replaces fill color.
- * @param {string} iconUrl
+ * @param {string} marker
  * @param {string} fillColor
  * @returns {Promise<string>} SVG text
  */
@@ -16,8 +16,7 @@ export const fetchAndProcessSvg = async (marker, fillColor = '#fff') => {
 
   if (svgCache[cacheKey]) return svgCache[cacheKey];
 
-  const filePath = '/wp-content/plugins/openkaarten-base/opengemeenten-iconenset/Regular/';
-  const iconUrl = `${location.protocol}//${location.host}${filePath}${iconName}`;
+  const iconUrl = `${window.openkaartenStreetmap.iconBaseUrl}${iconName}`;
 
   const res = await fetch(iconUrl);
   if (!res.ok) return null;
