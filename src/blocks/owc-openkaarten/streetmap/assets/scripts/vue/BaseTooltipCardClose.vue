@@ -42,8 +42,8 @@ const emit = defineEmits(['closeCard']);
 		display: flex;
 		justify-content: center;
     margin-inline-start: auto;
-		min-height: 44px;
-		min-width: 44px;
+		min-block-size: 44px;
+		min-inline-size: 44px;
 	}
 }
 </style>
