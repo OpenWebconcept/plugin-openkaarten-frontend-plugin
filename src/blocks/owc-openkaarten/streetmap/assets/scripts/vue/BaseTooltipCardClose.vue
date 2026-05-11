@@ -34,15 +34,16 @@ const emit = defineEmits(['closeCard']);
 <style lang="scss">
 .owc-openkaarten-streetmap {
 	&__tooltip-card__close-btn {
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid var(--owc-openkaarten-streetmap--primary-color);
+    border-radius: 3px;
 		cursor: pointer;
 		display: flex;
 		justify-content: center;
-		align-items: center;
+    margin-inline-start: auto;
 		min-height: 44px;
 		min-width: 44px;
-		background-color: #fff;
-		border: 1px solid var(--owc-openkaarten-streetmap--primary-color);
-		border-radius: 3px;
 	}
 }
 </style>
