@@ -60,7 +60,7 @@ onMounted(() => {
 		<div class="owc-openkaarten-streetmap__tooltip-card__wrapper">
 			<div class="owc-openkaarten-streetmap__tooltip-card__content">
         <div class="owc-openkaarten-streetmap__tooltip-card__header">
-          <BaseIcon :marker="properties.marker" />
+          <BaseIcon v-if="properties.marker.icon" :marker="properties.marker" />
           <BaseTooltipCardClose
               :primaryColor="primaryColor"
               @closeCard="$emit('closeCard')"
