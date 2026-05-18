@@ -106,18 +106,18 @@ onMounted(() => {
 .owc-openkaarten-streetmap {
 	&__tooltip-card {
 		background-color: #fff;
-		border-radius: 4px;
+    border-radius: 4px;
 		inline-size: min(100%, 360px);
 		inset-block-end: 24px;
-		inset-inline-start: 50%;
-		position: absolute;
-		transform: translate(-50%, 0);
-		z-index: 9999;
+    inset-inline-start: 50%;
+    position: absolute;
+    transform: translate(-50%, 0);
+    z-index: 9999;
 
 		@media only screen and (min-width: 768px) {
-			inset-block-end: 24px;
+      inset-block-end: 24px;
 			inset-inline-start: 16px;
-			transform: translate(0);
+      transform: translate(0);
 		}
 
 		&:focus {
@@ -129,7 +129,7 @@ onMounted(() => {
 		}
 
 		&__content {
-			align-items: flex-start;
+      align-items: flex-start;
 			display: flex;
 			flex-direction: column;
 			gap: 8px;
@@ -137,41 +137,41 @@ onMounted(() => {
 		}
 
 		&__header {
-			align-items: center;
+      align-items: center;
 			display: flex;
-			gap: 24px;
-			inline-size: 100%;
+      gap: 24px;
+      inline-size: 100%;
 			justify-content: space-between;
 		}
 
 		&__title {
 			color: #001d5f;
 			font-weight: bold;
-			margin-block: 0;
+      margin-block: 0;
 		}
 
 		&__list {
-			inline-size: 100%;
+      inline-size: 100%;
 			list-style-type: none;
 			margin-block: 0;
-			padding-inline-start: 0;
-			text-align: start;
+      padding-inline-start: 0;
+      text-align: start;
 
 			li {
 				display: flex;
 				flex-direction: column;
 				font-size: 14px;
-				inline-size: 100%;
-				justify-content: space-between;
+        inline-size: 100%;
+        justify-content: space-between;
 
-				@media only screen and (min-width: 500px) {
-					flex-direction: row;
-					gap: 24px;
-				}
+		@media only screen and (min-width: 500px) {
+			flex-direction: row;
+			gap: 24px;
+		}
 
-				:first-child {
-					font-weight: bold;
-				}
+					:first-child {
+						font-weight: bold;
+					}
 			}
 		}
 
@@ -182,22 +182,22 @@ onMounted(() => {
 
 		&__image {
 			block-size: 180px;
-			inline-size: 100%;
+      inline-size: 100%;
 
 			img {
-				block-size: 100%;
+        block-size: 100%;
 				border-start-end-radius: 4px;
 				border-start-start-radius: 4px;
-				inline-size: 100%;
-				object-fit: cover;
+        inline-size: 100%;
+        object-fit: cover;
 			}
 		}
 
 		&__button {
-			align-items: center;
-			background-color: var(--owc-openkaarten-streetmap--primary-color);
-			border-radius: 4px;
-			color: white;
+      align-items: center;
+      background-color: var(--owc-openkaarten-streetmap--primary-color);
+      border-radius: 4px;
+      color: white;
 			display: inline-flex;
 			gap: 8px;
 			padding: 8px 16px;
