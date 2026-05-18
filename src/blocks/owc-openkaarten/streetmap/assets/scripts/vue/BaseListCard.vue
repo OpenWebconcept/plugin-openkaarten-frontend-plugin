@@ -1,20 +1,14 @@
 <script setup>
+import { computed } from 'vue';
 import BaseIcon from "./BaseIcon.vue";
 
-defineProps({
-	title: {
-		type: String,
+const props = defineProps({
+	tooltipArray: {
+		type: Array,
+		default: () => [],
 		required: true,
 	},
-	address: {
-		type: String,
-		default: '',
-	},
-	description: {
-		type: String,
-		default: '',
-	},
-	image: {
+	datasetTitle: {
 		type: String,
 		default: '',
 	},
@@ -22,28 +16,65 @@ defineProps({
 		type: String,
 		default: '#328725',
 	},
-  marker: {
-    type: Object,
-    default: () => ({}),
-  }
+	marker: {
+		type: Object,
+		default: () => ({}),
+	},
 });
+
+const title = computed(
+	() => props.tooltipArray.find(item => item.layout === 'title')?.title || props.datasetTitle
+);
+
+const images = computed(
+	() => props.tooltipArray.filter(item => item.layout === 'image' && item.image_url)
+);
 </script>
 
 <template>
 	<div class="base-list-card">
 		<div class="base-list-card__inner">
 			<div class="base-list-card__content">
-				<h3 class="base-list-card__title">{{ title }}</h3>
-        <div class="base-list-card__meta">
-          <BaseIcon :marker="marker" />
-          <p class="base-list-card__address" v-if="address">{{ address }}</p>
-        </div>
-        <p class="base-list-card__description" v-if="description">{{ description }}</p>
+				<template v-for="(item, index) in tooltipArray" :key="index">
+					<h3
+						v-if="item.layout === 'title' && item.title"
+						class="base-list-card__title"
+					>
+						{{ item.title }}
+					</h3>
+					<div
+						v-else-if="item.layout === 'meta' && item.meta"
+						class="base-list-card__meta"
+					>
+						<BaseIcon :marker="marker" />
+						<p class="base-list-card__address">{{ item.meta }}</p>
+					</div>
+					<p
+						v-else-if="item.layout === 'text' && item.text"
+						class="base-list-card__description"
+						v-html="item.text"
+					/>
+					<a
+						v-else-if="item.layout === 'button' && item.button_url"
+						:href="item.button_url"
+						class="base-list-card__button"
+					>
+						<svg aria-hidden="true" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M10.243 4.41a.833.833 0 0 1 1.178 0l5 5a.833.833 0 0 1 0 1.18l-5 5a.833.833 0 0 1-1.178-1.18l3.577-3.577H4.165a.833.833 0 0 1 0-1.667h9.655L10.243 5.59a.833.833 0 0 1 0-1.178Z" fill="#fff"/>
+						</svg>
+						{{ item.button_text }}
+						<span class="sr-only">over {{ title }}</span>
+					</a>
+				</template>
 			</div>
-			<slot name="footer"></slot>
 		</div>
-		<div class="base-list-card__image" v-if="image">
-			<img :src="image" :alt="title" />
+		<div class="base-list-card__image" v-if="images.length">
+			<img
+				v-for="(img, idx) in images"
+				:key="idx"
+				:src="img.image_url"
+				:alt="img.image_alt || title"
+			/>
 		</div>
 	</div>
 </template>
@@ -53,11 +84,11 @@ defineProps({
 	--image-size: 256px;
 
   background-color: #fff;
+  border: 1px solid #cacaca;
+  border-radius: 6px;
 	display: flex;
   flex-direction: column-reverse;
 	gap: 1rem;
-	border: 1px solid #cacaca;
-	border-radius: 6px;
   margin-block-end: 1rem;
   @media only screen and (min-width: 768px) {
     flex-direction: row;
@@ -67,12 +98,14 @@ defineProps({
   }
 
 	&__image {
+    display: flex;
 		flex: 0 0 var(--image-size);
-		aspect-ratio: 1 / 1;
+		flex-direction: column;
+		gap: .5rem;
 
 		img {
-			width: 100%;
-			height: 100%;
+      aspect-ratio: 1 / 1;
+      inline-size: 100%;
 			object-fit: cover;
 		}
 	}
@@ -94,10 +127,10 @@ defineProps({
 	}
 
 	&__title {
-		margin: 0;
 		color: #001d5f;
 		font-size: 1.5rem;
 		font-weight: bold;
+    margin: 0;
 	}
   &__meta {
     align-items: center;
@@ -105,8 +138,8 @@ defineProps({
     gap: .5rem;
   }
 	&__address {
+    color: #4b4b4b;
 		font-size: 14px;
-		color: #4b4b4b
 	}
 
 	&__description {
@@ -121,9 +154,9 @@ defineProps({
     color: white;
     display: inline-flex;
     gap: 8px;
+    inline-size: fit-content;
     padding: 8px 16px;
     text-decoration: none;
-    width: fit-content;
     &:hover {
       opacity: 0.9;
     }

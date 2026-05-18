@@ -9,9 +9,7 @@ export const makeTooltipCard = (location, dataset) => {
         datasetTitle: title,
         datasetId: location.id,
         datasetType: type,
-        locationTitle: tooltipArray.find(t => t.layout === 'title')?.title || location.properties?.title,
-        meta: tooltipArray.find(t => t.layout === 'meta')?.meta || '',
-        button: tooltipArray.find(t => t.layout === 'button') || null,
+        tooltipArray,
         properties: location.properties,
         coordinates: location.geometry.coordinates,
     };

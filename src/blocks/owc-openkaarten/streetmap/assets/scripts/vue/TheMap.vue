@@ -508,11 +508,7 @@ const handleSearch = async (query) => {
 			v-if="tooltipCard"
 			:key="tooltipCard.datasetId"
 			:id="tooltipCard.datasetId"
-			:title="tooltipCard.locationTitle"
-			:meta="tooltipCard.meta"
-			:text="tooltipCard.text"
-			:button="tooltipCard.button"
-			:image="tooltipCard.image"
+			:tooltipArray="tooltipCard.tooltipArray"
 			:properties="tooltipCard.properties"
 			:primaryColor="primaryColor"
 			@closeCard="closeTooltipCard"
@@ -538,22 +534,22 @@ $marker-colors: (
 );
 
 #dataset-map {
-	height: 80dvh;
-	max-height: 661px;
-	width: 100%;
+	block-size: 80dvh;
+	inline-size: 100%;
+	max-block-size: 661px;
 }
 
 .owc-openkaarten-streetmap {
   &__filters__body__list-item__dl-indicator {
     align-items: center;
     background-color: #0072B2;
+    block-size: 30px;
     border-radius: 50%;
     display: flex;
-    height: 30px;
+    inline-size: 30px;
     justify-content: center;
+    min-inline-size: 30px;
     padding: 3px;
-    min-width: 30px;
-    width: 30px;
     @each $name, $color in $marker-colors {
       &.marker-#{$name} {
         background-color: #{$color};
@@ -570,10 +566,10 @@ $marker-colors: (
 		&--loading {
 			display: flex;
 			justify-content: center;
-			min-height: 30dvh;
+			min-block-size: 30dvh;
 			place-items: center;
 			svg {
-				max-width: 3rem;
+				max-inline-size: 3rem;
 			}
 		}
 	}
@@ -581,22 +577,22 @@ $marker-colors: (
 		border-radius: 50%;
 
 		&__circle {
+      --owc-cluster-background: color-mix(
+              in srgb,
+              var(--owc-openkaarten-streetmap--cluster-color),
+              rgba(255, 255, 255, 0.05) 75%
+      );
       --owc-openkaarten-streetmap--cluster-color: #328725;
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			border-radius: 50%;
-			display: flex !important;
-			justify-content: center !important;
-			align-items: center !important;
-			--owc-cluster-background: color-mix(
-				in srgb,
-				var(--owc-openkaarten-streetmap--cluster-color),
-				rgba(255, 255, 255, 0.05) 75%
-			);
-			background: var(--owc-cluster-background);
+      align-items: center !important;
+      background: var(--owc-cluster-background);
+      block-size: 100%;
+      border-radius: 50%;
+      display: flex !important;
+			inline-size: 100%;
+      inset-block-start: 0;
+			inset-inline-start: 0;
+      justify-content: center !important;
+      position: absolute;
 
 			@each $name, $color in $marker-colors {
 				&.marker-#{$name} {
@@ -612,17 +608,16 @@ $marker-colors: (
 
 	&__map {
     border: 1px solid var(--Neutral-300, #E5E5E6);
-    padding-top: 80px;
+    padding-block-start: 80px;
 		position: relative;
-		overflow: hidden;
     @media only screen and (min-width: 768px) {
-      padding-top: 0;
+      padding-block-start: 0;
     }
 		.leaflet-marker-icon {
 			&:focus-visible {
+        aspect-ratio: 1 / 1;
 				border-radius: 50%;
 				outline-color: var(--owc-openkaarten-streetmap--primary-color);
-				aspect-ratio: 1 / 1;
 			}
       &.dimmed {
         opacity: 0.4 !important;
@@ -642,7 +637,7 @@ $marker-colors: (
         justify-content: center;
 				padding: 6px;
         .leaflet-svg {
-          width: 44px;
+          inline-size: 44px;
           &.fallback svg {
             margin: auto;
           }
@@ -675,19 +670,20 @@ $marker-colors: (
         }
         .leaflet-top.leaflet-left {
           transform: translateX(-145px);
-          transition: transform 0.2s ease-in-out;      }
+          transition: transform 0.2s ease-in-out;
+        }
       }
     }
 	}
 
   &__overlay {
     background-color: var(--owc-map-overlay, rgba(0, 0, 0, 0.25));
-    position: absolute;
+    block-size: 100%;
     content: '';
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inline-size: 100%;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    position: absolute;
     z-index: 999;
     @media only screen and (min-width: 768px) {
       display: none;
@@ -718,16 +714,16 @@ $marker-colors: (
 	&__controls {
 		display: flex;
 		gap: 0.5rem;
+		inline-size: 100%;
     inset-block-start: 20px;
     inset-inline-start: 10px;
     position: absolute;
     transition: all 0.2s ease-in-out;
-		width: 100%;
     z-index: 1000;
     @media only screen and (min-width: 768px) {
+      inset-block-start: 1rem;
       inset-inline-start: 20px;
       max-inline-size: calc( 100% - 287px);
-      top: 1rem;
       z-index: 9999;
       .filters-open & {
         max-inline-size: calc( 100% - 435px);
