@@ -467,11 +467,7 @@ const handleSearch = async (query) => {
 			v-if="tooltipCard"
 			:key="tooltipCard.datasetId"
 			:id="tooltipCard.datasetId"
-			:title="tooltipCard.locationTitle"
-			:meta="tooltipCard.meta"
-			:text="tooltipCard.text"
-			:button="tooltipCard.button"
-			:image="tooltipCard.image"
+			:tooltipArray="tooltipCard.tooltipArray"
 			:properties="tooltipCard.properties"
 			:primaryColor="primaryColor"
 			@closeCard="closeTooltipCard"
@@ -510,8 +506,8 @@ $marker-colors: (
     display: flex;
     height: 30px;
     justify-content: center;
-    padding: 3px;
     min-width: 30px;
+    padding: 3px;
     width: 30px;
     @each $name, $color in $marker-colors {
       &.marker-#{$name} {
@@ -541,21 +537,21 @@ $marker-colors: (
 
 		&__circle {
       --owc-openkaarten-streetmap--cluster-color: #328725;
-			position: absolute;
-			top: 0;
+      --owc-cluster-background: color-mix(
+              in srgb,
+              var(--owc-openkaarten-streetmap--cluster-color),
+              rgba(255, 255, 255, 0.05) 75%
+      );
+      align-items: center !important;
+      background: var(--owc-cluster-background);
+      border-radius: 50%;
+      display: flex !important;
+      height: 100%;
+      justify-content: center !important;
 			left: 0;
+      position: absolute;
+      top: 0;
 			width: 100%;
-			height: 100%;
-			border-radius: 50%;
-			display: flex !important;
-			justify-content: center !important;
-			align-items: center !important;
-			--owc-cluster-background: color-mix(
-				in srgb,
-				var(--owc-openkaarten-streetmap--cluster-color),
-				rgba(255, 255, 255, 0.05) 75%
-			);
-			background: var(--owc-cluster-background);
 
 			@each $name, $color in $marker-colors {
 				&.marker-#{$name} {
@@ -573,15 +569,14 @@ $marker-colors: (
     border: 1px solid var(--Neutral-300, #E5E5E6);
     padding-top: 80px;
 		position: relative;
-		overflow: hidden;
     @media only screen and (min-width: 768px) {
       padding-top: 0;
     }
 		.leaflet-marker-icon {
 			&:focus-visible {
+        aspect-ratio: 1 / 1;
 				border-radius: 50%;
 				outline-color: var(--owc-openkaarten-streetmap--primary-color);
-				aspect-ratio: 1 / 1;
 			}
       &.dimmed {
         opacity: 0.4 !important;
@@ -641,12 +636,12 @@ $marker-colors: (
 
   &__overlay {
     background-color: var(--owc-map-overlay, rgba(0, 0, 0, 0.25));
-    position: absolute;
     content: '';
-    top: 0;
-    left: 0;
-    width: 100%;
     height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
     z-index: 999;
     @media only screen and (min-width: 768px) {
       display: none;

@@ -46,11 +46,7 @@ const filteredLocations = computed(() => {
         ...feature,
         datasetId: dataset.id,
         datasetTitle: dataset.title,
-        title: tooltipData.find(t => t.layout === 'title')?.title || feature.title,
-        meta: tooltipData.find(t => t.layout === 'meta')?.meta || '',
-        text: tooltipData.find(t => t.layout === 'text')?.text || '',
-        image: tooltipData.find(t => t.layout === 'image')?.image_url || '',
-        button: tooltipData.find(t => t.layout === 'button') || null,
+        tooltipArray: tooltipData,
         searchableText: searchableText.toLowerCase()
       };
     }));
@@ -178,27 +174,11 @@ onMounted(() => {
       >
         <BaseListCard
           v-if="location"
-          :title="location.title || location.datasetTitle"
-          :address="location.meta"
-          :description="location.text"
-          :image="location.image"
+          :tooltipArray="location.tooltipArray"
+          :datasetTitle="location.datasetTitle"
           :primaryColor="primaryColor"
           :marker="location.properties.marker"
-        >
-          <template #footer>
-            <a
-              v-if="location.button"
-              :href="location.button.button_url"
-              class="base-list-card__button"
-            >
-              <svg aria-hidden="true" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10.243 4.41a.833.833 0 0 1 1.178 0l5 5a.833.833 0 0 1 0 1.18l-5 5a.833.833 0 0 1-1.178-1.18l3.577-3.577H4.165a.833.833 0 0 1 0-1.667h9.655L10.243 5.59a.833.833 0 0 1 0-1.178Z" fill="#fff"/>
-              </svg>
-              {{ location.button.button_text }}
-              <span class="sr-only">over {{ location.title }}</span>
-            </a>
-          </template>
-        </BaseListCard>
+        />
       </li>
 
       <!-- Add Load More button -->
@@ -247,14 +227,14 @@ onMounted(() => {
     }
     button:not([class*="search"]) {
       align-items: center;
-      border: 1px solid #328725;
       background-color: #fff;
+      border: 1px solid #328725;
       border-radius: 3px;
       display: flex;
       justify-content: space-between;
       gap: 8px;
-      min-width: 44px;
       min-height: 48px;
+      min-width: 44px;
       padding: 10px 17px;
 
       span {
@@ -266,8 +246,8 @@ onMounted(() => {
       }
 
       &:hover {
-        cursor: pointer;
         background-color: rgb(244, 244, 244);
+        cursor: pointer;
       }
 
       &:focus-visible {
@@ -300,17 +280,17 @@ onMounted(() => {
   }
 
   &__load-more {
+    background-color: white;
+    border: 2px solid var(--button-color);
+    border-radius: 4px;
+    color: var(--button-color);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
     margin-top: 1rem;
     margin-inline: auto;
     padding: 1rem 2rem;
-    background-color: white;
-    border: 2px solid var(--button-color);
-    color: var(--button-color);
-    border-radius: 4px;
-    font-size: 1rem;
-    font-weight: 500;
     transition: background-color 0.2s ease;
-    cursor: pointer;
 
     &:hover {
       background-color: rgb(244, 244, 244);
