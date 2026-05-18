@@ -106,67 +106,68 @@ onMounted(() => {
 .owc-openkaarten-streetmap {
 	&__tooltip-card {
 		background-color: #fff;
-    border-radius: 4px;
-		bottom: 24px;
+		border-radius: 4px;
 		inline-size: min(100%, 360px);
-    left: 50%;
-    position: absolute;
-    transform: translate(-50%, 0);
-    z-index: 9999;
-		&__wrapper {
-			border-radius: 4px;
-		}
-
-		&__content {
-      align-items: flex-start;
-			display: flex;
-			flex-direction: column;
-			gap: 8px;
-			padding: 16px;
-		}
+		inset-block-end: 24px;
+		inset-inline-start: 50%;
+		position: absolute;
+		transform: translate(-50%, 0);
+		z-index: 9999;
 
 		@media only screen and (min-width: 768px) {
-      bottom: 24px;
-			left: 16px;
-      transform: translate(0);
+			inset-block-end: 24px;
+			inset-inline-start: 16px;
+			transform: translate(0);
 		}
 
 		&:focus {
 			outline: none;
 		}
 
-		&__header {
-      align-items: center;
+		&__wrapper {
+			border-radius: 4px;
+		}
+
+		&__content {
+			align-items: flex-start;
 			display: flex;
-      gap: 24px;
+			flex-direction: column;
+			gap: 8px;
+			padding: 16px;
+		}
+
+		&__header {
+			align-items: center;
+			display: flex;
+			gap: 24px;
+			inline-size: 100%;
 			justify-content: space-between;
-      width: 100%;
 		}
 
 		&__title {
 			color: #001d5f;
 			font-weight: bold;
-      margin-block: 0;
+			margin-block: 0;
 		}
 
 		&__list {
+			inline-size: 100%;
 			list-style-type: none;
 			margin-block: 0;
-      padding-left: 0;
-      text-align: left;
-      width: 100%;
+			padding-inline-start: 0;
+			text-align: start;
+
 			li {
 				display: flex;
 				flex-direction: column;
 				font-size: 14px;
-        justify-content: space-between;
-        width: 100%;
+				inline-size: 100%;
+				justify-content: space-between;
 
-		@media only screen and (min-width: 500px) {
-			flex-direction: row;
-			gap: 24px;
-
-		}
+				@media only screen and (min-width: 500px) {
+					flex-direction: row;
+					gap: 24px;
+				}
 
 				:first-child {
 					font-weight: bold;
@@ -180,23 +181,23 @@ onMounted(() => {
 		}
 
 		&__image {
-			height: 180px;
-      width: 100%;
+			block-size: 180px;
+			inline-size: 100%;
 
 			img {
-				border-top-left-radius: 4px;
-				border-top-right-radius: 4px;
-        height: 100%;
-        object-fit: cover;
-        width: 100%;
+				block-size: 100%;
+				border-start-end-radius: 4px;
+				border-start-start-radius: 4px;
+				inline-size: 100%;
+				object-fit: cover;
 			}
 		}
 
 		&__button {
-      align-items: center;
-      border-radius: 4px;
-      background-color: var(--owc-openkaarten-streetmap--primary-color);
-      color: white;
+			align-items: center;
+			background-color: var(--owc-openkaarten-streetmap--primary-color);
+			border-radius: 4px;
+			color: white;
 			display: inline-flex;
 			gap: 8px;
 			padding: 8px 16px;

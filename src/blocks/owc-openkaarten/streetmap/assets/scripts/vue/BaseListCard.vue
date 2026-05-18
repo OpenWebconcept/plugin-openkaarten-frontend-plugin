@@ -83,62 +83,66 @@ const images = computed(
 .base-list-card {
 	--image-size: 256px;
 
-  background-color: #fff;
-  border: 1px solid #cacaca;
-  border-radius: 6px;
+	background-color: #fff;
+	border: 1px solid #cacaca;
+	border-radius: 6px;
 	display: flex;
-  flex-direction: column-reverse;
+	flex-direction: column-reverse;
 	gap: 1rem;
-  margin-block-end: 1rem;
-  @media only screen and (min-width: 768px) {
-    flex-direction: row;
-  }
-  .filters-open & {
-    margin-inline-end: 1rem;
-  }
+	margin-block-end: 1rem;
+
+	@media only screen and (min-width: 768px) {
+		flex-direction: row;
+	}
+
+	.filters-open & {
+		margin-inline-end: 1rem;
+	}
 
 	&__image {
-    display: flex;
+		display: flex;
 		flex: 0 0 var(--image-size);
 		flex-direction: column;
 		gap: .5rem;
 
 		img {
-      aspect-ratio: 1 / 1;
+			aspect-ratio: 1 / 1;
+			inline-size: 100%;
 			object-fit: cover;
-      width: 100%;
 		}
 	}
 
-  &__inner {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 1.5rem;
-    padding-inline-end: .5rem;
-  }
+	&__inner {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		justify-content: space-between;
+		padding: 1.5rem;
+		padding-inline-end: .5rem;
+	}
 
 	&__content {
 		display: flex;
 		flex-direction: column;
-    gap: .5rem;
-    margin-block-end: .5rem;
+		gap: .5rem;
+		margin-block-end: .5rem;
 	}
 
 	&__title {
 		color: #001d5f;
 		font-size: 1.5rem;
 		font-weight: bold;
-    margin: 0;
+		margin: 0;
 	}
-  &__meta {
-    align-items: center;
-    display: flex;
-    gap: .5rem;
-  }
+
+	&__meta {
+		align-items: center;
+		display: flex;
+		gap: .5rem;
+	}
+
 	&__address {
-    color: #4b4b4b;
+		color: #4b4b4b;
 		font-size: 14px;
 	}
 
@@ -147,19 +151,20 @@ const images = computed(
 		font-weight: 400;
 	}
 
-  &__button {
-    align-items: center;
-    background-color: var(--owc-openkaarten-streetmap--primary-color);
-    border-radius: 4px;
-    color: white;
-    display: inline-flex;
-    gap: 8px;
-    padding: 8px 16px;
-    text-decoration: none;
-    width: fit-content;
-    &:hover {
-      opacity: 0.9;
-    }
-  }
+	&__button {
+		align-items: center;
+		background-color: var(--owc-openkaarten-streetmap--primary-color);
+		border-radius: 4px;
+		color: white;
+		display: inline-flex;
+		gap: 8px;
+		inline-size: fit-content;
+		padding: 8px 16px;
+		text-decoration: none;
+
+		&:hover {
+			opacity: 0.9;
+		}
+	}
 }
 </style>

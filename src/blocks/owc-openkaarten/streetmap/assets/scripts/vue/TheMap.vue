@@ -493,29 +493,31 @@ $marker-colors: (
 );
 
 #dataset-map {
-	height: 80dvh;
-	max-height: 661px;
-	width: 100%;
+	block-size: 80dvh;
+	inline-size: 100%;
+	max-block-size: 661px;
 }
 
 .owc-openkaarten-streetmap {
-  &__filters__body__list-item__dl-indicator {
-    align-items: center;
-    background-color: #0072B2;
-    border-radius: 50%;
-    display: flex;
-    height: 30px;
-    justify-content: center;
-    min-width: 30px;
-    padding: 3px;
-    width: 30px;
-    @each $name, $color in $marker-colors {
-      &.marker-#{$name} {
-        background-color: #{$color};
-        border-color: #{$color};
-      }
-    }
-  }
+	&__filters__body__list-item__dl-indicator {
+		align-items: center;
+		background-color: #0072B2;
+		block-size: 30px;
+		border-radius: 50%;
+		display: flex;
+		inline-size: 30px;
+		justify-content: center;
+		min-inline-size: 30px;
+		padding: 3px;
+
+		@each $name, $color in $marker-colors {
+			&.marker-#{$name} {
+				background-color: #{$color};
+				border-color: #{$color};
+			}
+		}
+	}
+
 	&__results {
 		display: flex;
 		flex-direction: column;
@@ -525,33 +527,35 @@ $marker-colors: (
 		&--loading {
 			display: flex;
 			justify-content: center;
-			min-height: 30dvh;
+			min-block-size: 30dvh;
 			place-items: center;
+
 			svg {
-				max-width: 3rem;
+				max-inline-size: 3rem;
 			}
 		}
 	}
+
 	&__cluster-group {
 		border-radius: 50%;
 
 		&__circle {
-      --owc-openkaarten-streetmap--cluster-color: #328725;
-      --owc-cluster-background: color-mix(
-              in srgb,
-              var(--owc-openkaarten-streetmap--cluster-color),
-              rgba(255, 255, 255, 0.05) 75%
-      );
-      align-items: center !important;
-      background: var(--owc-cluster-background);
-      border-radius: 50%;
-      display: flex !important;
-      height: 100%;
-      justify-content: center !important;
-			left: 0;
-      position: absolute;
-      top: 0;
-			width: 100%;
+			--owc-cluster-background: color-mix(
+				in srgb,
+				var(--owc-openkaarten-streetmap--cluster-color),
+				rgba(255, 255, 255, 0.05) 75%
+			);
+			--owc-openkaarten-streetmap--cluster-color: #328725;
+			align-items: center !important;
+			background: var(--owc-cluster-background);
+			block-size: 100%;
+			border-radius: 50%;
+			display: flex !important;
+			inline-size: 100%;
+			inset-block-start: 0;
+			inset-inline-start: 0;
+			justify-content: center !important;
+			position: absolute;
 
 			@each $name, $color in $marker-colors {
 				&.marker-#{$name} {
@@ -566,87 +570,101 @@ $marker-colors: (
 	}
 
 	&__map {
-    border: 1px solid var(--Neutral-300, #E5E5E6);
-    padding-top: 80px;
+		border: 1px solid var(--Neutral-300, #E5E5E6);
+		padding-block-start: 80px;
 		position: relative;
-    @media only screen and (min-width: 768px) {
-      padding-top: 0;
-    }
+
+		@media only screen and (min-width: 768px) {
+			padding-block-start: 0;
+		}
+
 		.leaflet-marker-icon {
 			&:focus-visible {
-        aspect-ratio: 1 / 1;
+				aspect-ratio: 1 / 1;
 				border-radius: 50%;
 				outline-color: var(--owc-openkaarten-streetmap--primary-color);
 			}
-      &.dimmed {
-        opacity: 0.4 !important;
-        transition: opacity 0.2s ease-in-out, filter 0.2s ease-in-out;
-        &:where(:hover, :focus-visible) {
-          opacity: 1 !important;
-        }
-      }
-    }
+
+			&.dimmed {
+				opacity: 0.4 !important;
+				transition: opacity 0.2s ease-in-out, filter 0.2s ease-in-out;
+
+				&:where(:hover, :focus-visible) {
+					opacity: 1 !important;
+				}
+			}
+		}
 
 		.leaflet-custom-icon {
 			&--inline-svg {
-        align-items: center;
-        background-color: #0072B2;
-        border-radius: 100%;
-        display: flex;
-        justify-content: center;
+				align-items: center;
+				background-color: #0072B2;
+				border-radius: 100%;
+				display: flex;
+				justify-content: center;
 				padding: 6px;
-        .leaflet-svg {
-          width: 44px;
-          &.fallback svg {
-            margin: auto;
-          }
-        }
-        &.active, &:where(:hover, :focus-visible) {
-          border-radius: 50%;
-          box-shadow: 0 0 0 3px white, 0 0 0 6px #0072B2;
-          opacity: 1 !important;
-          outline: none;
-          transition: all 0.2s ease-in-out;
-        }
+
+				.leaflet-svg {
+					inline-size: 44px;
+
+					&.fallback svg {
+						margin: auto;
+					}
+				}
+
+				&.active, &:where(:hover, :focus-visible) {
+					border-radius: 50%;
+					box-shadow: 0 0 0 3px white, 0 0 0 6px #0072B2;
+					opacity: 1 !important;
+					outline: none;
+					transition: all 0.2s ease-in-out;
+				}
+
 				@each $name, $color in $marker-colors {
 					&.marker-#{$name} {
 						background-color: $color;
-            &.active, &:where(:hover, :focus-visible) {
-              box-shadow: 0 0 0 3px white, 0 0 0 6px $color;
-            }
+
+						&.active, &:where(:hover, :focus-visible) {
+							box-shadow: 0 0 0 3px white, 0 0 0 6px $color;
+						}
 					}
 				}
+
 				svg path {
 					fill: white;
 				}
 			}
 		}
-    &.filters-open {
-      @media only screen and (min-width: 768px) {
-        .leaflet-bottom.leaflet-right {
-          transform: translateX(-282px);
-          transition: transform 0.2s ease-in-out;
-        }
-        .leaflet-top.leaflet-left {
-          transform: translateX(-145px);
-          transition: transform 0.2s ease-in-out;      }
-      }
-    }
+
+		&.filters-open {
+			@media only screen and (min-width: 768px) {
+				.leaflet-bottom.leaflet-right {
+					transform: translateX(-282px);
+					transition: transform 0.2s ease-in-out;
+				}
+
+				.leaflet-top.leaflet-left {
+					transform: translateX(-145px);
+					transition: transform 0.2s ease-in-out;
+				}
+			}
+		}
 	}
 
-  &__overlay {
-    background-color: var(--owc-map-overlay, rgba(0, 0, 0, 0.25));
-    content: '';
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 100%;
-    z-index: 999;
-    @media only screen and (min-width: 768px) {
-      display: none;
-    }
-  }
+	&__overlay {
+		background-color: var(--owc-map-overlay, rgba(0, 0, 0, 0.25));
+		block-size: 100%;
+		content: '';
+		inline-size: 100%;
+		inset-block-start: 0;
+		inset-inline-start: 0;
+		position: absolute;
+		z-index: 999;
+
+		@media only screen and (min-width: 768px) {
+			display: none;
+		}
+	}
 
 	.fade-enter-active,
 	.fade-leave-active {
@@ -672,21 +690,23 @@ $marker-colors: (
 	&__controls {
 		display: flex;
 		gap: 0.5rem;
-    inset-block-start: 20px;
-    inset-inline-start: 10px;
-    position: absolute;
-    transition: all 0.2s ease-in-out;
-		width: 100%;
-    z-index: 1000;
-    @media only screen and (min-width: 768px) {
-      inset-inline-start: 20px;
-      max-inline-size: calc( 100% - 287px);
-      top: 1rem;
-      z-index: 9999;
-      .filters-open & {
-        max-inline-size: calc( 100% - 435px);
-      }
-    }
+		inline-size: 100%;
+		inset-block-start: 20px;
+		inset-inline-start: 10px;
+		position: absolute;
+		transition: all 0.2s ease-in-out;
+		z-index: 1000;
+
+		@media only screen and (min-width: 768px) {
+			inset-block-start: 1rem;
+			inset-inline-start: 20px;
+			max-inline-size: calc( 100% - 287px);
+			z-index: 9999;
+
+			.filters-open & {
+				max-inline-size: calc( 100% - 435px);
+			}
+		}
 	}
 }
 </style>
