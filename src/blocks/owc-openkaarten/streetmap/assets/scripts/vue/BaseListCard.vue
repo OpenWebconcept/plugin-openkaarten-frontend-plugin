@@ -68,7 +68,7 @@ const images = computed(
 	gap: 1rem;
 	margin-block-end: 1rem;
 
-	@media only screen and (min-width: 768px) {
+	@media only screen and (min-width: 991px) {
 		flex-direction: row;
 	}
 
@@ -83,9 +83,9 @@ const images = computed(
 		gap: .5rem;
 
 		img {
-			aspect-ratio: 1;
+      block-size: 100%;
 			inline-size: 100%;
-			object-fit: none;
+			object-fit: cover;
 		}
 	}
 
