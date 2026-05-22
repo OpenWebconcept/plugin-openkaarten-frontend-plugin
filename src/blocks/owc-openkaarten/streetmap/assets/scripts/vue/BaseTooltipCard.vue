@@ -120,7 +120,7 @@ onMounted(() => {
 			color: #001d5f;
 			font-weight: bold;
 			margin-block: 0;
-      padding-inline-end: 2.75rem;
+			padding-inline-end: 2.75rem;
 		}
 
 		&__list {
