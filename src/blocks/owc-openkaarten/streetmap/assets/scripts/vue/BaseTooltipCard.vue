@@ -2,21 +2,14 @@
 import { computed, onMounted, onUnmounted } from 'vue';
 import BaseTooltipCardClose from './BaseTooltipCardClose.vue';
 import BaseIcon from './BaseIcon.vue';
+import TooltipContent from './TooltipContent.vue';
 
 const props = defineProps({
 	id: Number,
-	title: {
-		type: String,
-		default: '',
+	tooltipArray: {
+		type: Array,
+		default: () => [],
 		required: true,
-	},
-	meta: {
-		type: String,
-		default: '',
-	},
-	button: {
-		type: Object,
-		default: null,
 	},
 	properties: {
 		type: Object,
@@ -27,6 +20,10 @@ const props = defineProps({
 		required: true,
 	},
 });
+
+const title = computed(
+	() => props.tooltipArray.find(item => item.layout === 'title')?.title || props.properties?.title || ''
+);
 
 const emit = defineEmits(['closeCard']);
 
@@ -59,29 +56,19 @@ onMounted(() => {
 	>
 		<div class="owc-openkaarten-streetmap__tooltip-card__wrapper">
 			<div class="owc-openkaarten-streetmap__tooltip-card__content">
-        <div class="owc-openkaarten-streetmap__tooltip-card__header">
-          <BaseIcon v-if="properties.marker.icon" :marker="properties.marker" />
-          <BaseTooltipCardClose
-              :primaryColor="primaryColor"
-              @closeCard="$emit('closeCard')"
-          />
-        </div>
-        <h4 v-if="title" class="owc-openkaarten-streetmap__tooltip-card__title">
-          {{ title }}
-        </h4>
-				<div v-if="meta" class="owc-openkaarten-streetmap__tooltip-card__meta">
-					{{ meta }}
+				<div class="owc-openkaarten-streetmap__tooltip-card__header">
+					<BaseIcon v-if="properties.marker.icon" :marker="properties.marker" />
+					<BaseTooltipCardClose
+						:primaryColor="primaryColor"
+						@closeCard="$emit('closeCard')"
+					/>
 				</div>
-				<a
-					v-if="button"
-					:href="button.button_url"
-					class="owc-openkaarten-streetmap__tooltip-card__button"
-				>
-					<svg aria-hidden="true" width="20" height="21" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M10.243 4.91a.833.833 0 0 1 1.178 0l5 5a.833.833 0 0 1 0 1.18l-5 5a.833.833 0 0 1-1.178-1.18l3.577-3.577H4.165a.833.833 0 0 1 0-1.667h9.655L10.243 6.09a.833.833 0 0 1 0-1.178Z" fill="#fff"/>
-					</svg>
-					{{ button.button_text }} <span class="sr-only">over {{ title }}</span>
-				</a>
+				<TooltipContent
+					:tooltipArray="tooltipArray"
+					classPrefix="owc-openkaarten-streetmap__tooltip-card"
+					:title="title"
+					titleTag="h4"
+				/>
 			</div>
 		</div>
 	</div>
@@ -91,70 +78,68 @@ onMounted(() => {
 .owc-openkaarten-streetmap {
 	&__tooltip-card {
 		background-color: #fff;
-		position: absolute;
-		bottom: 24px;
-		left: 50%;
-		z-index: 400;
-		inline-size: min(100%, 360px);
 		border-radius: 4px;
-    transform: translate(-50%, 0);
-
-		&__wrapper {
-			border-radius: 4px;
-		}
-
-		&__content {
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 8px;
-			padding: 16px;
-		}
+		inline-size: min(100%, 360px);
+		inset-block-end: 24px;
+		inset-inline-start: 50%;
+		position: absolute;
+		transform: translate(-50%, 0);
+		z-index: 9999;
 
 		@media only screen and (min-width: 768px) {
-			left: auto;
-			bottom: 24px;
-			left: 16px;
-      transform: translate(0);
+			inset-block-end: 24px;
+			inset-inline-start: 16px;
+			transform: translate(0);
 		}
 
 		&:focus {
 			outline: none;
 		}
 
-		&__header {
-      align-items: center;
+		&__wrapper {
+			border-radius: 4px;
+		}
+
+		&__content {
+			align-items: flex-start;
 			display: flex;
-      gap: 24px;
+			flex-direction: column;
+			gap: 8px;
+			padding: 16px;
+		}
+
+		&__header {
+			align-items: center;
+			display: flex;
+			gap: 24px;
+			inline-size: 100%;
 			justify-content: space-between;
-      width: 100%;
 		}
 
 		&__title {
-			margin-block: 0;
 			color: #001d5f;
 			font-weight: bold;
+			margin-block: 0;
 		}
 
 		&__list {
-			width: 100%;
+			inline-size: 100%;
 			list-style-type: none;
-			text-align: left;
-			padding-left: 0;
 			margin-block: 0;
+			padding-inline-start: 0;
+			text-align: start;
 
 			li {
-				width: 100%;
 				display: flex;
 				flex-direction: column;
-				justify-content: space-between;
 				font-size: 14px;
+				inline-size: 100%;
+				justify-content: space-between;
 
-		@media only screen and (min-width: 500px) {
-			flex-direction: row;
-			gap: 24px;
-
-		}
+				@media only screen and (min-width: 500px) {
+					flex-direction: row;
+					gap: 24px;
+				}
 
 				:first-child {
 					font-weight: bold;
@@ -168,27 +153,27 @@ onMounted(() => {
 		}
 
 		&__image {
-			width: 100%;
-			height: 180px;
+			block-size: 180px;
+			inline-size: 100%;
 
 			img {
-				width: 100%;
-				height: 100%;
-				object-fit: cover;
-				border-top-left-radius: 4px;
-				border-top-right-radius: 4px;
+				block-size: 100%;
+				border-start-end-radius: 4px;
+				border-start-start-radius: 4px;
+				inline-size: 100%;
+				object-fit: none;
 			}
 		}
 
 		&__button {
-			display: inline-flex;
 			align-items: center;
+			background-color: var(--owc-openkaarten-streetmap--primary-color);
+			border-radius: 4px;
+			color: white;
+			display: inline-flex;
 			gap: 8px;
 			padding: 8px 16px;
-			background-color: var(--owc-openkaarten-streetmap--primary-color);
-			color: white;
 			text-decoration: none;
-			border-radius: 4px;
 
 			&:hover {
 				opacity: 0.9;

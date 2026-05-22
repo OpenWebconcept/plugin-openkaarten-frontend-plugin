@@ -46,11 +46,7 @@ const filteredLocations = computed(() => {
         ...feature,
         datasetId: dataset.id,
         datasetTitle: dataset.title,
-        title: tooltipData.find(t => t.layout === 'title')?.title || feature.title,
-        meta: tooltipData.find(t => t.layout === 'meta')?.meta || '',
-        text: tooltipData.find(t => t.layout === 'text')?.text || '',
-        image: tooltipData.find(t => t.layout === 'image')?.image_url || '',
-        button: tooltipData.find(t => t.layout === 'button') || null,
+        tooltipArray: tooltipData,
         searchableText: searchableText.toLowerCase()
       };
     }));
@@ -178,27 +174,11 @@ onMounted(() => {
       >
         <BaseListCard
           v-if="location"
-          :title="location.title || location.datasetTitle"
-          :address="location.meta"
-          :description="location.text"
-          :image="location.image"
+          :tooltipArray="location.tooltipArray"
+          :datasetTitle="location.datasetTitle"
           :primaryColor="primaryColor"
           :marker="location.properties.marker"
-        >
-          <template #footer>
-            <a
-              v-if="location.button"
-              :href="location.button.button_url"
-              class="base-list-card__button"
-            >
-              <svg aria-hidden="true" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10.243 4.41a.833.833 0 0 1 1.178 0l5 5a.833.833 0 0 1 0 1.18l-5 5a.833.833 0 0 1-1.178-1.18l3.577-3.577H4.165a.833.833 0 0 1 0-1.667h9.655L10.243 5.59a.833.833 0 0 1 0-1.178Z" fill="#fff"/>
-              </svg>
-              {{ location.button.button_text }}
-              <span class="sr-only">over {{ location.title }}</span>
-            </a>
-          </template>
-        </BaseListCard>
+        />
       </li>
 
       <!-- Add Load More button -->
@@ -215,143 +195,149 @@ onMounted(() => {
 
 <style lang="scss">
 .list-view {
-  background-color: #E5E5E6;
-  display: flex;
-  flex-direction: column;
-  min-block-size: 660px;
-  padding: 1rem;
-  padding-block-start: 0;
-  position: absolute;
-  overflow-x: clip;
-  width: 100%;
-  z-index: 9999;
-  &__controls {
-    align-items: center;
-    border-bottom: 1px solid var(--Neutral-300, #e5e5e6);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    height: 76px;
-    margin-block-end: 2.5rem;
-    transition: all 0.2s ease-in-out;
-    @media only screen and (min-width: 768px) {
-      justify-content: flex-end;
-      margin-block-end: 0;
-      .filters-open & {
-        margin-inline-end: 155px;
-        .list-view__filters-button {
-          opacity: 0;
-          pointer-events: none;
-        }
-      }
-    }
-    button:not([class*="search"]) {
-      align-items: center;
-      border: 1px solid #328725;
-      background-color: #fff;
-      border-radius: 3px;
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      min-width: 44px;
-      min-height: 48px;
-      padding: 10px 17px;
+	background-color: #E5E5E6;
+	display: flex;
+	flex-direction: column;
+	inline-size: 100%;
+	min-block-size: 660px;
+	overflow-x: clip;
+	padding: 1rem;
+	padding-block-start: 0;
+	position: absolute;
+	z-index: 9999;
 
-      span {
-        color: #328725;
-        font-size: 20px;
-        font-style: normal;
-        font-weight: 500;
-        line-height: 130%;
-      }
+	&__controls {
+		align-items: center;
+		block-size: 76px;
+		border-block-end: 1px solid var(--Neutral-300, #e5e5e6);
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+		margin-block-end: 2.5rem;
+		transition: all 0.2s ease-in-out;
 
-      &:hover {
-        cursor: pointer;
-        background-color: rgb(244, 244, 244);
-      }
+		@media only screen and (min-width: 768px) {
+			justify-content: flex-end;
+			margin-block-end: 0;
 
-      &:focus-visible {
-        border-width: 3px;
-      }
-    }
-  }
+			.filters-open & {
+				margin-inline-end: 155px;
 
-  &__results {
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    max-height: 555px;
-    padding: 0;
-    overflow: scroll;
-    .filters-open & {
-      max-width: calc(100% - 267px);
-    }
-  }
+				.list-view__filters-button {
+					opacity: 0;
+					pointer-events: none;
+				}
+			}
+		}
 
-  &__item {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+		button:not([class*="search"]) {
+			align-items: center;
+			background-color: #fff;
+			border: 1px solid #328725;
+			border-radius: 3px;
+			display: flex;
+			gap: 8px;
+			justify-content: space-between;
+			min-block-size: 48px;
+			min-inline-size: 44px;
+			padding: 10px 17px;
 
-    &:focus {
-      outline: 2px solid var(--owc-openkaarten-streetmap--primary-color);
-      outline-offset: 1px;
-    }
-  }
+			span {
+				color: #328725;
+				font-size: 20px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 130%;
+			}
 
-  &__load-more {
-    margin-top: 1rem;
-    margin-inline: auto;
-    padding: 1rem 2rem;
-    background-color: white;
-    border: 2px solid var(--button-color);
-    color: var(--button-color);
-    border-radius: 4px;
-    font-size: 1rem;
-    font-weight: 500;
-    transition: background-color 0.2s ease;
-    cursor: pointer;
+			&:hover {
+				background-color: rgb(244, 244, 244);
+				cursor: pointer;
+			}
 
-    &:hover {
-      background-color: rgb(244, 244, 244);
-    }
+			&:focus-visible {
+				border-width: 3px;
+			}
+		}
+	}
 
-    &:focus-visible {
-      outline: 2px solid var(--button-color);
-      outline-offset: 2px;
-    }
-  }
+	&__results {
+		display: flex;
+		flex-direction: column;
+		margin: 0;
+		max-block-size: 555px;
+		overflow: scroll;
+		padding: 0;
+
+		.filters-open & {
+			max-inline-size: calc(100% - 267px);
+		}
+	}
+
+	&__item {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+
+		&:focus {
+			outline: 2px solid var(--owc-openkaarten-streetmap--primary-color);
+			outline-offset: 1px;
+		}
+	}
+
+	&__load-more {
+		background-color: white;
+		border: 2px solid var(--button-color);
+		border-radius: 4px;
+		color: var(--button-color);
+		cursor: pointer;
+		font-size: 1rem;
+		font-weight: 500;
+		margin-block-start: 1rem;
+		margin-inline: auto;
+		padding: 1rem 2rem;
+		transition: background-color 0.2s ease;
+
+		&:hover {
+			background-color: rgb(244, 244, 244);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--button-color);
+			outline-offset: 2px;
+		}
+	}
 }
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.2s ease-in-out;
+	transition: opacity 0.2s ease-in-out;
 }
 
 .fade-enter-from,
 .fade-leave-to {
-  opacity: 0;
+	opacity: 0;
 }
 
 .slide-enter-active,
 .slide-leave-active {
-  transform: translateX(0);
-  transition: transform 0.2s ease-in-out;
+	transform: translateX(0);
+	transition: transform 0.2s ease-in-out;
 }
 
 .slide-enter-from,
 .slide-leave-to {
-  transform: translateX(120%);
+	transform: translateX(120%);
 }
 
 .owc-openkaarten-streetmap__overlay {
-  background-color: var(--owc-map-overlay, rgba(0, 0, 0, 0.25));
-  position: absolute;
-  content: '';
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 999;
+	background-color: var(--owc-map-overlay, rgba(0, 0, 0, 0.25));
+	block-size: 100%;
+	content: '';
+	inline-size: 100%;
+	inset-block-start: 0;
+	inset-inline-start: 0;
+	position: absolute;
+	z-index: 999;
 }
 </style>
