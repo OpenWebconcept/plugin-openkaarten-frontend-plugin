@@ -548,7 +548,7 @@ $marker-colors: (
 		display: flex;
 		inline-size: 30px;
 		justify-content: center;
-    margin: 7px;
+		margin: 7px;
 		min-inline-size: 30px;
 		padding: 3px;
 
