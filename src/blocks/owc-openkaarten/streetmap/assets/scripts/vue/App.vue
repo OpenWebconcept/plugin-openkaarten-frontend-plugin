@@ -253,7 +253,7 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
-#owc-openkaarten-streetmap {
+.owc-openkaarten-streetmap {
   --owc-filters-primary: #328725;
   --owc-openkaarten-streetmap--primary-color: #328725;
   --search-primary-color: #328725;

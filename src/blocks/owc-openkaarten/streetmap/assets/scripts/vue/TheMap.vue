@@ -10,15 +10,11 @@ import { makeMarkerIcon } from '../utils/make-marker-icon';
 import { makeTooltipCard } from '../utils/make-tooltip-card';
 import { makeFilterButtonHTML } from '../utils/make-filter-button-html';
 import { makeListViewButtonHTML } from '../utils/make-list-view-button-html';
-import { highlightSelectedMarker } from '../utils/selected-marker';
-import { resetMarkers } from '../utils/selected-marker';
-import { activeMarkerRef } from '../utils/selected-marker';
-import { selectOverlappingPolygon } from '../utils/selected-polygon';
-import { resetPolygonSelection } from '../utils/selected-polygon';
+import { createMarkerHighlighter } from '../utils/selected-marker';
+import { createPolygonSelector } from '../utils/selected-polygon';
 import BaseSearchInput from './BaseSearchInput.vue';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
-import { setOpenkaartenMap } from '../utils/use-openkaarten-map';
 import '../utils/map-window-api';
 import { getColorFromMarker } from '../utils/get-color-from-marker';
 
@@ -49,6 +45,12 @@ const props = defineProps({
 const tooltipCard = ref(null);
 const showFiltersCard = ref(false);
 const mapRef = ref(null);
+// Reference to this instance's map DOM element, so multiple maps can coexist on one page.
+const mapContainer = ref(null);
+// Polygon selection state scoped to this map instance.
+const { selectOverlappingPolygon, resetPolygonSelection } = createPolygonSelector();
+// Marker highlight state scoped to this map instance.
+const { highlightSelectedMarker, resetMarkers, activeMarkerRef } = createMarkerHighlighter();
 const clusters = ref([]);
 const searchQuery = ref('');
 const resultsCount = ref(0);
@@ -77,9 +79,9 @@ const clusterOptions = {
 
 const closeTooltipCard = () => {
 	tooltipCard.value = null;
-  resetMarkers();
+  resetMarkers(mapContainer.value);
   resetPolygonSelection();
-  document.getElementById('dataset-map')?.focus();
+  mapContainer.value?.focus();
 };
 
 const closeFilters = () => {
@@ -107,7 +109,7 @@ const datasetChange = (id, checked) => {
 // Move attachEvents outside of initializeMap
 const attachEvents = (marker, location, set) => {
   marker.on('click', (e) => {
-    highlightSelectedMarker(marker);
+    highlightSelectedMarker(marker, mapContainer.value);
 
     if (location.geometry?.type !== 'Polygon') {
       resetPolygonSelection();
@@ -130,7 +132,7 @@ const attachEvents = (marker, location, set) => {
   marker.on('keydown', ({ originalEvent }) => {
     if (originalEvent.key === 'Enter') {
       tooltipCard.value = makeTooltipCard(location, set);
-      highlightSelectedMarker(marker);
+      highlightSelectedMarker(marker, mapContainer.value);
     }
   });
 };
@@ -214,7 +216,7 @@ const initializeMap = async (datasets, settings) => {
 		enableBoxZoomControl: true
 	};
 
-	const map = new L.Map('dataset-map', {
+	const map = new L.Map(mapContainer.value, {
 		center: [config.centerX, config.centerY],
 		zoom: config.defaultZoom,
 		minZoom: config.minimumZoom,
@@ -362,13 +364,12 @@ const initializeMap = async (datasets, settings) => {
 		map.addLayer(cluster);
     cluster.on('animationend layeradd spiderfied', () => {
       if (activeMarkerRef.value) {
-        highlightSelectedMarker(activeMarkerRef.value);
+        highlightSelectedMarker(activeMarkerRef.value, mapContainer.value);
       }
     });
 	});
 	clusters.value = groupedMarkerClusters;
 	mapRef.value = map;
-    setOpenkaartenMap(map);
 
     if (window.openkaarten && typeof window.openkaarten.registerMap === 'function') {
 		window.openkaarten.registerMap(map);
@@ -382,7 +383,7 @@ const initializeMap = async (datasets, settings) => {
 const emit = defineEmits(['toggleView', 'datasetChange']);
 
 onMounted(async () => {
-	if (document.getElementById('dataset-map')) {
+	if (mapContainer.value) {
 		await initializeMap(props.datasets, props.settings);
 	}
 });
@@ -445,7 +446,7 @@ const handleSearch = async (query) => {
 				@search="handleSearch"
 			/>
 		</div>
-		<div id="dataset-map"></div>
+		<div ref="mapContainer" class="owc-openkaarten-streetmap__map-canvas"></div>
     <Transition name="fade">
       <div
           v-if="showFiltersCard"
@@ -459,6 +460,7 @@ const handleSearch = async (query) => {
 				:datasets="datasets.filter((set) => set.features?.length)"
 				:selectedDatasets="selectedDatasets"
 				:primaryColor="primaryColor"
+				:mapElement="mapContainer"
 				@closeFilters="closeFilters"
 				@datasetChange="datasetChange"
 			/>
@@ -492,7 +494,7 @@ $marker-colors: (
 	'yellow': #7E7722
 );
 
-#dataset-map {
+.owc-openkaarten-streetmap__map-canvas {
 	block-size: 80dvh;
 	inline-size: 100%;
 	max-block-size: 661px;

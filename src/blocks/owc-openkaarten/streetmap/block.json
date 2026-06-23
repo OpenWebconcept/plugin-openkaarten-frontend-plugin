@@ -28,7 +28,7 @@
         "className" : false,
         "customClassName" : false,
         "html" : false,
-        "multiple" : false
+        "multiple" : true
     },
     "keywords" : [
         "owc",

@@ -10,6 +10,10 @@ defineProps({
     type: Number,
     required: true,
   },
+  idPrefix: {
+    type: [String, Number],
+    default: '',
+  },
   color: {
     type: String,
     required: true,
@@ -26,7 +30,7 @@ const emit = defineEmits(['onChange']);
 
 <template>
 	<label
-		:for="`owc-checkbox-${id}`"
+		:for="`owc-checkbox-${idPrefix}-${id}`"
 		role="checkbox"
 		:aria-checked="selected"
 		class="owc-openkaarten-streetmap__filters__checkbox"
@@ -34,7 +38,7 @@ const emit = defineEmits(['onChange']);
 			title
 		}}</span>
 		<input
-			:id="`owc-checkbox-${id}`"
+			:id="`owc-checkbox-${idPrefix}-${id}`"
 			type="checkbox"
 			:checked="selected"
 			@change="$emit('onChange', id, !selected)"

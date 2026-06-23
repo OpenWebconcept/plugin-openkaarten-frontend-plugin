@@ -1,6 +1,6 @@
 import { BlockControls } from "@wordpress/block-editor";
 import { SelectControl, __experimentalInputControl as InputControl, Notice } from "@wordpress/components";
-import { useMemo, useLayoutEffect, useState, useEffect } from "@wordpress/element";
+import { useMemo, useState, useEffect } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 
 export default function Edit({ attributes, setAttributes }) {
@@ -98,18 +98,11 @@ export default function Edit({ attributes, setAttributes }) {
         return options;
     }, [datasets]);
 
-    useLayoutEffect(() => {
-        const newLabels = options
+    // Labels of the currently selected datalayers, derived per block instance.
+    const selectedLabels = useMemo(() => {
+        return options
             .filter((item) => selectedDatasets.includes(item.value))
             .map((item) => item.label);
-
-        const datalayersElement = document.getElementById("datalayers");
-        if (datalayersElement) {
-            datalayersElement.innerHTML =
-                newLabels.length > 0
-                    ? newLabels.join("<br>")
-                    : __('No datalayers selected', 'openkaarten-frontend-plugin');
-        }
     }, [selectedDatasets, options]);
 
     const handleDatasetsChange = (newSelectedDatasets) => {
@@ -159,7 +152,16 @@ export default function Edit({ attributes, setAttributes }) {
                     />
                     <div className="components-message-box">
                         <label className="css-1imalal">{__('Selected datalayers', 'openkaarten-frontend-plugin')}</label>
-                        <p id="datalayers">{__('No datalayers selected', 'openkaarten-frontend-plugin')}</p>
+                        <p>
+                            {selectedLabels.length > 0
+                                ? selectedLabels.map((label, index) => (
+                                    <span key={index}>
+                                        {label}
+                                        {index < selectedLabels.length - 1 && <br />}
+                                    </span>
+                                ))
+                                : __('No datalayers selected', 'openkaarten-frontend-plugin')}
+                        </p>
                     </div>
                 </div>
                 <InputControl

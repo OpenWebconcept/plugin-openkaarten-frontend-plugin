@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, ref, watch, nextTick, reactive } from 'vue';
+import { onMounted, onUnmounted, ref, watch, nextTick, reactive, getCurrentInstance } from 'vue';
 import BaseFiltersCheckbox from './BaseFiltersCheckbox.vue';
 import BaseTooltipCardClose from './BaseTooltipCardClose.vue';
 import BaseIcon from './BaseIcon.vue';
@@ -15,6 +15,10 @@ const props = defineProps({
 		default: () => []
 	},
 	primaryColor: String,
+	mapElement: {
+		type: Object,
+		default: null,
+	},
 	title: {
 		type: String,
 		default: 'Filters',
@@ -24,6 +28,11 @@ const props = defineProps({
 		default: 'Wis alle filters',
 	},
 });
+
+// Unique ids per instance so aria references stay valid with multiple maps on one page.
+const instanceId = getCurrentInstance()?.uid ?? 0;
+const titleId = `filters-title-${instanceId}`;
+const descriptionId = `filters-description-${instanceId}`;
 
 const emit = defineEmits(['closeFilters', 'datasetChange']);
 
@@ -76,7 +85,7 @@ const handleKeyup = (e) => {
 };
 
 const closeFiltersWithX = () => {
-	const filterButton = document.querySelector('.leaflet-control-filters');
+	const filterButton = (props.mapElement || document).querySelector('.leaflet-control-filters');
 	if (filterButton) {
 		filterButton.focus();
 	}
@@ -87,7 +96,7 @@ const closeFiltersWithConfirm = (event) => {
 	event?.preventDefault();
 	event?.stopPropagation();
 	
-	const filterButton = document.querySelector('.leaflet-control-filters');
+	const filterButton = (props.mapElement || document).querySelector('.leaflet-control-filters');
 	if (filterButton) {
 		filterButton.focus();
 	}
@@ -119,18 +128,18 @@ onUnmounted(() => {
 		class="owc-openkaarten-streetmap__filters"
     role="dialog"
 		aria-modal="true"
-		aria-labelledby="filters-title"
-		aria-describedby="filters-description"
+		:aria-labelledby="titleId"
+		:aria-describedby="descriptionId"
 	>
 		<div class="owc-openkaarten-streetmap__filters__header">
-			<h5 id="filters-title">{{ title }}</h5>
+			<h5 :id="titleId">{{ title }}</h5>
 			<BaseTooltipCardClose
 				ref="closeButton"
 				:primaryColor="primaryColor"
 				@closeCard="closeFiltersWithX"
 			/>
 		</div>
-		<div id="filters-description" class="owc-openkaarten-streetmap__filters__body">
+		<div :id="descriptionId" class="owc-openkaarten-streetmap__filters__body">
 			<ul class="owc-openkaarten-streetmap__filters__body__list">
 				<li
 					v-for="layer in datasets"
@@ -140,6 +149,7 @@ onUnmounted(() => {
 					<BaseFiltersCheckbox
 						:title="layer.title"
 						:id="layer.id"
+						:idPrefix="instanceId"
 						:color="primaryColor"
 						:selected="selectedDatasets.includes(layer.id)"
 						@onChange="datasetChange"
