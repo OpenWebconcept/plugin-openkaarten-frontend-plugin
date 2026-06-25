@@ -96,8 +96,12 @@ window.openkaarten.addMarker = ({
 			...rest
 		} = flyToOptions;
 
+		// Respect the user's reduced-motion preference: skip the fly animation
+		// when the OS/browser requests reduced motion.
+		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 		map.flyTo([lat, lng], zoom, {
-			animate: true,
+			animate: !prefersReducedMotion,
 			duration,
 			...rest,
 		});

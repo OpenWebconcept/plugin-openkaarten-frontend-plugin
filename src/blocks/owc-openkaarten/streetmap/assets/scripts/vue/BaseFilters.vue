@@ -3,6 +3,7 @@ import { onMounted, onUnmounted, ref, watch, nextTick, reactive, getCurrentInsta
 import BaseFiltersCheckbox from './BaseFiltersCheckbox.vue';
 import BaseTooltipCardClose from './BaseTooltipCardClose.vue';
 import BaseIcon from './BaseIcon.vue';
+import { decodeEntities } from '../utils/decode-entities.js';
 
 const props = defineProps({
 	open: Boolean,
@@ -132,7 +133,7 @@ onUnmounted(() => {
 		:aria-describedby="descriptionId"
 	>
 		<div class="owc-openkaarten-streetmap__filters__header">
-			<h5 :id="titleId">{{ title }}</h5>
+			<h5 :id="titleId">{{ decodeEntities(title) }}</h5>
 			<BaseTooltipCardClose
 				ref="closeButton"
 				:primaryColor="primaryColor"
