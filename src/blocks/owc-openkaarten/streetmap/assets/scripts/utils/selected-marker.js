@@ -1,6 +1,29 @@
 import L from 'leaflet';
 
 /**
+ * Recursively collect every marker within a layer.
+ *
+ * `activeLayer` is normally a single-level group (a GeoJSON layer or
+ * FeatureGroup whose markers are direct children), but recursing guards against
+ * nested groups — e.g. a marker-cluster group or a GeoJSON FeatureCollection
+ * that contains sub-groups — so no marker is silently missed. Any layer that
+ * exposes `eachLayer` (FeatureGroup, LayerGroup, GeoJSON, cluster group) is
+ * descended into.
+ *
+ * @param {object}     layer The Leaflet layer to inspect.
+ * @param {L.Marker[]} out   Accumulator that collected markers are pushed onto.
+ */
+const collectMarkers = (layer, out) => {
+  if (!layer) return;
+
+  if (layer instanceof L.Marker) {
+    out.push(layer);
+  } else if (typeof layer.eachLayer === 'function') {
+    layer.eachLayer(child => collectMarkers(child, out));
+  }
+};
+
+/**
  * Create a marker highlighter with state scoped to a single map instance.
  *
  * The active-marker reference lives in this closure instead of at module
@@ -20,15 +43,9 @@ export const createMarkerHighlighter = () => {
     });
 
     if (!activeLayer) return;
-    // Determine markers.
+    // Determine markers (recursively, so nested groups are covered too).
     const markers = [];
-    if (activeLayer instanceof L.Marker) {
-      markers.push(activeLayer);
-    } else if (activeLayer instanceof L.FeatureGroup) {
-      activeLayer.eachLayer(l => {
-        if (l instanceof L.Marker) markers.push(l);
-      });
-    }
+    collectMarkers(activeLayer, markers);
 
     // Add class to respective DOM elements.
     markers.forEach(marker => {

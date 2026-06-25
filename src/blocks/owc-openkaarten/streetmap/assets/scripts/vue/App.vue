@@ -262,7 +262,7 @@ onMounted(() => {
   --owc-openkaarten-streetmap--primary-color: #328725;
 
   container-type: inline-size;
-  max-width: 100%;
+  max-inline-size: 100%;
 }
 
 .owc-openkaarten-streetmap-container:focus,
@@ -273,7 +273,7 @@ onMounted(() => {
 .owc-openkaarten-streetmap-container {
   margin-inline: auto;
   @media only screen and (min-width: 768px) {
-    width: min(calc(100% - 32px), 1440px);
+    inline-size: min(calc(100% - 32px), 1440px);
   }
 }
 
