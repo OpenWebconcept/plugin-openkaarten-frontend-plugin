@@ -38,13 +38,16 @@ if ( ! preg_match( '/\/wp-json\//', $openkaarten_frontend_plugin_rest_uri ) ) {
 	$openkaarten_frontend_plugin_rest_uri = trailingslashit( $openkaarten_frontend_plugin_rest_uri ) . $openkaarten_frontend_plugin_rest_path;
 }
 
+// Generate a unique id per block instance so multiple maps can live on one page.
+$openkaarten_frontend_plugin_block_id = wp_unique_id( 'owc-openkaarten-streetmap-' );
+
 ?>
 <div
 <?php
 echo wp_kses_post(
 	openkaarten_frontend_plugin_to_dom_attributes(
 		[
-			'id'                  => 'owc-openkaarten-streetmap',
+			'id'                  => $openkaarten_frontend_plugin_block_id,
 			'class'               => 'owc-openkaarten-streetmap',
 			'data-endpoint'       => esc_url( $openkaarten_frontend_plugin_rest_uri ),
 			'data-title'          => esc_attr( $attributes['title'] ?? '' ),

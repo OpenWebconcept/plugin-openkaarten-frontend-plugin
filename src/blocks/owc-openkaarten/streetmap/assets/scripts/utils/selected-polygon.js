@@ -1,25 +1,35 @@
 import L from 'leaflet';
 import { getColorFromMarker } from './get-color-from-marker';
 
-let selectedLayer = null;
-let highlightLayer = null;
-let overlappingLayers = [];
-let overlapIndex = 0;
-
 const primaryColor = '#328725';
 
-export const resetPolygonSelection = () => {
-  if (highlightLayer) {
-    highlightLayer.remove();
-    highlightLayer = null;
-  }
-  selectedLayer = null;
-  overlappingLayers = [];
-  overlapIndex = 0;
-};
+/**
+ * Create a polygon selector with state scoped to a single map instance.
+ *
+ * The selection/highlight state lives in this closure instead of at module
+ * level, so multiple maps on one page each keep their own state and a
+ * highlight can no longer end up on (or be wiped by) another map.
+ *
+ * @return {{selectOverlappingPolygon: Function, resetPolygonSelection: Function}} The selector API.
+ */
+export const createPolygonSelector = () => {
+  let selectedLayer = null;
+  let highlightLayer = null;
+  let overlappingLayers = [];
+  let overlapIndex = 0;
 
-export const selectOverlappingPolygon = (map, latlng, marker) => {
-  if (!map) return null;
+  const resetPolygonSelection = () => {
+    if (highlightLayer) {
+      highlightLayer.remove();
+      highlightLayer = null;
+    }
+    selectedLayer = null;
+    overlappingLayers = [];
+    overlapIndex = 0;
+  };
+
+  const selectOverlappingPolygon = (map, latlng, marker) => {
+    if (!map) return null;
 
     // get all polygons of the map.
     const polygons = [];
@@ -61,4 +71,7 @@ export const selectOverlappingPolygon = (map, latlng, marker) => {
 
     // Return the selected layer so caller can access its data.
     return selectedLayer;
+  };
+
+  return { selectOverlappingPolygon, resetPolygonSelection };
 };
