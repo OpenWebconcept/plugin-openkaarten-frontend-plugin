@@ -1,5 +1,6 @@
 <script setup>
 import BaseTooltipCardClose from './BaseTooltipCardClose.vue';
+import { decodeEntities } from '../utils/decode-entities.js';
 
 defineProps({
   title: {
@@ -9,6 +10,10 @@ defineProps({
   id: {
     type: Number,
     required: true,
+  },
+  idPrefix: {
+    type: [String, Number],
+    default: '',
   },
   color: {
     type: String,
@@ -26,15 +31,15 @@ const emit = defineEmits(['onChange']);
 
 <template>
 	<label
-		:for="`owc-checkbox-${id}`"
+		:for="`owc-checkbox-${idPrefix}-${id}`"
 		role="checkbox"
 		:aria-checked="selected"
 		class="owc-openkaarten-streetmap__filters__checkbox"
 		><span class="owc-openkaarten-streetmap__filters__checkbox__label">{{
-			title
+			decodeEntities(title)
 		}}</span>
 		<input
-			:id="`owc-checkbox-${id}`"
+			:id="`owc-checkbox-${idPrefix}-${id}`"
 			type="checkbox"
 			:checked="selected"
 			@change="$emit('onChange', id, !selected)"
