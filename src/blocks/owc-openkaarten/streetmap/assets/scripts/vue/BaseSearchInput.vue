@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, getCurrentInstance } from 'vue';
 
 const props = defineProps({
   placeholder: {
@@ -18,6 +18,9 @@ const props = defineProps({
 
 const emit = defineEmits(['search']);
 const searchQuery = ref('');
+
+// Unique id per instance so the label/input pairing works with multiple maps on one page.
+const searchInputId = `location-search-${getCurrentInstance()?.uid ?? 0}`;
 
 const handleSubmit = (e) => {
   e.preventDefault();
@@ -42,7 +45,7 @@ const searchStatus = computed(() => {
       @submit="handleSubmit"
       class="search-form"
     >
-      <label class="sr-only" for="location-search">Zoek op straat en/of plaats of postcode</label>
+      <label class="sr-only" :for="searchInputId">Zoek op straat en/of plaats of postcode</label>
       <div class="search-wrapper">
         <div
           role="status" 
@@ -53,7 +56,7 @@ const searchStatus = computed(() => {
           <span>{{ searchStatus }}</span>
         </div>
         <input
-          id="location-search"
+          :id="searchInputId"
           type="search"
           v-model="searchQuery"
           :placeholder="placeholder"

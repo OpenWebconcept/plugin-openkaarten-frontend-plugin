@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, onUnmounted } from 'vue';
+import { computed, onUnmounted } from 'vue';
 import BaseTooltipCardClose from './BaseTooltipCardClose.vue';
 import BaseIcon from './BaseIcon.vue';
 import TooltipContent from './TooltipContent.vue';
@@ -41,10 +41,6 @@ const handleFocus = (el) => {
 		});
 	}
 };
-
-onMounted(() => {
-	handleFocus(document.querySelector('.owc-openkaarten-streetmap__tooltip-card'));
-});
 </script>
 
 <template>
