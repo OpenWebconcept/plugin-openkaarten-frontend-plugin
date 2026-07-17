@@ -1,5 +1,5 @@
-import { BlockControls } from "@wordpress/block-editor";
-import { SelectControl, __experimentalInputControl as InputControl, Notice } from "@wordpress/components";
+import { BlockControls, InspectorControls } from "@wordpress/block-editor";
+import { SelectControl, __experimentalInputControl as InputControl, Notice, PanelBody, ToggleControl } from "@wordpress/components";
 import { useMemo, useState, useEffect } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 
@@ -119,6 +119,18 @@ export default function Edit({ attributes, setAttributes }) {
     return (
         <>
             <BlockControls />
+            <InspectorControls>
+                <PanelBody title={__('Filter settings', 'openkaarten-frontend-plugin')}>
+                    <ToggleControl
+                        label={__('Show filters open by default', 'openkaarten-frontend-plugin')}
+                        help={attributes.filters_open
+                            ? __('Filters are open when the map loads.', 'openkaarten-frontend-plugin')
+                            : __('Filters are closed when the map loads.', 'openkaarten-frontend-plugin')}
+                        checked={attributes.filters_open}
+                        onChange={(filters_open) => setAttributes({ filters_open })}
+                    />
+                </PanelBody>
+            </InspectorControls>
             <div className="owc-openkaarten-streetmap">
                 <InputControl
                     label={__('URL to rest-endpoint or Domain URL', 'openkaarten-frontend-plugin')}
@@ -180,7 +192,7 @@ export default function Edit({ attributes, setAttributes }) {
  * Strip username and password from the given URL and return sanitized URL.
  *
  * @param {string} url - The original URL with credentials.
- * @returns {{ username: string, password: string, url: string }} - Returns username, password, and sanitized URL.
+ * @return {{ username: string, password: string, url: string }} - Returns username, password, and sanitized URL.
  */
 function stripCredentialsFromUrl(url) {
     try {

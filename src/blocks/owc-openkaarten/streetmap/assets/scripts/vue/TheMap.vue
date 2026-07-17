@@ -40,6 +40,10 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+	filtersOpen: {
+		type: String,
+		default: 'true',
+	},
 });
 
 const tooltipCard = ref(null);
@@ -76,6 +80,7 @@ const clusterOptions = {
     });
   },
 };
+const filtersDefaultOpen = props.filtersOpen !== 'false';
 
 const closeTooltipCard = () => {
 	tooltipCard.value = null;
@@ -342,7 +347,7 @@ const initializeMap = async (datasets, settings) => {
 
 	if (groupedMarkerClusters?.length > 0) {
 		map.addControl(datalayerFilters);
-    showFiltersCard.value = true;
+   	 	showFiltersCard.value = filtersDefaultOpen;
 	}
 
   // Fit map view to marker bounds.

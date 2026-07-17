@@ -18,6 +18,10 @@
         "tile_layer_uri" : {
             "type" : "string",
             "default" : "https://{s}.tile.osm.org/{z}/{x}/{y}.png"
+        },
+        "filters_open" : {
+            "type" : "boolean",
+            "default" : true
         }
     },
     "style" : [
