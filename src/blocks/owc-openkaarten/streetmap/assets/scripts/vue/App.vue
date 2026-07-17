@@ -25,6 +25,10 @@ const props = defineProps({
     default: 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
     required: true,
   },
+  filtersOpen: {
+    type: String,
+    default: 'true',
+  },
 });
 
 const error = ref(null);
@@ -237,6 +241,7 @@ onMounted(() => {
           :settings="settings"
           :tileLayerUri="tileLayerUri"
           :primaryColor="primaryColor"
+          :filtersOpen="filtersOpen"
           @toggleView="toggleViewAndFocus"
           @datasetChange="handleDatasetChange"
       />
