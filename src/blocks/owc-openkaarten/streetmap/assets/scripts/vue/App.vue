@@ -214,7 +214,18 @@ function stripCredentialsFromUrl(url) {
   }
 }
 
+// Read primary color from CSS var so JS pipelines (Leaflet, SVG) match the CSS.
+const resolvePrimaryColor = () => {
+  const el = containerRef.value;
+  if (!el) return;
+  const resolved = getComputedStyle(el)
+    .getPropertyValue('--owc-openkaarten-streetmap--primary-color')
+    .trim();
+  if (resolved) primaryColor.value = resolved;
+};
+
 onMounted(() => {
+  resolvePrimaryColor();
   getLocations();
 });
 </script>
@@ -259,12 +270,11 @@ onMounted(() => {
 
 <style lang="scss">
 .owc-openkaarten-streetmap {
-  --owc-filters-primary: #328725;
   --owc-openkaarten-streetmap--primary-color: #328725;
-  --search-primary-color: #328725;
-  --owc-openkaarten-streetmap--close-btn-color: #328725;
-  --button-color: #328725;
-  --owc-openkaarten-streetmap--primary-color: #328725;
+  --owc-filters-primary: var(--owc-openkaarten-streetmap--primary-color);
+  --search-primary-color: var(--owc-openkaarten-streetmap--primary-color);
+  --owc-openkaarten-streetmap--close-btn-color: var(--owc-openkaarten-streetmap--primary-color);
+  --button-color: var(--owc-openkaarten-streetmap--primary-color);
 
   container-type: inline-size;
   max-inline-size: 100%;

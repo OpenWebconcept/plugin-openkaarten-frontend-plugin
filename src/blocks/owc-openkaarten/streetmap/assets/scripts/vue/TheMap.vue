@@ -52,7 +52,7 @@ const mapRef = ref(null);
 // Reference to this instance's map DOM element, so multiple maps can coexist on one page.
 const mapContainer = ref(null);
 // Polygon selection state scoped to this map instance.
-const { selectOverlappingPolygon, resetPolygonSelection } = createPolygonSelector();
+const { selectOverlappingPolygon, resetPolygonSelection } = createPolygonSelector(props.primaryColor);
 // Marker highlight state scoped to this map instance.
 const { highlightSelectedMarker, resetMarkers, activeMarkerRef } = createMarkerHighlighter();
 const clusters = ref([]);
@@ -553,7 +553,7 @@ $marker-colors: (
 				var(--owc-openkaarten-streetmap--cluster-color),
 				rgba(255, 255, 255, 0.05) 75%
 			);
-			--owc-openkaarten-streetmap--cluster-color: #328725;
+			--owc-openkaarten-streetmap--cluster-color: var(--owc-openkaarten-streetmap--primary-color);
 			align-items: center !important;
 			background: var(--owc-cluster-background);
 			block-size: 100%;
