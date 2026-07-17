@@ -233,7 +233,7 @@ onMounted(() => {
 		button:not([class*="search"]) {
 			align-items: center;
 			background-color: #fff;
-			border: 1px solid #328725;
+			border: 1px solid var(--owc-openkaarten-streetmap--primary-color);
 			border-radius: 3px;
 			display: flex;
 			gap: 8px;
@@ -243,7 +243,7 @@ onMounted(() => {
 			padding: 10px 17px;
 
 			span {
-				color: #328725;
+				color: var(--owc-openkaarten-streetmap--primary-color);
 				font-size: 20px;
 				font-style: normal;
 				font-weight: 500;

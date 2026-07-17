@@ -1,8 +1,6 @@
 import L from 'leaflet';
 import { getColorFromMarker } from './get-color-from-marker';
 
-const primaryColor = '#328725';
-
 /**
  * Create a polygon selector with state scoped to a single map instance.
  *
@@ -10,9 +8,10 @@ const primaryColor = '#328725';
  * level, so multiple maps on one page each keep their own state and a
  * highlight can no longer end up on (or be wiped by) another map.
  *
+ * @param {string} primaryColor The primary color.
  * @return {{selectOverlappingPolygon: Function, resetPolygonSelection: Function}} The selector API.
  */
-export const createPolygonSelector = () => {
+export const createPolygonSelector = (primaryColor = '#328725') => {
   let selectedLayer = null;
   let highlightLayer = null;
   let overlappingLayers = [];
