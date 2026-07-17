@@ -53,7 +53,7 @@ echo wp_kses_post(
 			'data-title'          => esc_attr( $attributes['title'] ?? '' ),
 			'data-dataset-ids'    => esc_attr( wp_json_encode( $attributes['selected_datasets'] ) ?: '' ),
 			'data-tile-layer-uri' => esc_attr( $attributes['tile_layer_uri'] ),
-			'data-filters-open'   => ! empty( $attributes['filters_open'] ) ? 'true' : 'false',
+			'data-filters-open'   => esc_attr( ( $attributes['filters_open'] ?? true ) ? 'true' : 'false' ),
 		]
 	)
 );
