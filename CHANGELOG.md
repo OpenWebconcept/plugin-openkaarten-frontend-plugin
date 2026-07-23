@@ -5,6 +5,16 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-07-23
+
+### Added
+
+- Block setting (ToggleControl) to set the datalayer filters open or closed by default.
+
+### Changed
+
+- Primary color is now driven from a single CSS variable as the source of truth, so map, list view and polygon selection styling stay in sync.
+
 ## [0.4.0] - 2026-06-22
 
 Large change: the Streetmap block can now be used multiple times on a single page.
