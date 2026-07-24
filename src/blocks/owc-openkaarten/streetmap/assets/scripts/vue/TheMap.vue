@@ -6,7 +6,7 @@ import BaseFilters from './BaseFilters.vue';
 import BaseTooltipCard from './BaseTooltipCard.vue';
 import { calculateBounds } from '../utils/calculate-bounds';
 import { calculateCenter } from '../utils/calculate-center';
-import { makeMarkerIcon } from '../utils/make-marker-icon';
+import { makeMarkerIcon, applyMarkerColor } from '../utils/make-marker-icon';
 import { makeTooltipCard } from '../utils/make-tooltip-card';
 import { makeFilterButtonHTML } from '../utils/make-filter-button-html';
 import { makeListViewButtonHTML } from '../utils/make-list-view-button-html';
@@ -159,6 +159,9 @@ const createLayer = async (feature, dataset) => {
     });
   }
 
+  // A custom marker color is a raw hex; presets are handled via CSS class.
+  const markerColor = feature.properties?.marker?.color || props.primaryColor;
+
   // Handle MultiPoint features
   if (feature.geometry.type === 'MultiPoint') {
     const markers = L.featureGroup();
@@ -169,6 +172,7 @@ const createLayer = async (feature, dataset) => {
         defaultColor: props.primaryColor,
       });
       const marker = new L.Marker(latlng, { icon });
+      applyMarkerColor(marker, markerColor);
       markers.addLayer(marker);
     };
     return markers;
@@ -183,7 +187,9 @@ const createLayer = async (feature, dataset) => {
 
   return new L.GeoJSON(feature, {
     pointToLayer: (feature, latlng) => {
-      return new L.Marker(latlng, { icon });
+      const marker = new L.Marker(latlng, { icon });
+      applyMarkerColor(marker, markerColor);
+      return marker;
     }
   });
 };
@@ -605,8 +611,9 @@ $marker-colors: (
 
 		.leaflet-custom-icon {
 			&--inline-svg {
+				--owc-openkaarten-streetmap--marker-color: #0072B2;
 				align-items: center;
-				background-color: #0072B2;
+				background-color: var(--owc-openkaarten-streetmap--marker-color);
 				border-radius: 100%;
 				display: flex;
 				justify-content: center;
@@ -622,19 +629,17 @@ $marker-colors: (
 
 				&.active, &:where(:hover, :focus-visible) {
 					border-radius: 50%;
-					box-shadow: 0 0 0 3px white, 0 0 0 6px #0072B2;
+					box-shadow: 0 0 0 3px white, 0 0 0 6px var(--owc-openkaarten-streetmap--marker-color);
 					opacity: 1 !important;
 					outline: none;
 					transition: all 0.2s ease-in-out;
 				}
 
+				// Preset colors set the CSS variable via their class; a custom hex
+				// sets the same variable inline (see applyMarkerColor()).
 				@each $name, $color in $marker-colors {
 					&.marker-#{$name} {
-						background-color: $color;
-
-						&.active, &:where(:hover, :focus-visible) {
-							box-shadow: 0 0 0 3px white, 0 0 0 6px $color;
-						}
+						--owc-openkaarten-streetmap--marker-color: #{$color};
 					}
 				}
 

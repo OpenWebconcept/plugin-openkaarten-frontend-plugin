@@ -2,6 +2,7 @@
 import { reactive, watch } from 'vue';
 import {fetchAndProcessSvg} from "../utils/fetch-and-process-svg";
 import { fallbackMarkerSvg } from "../utils/make-marker-icon";
+import { isHexColor } from "../utils/is-hex-color";
 
 const props = defineProps({
   marker: {
@@ -13,6 +14,7 @@ const props = defineProps({
 const state = reactive({
   svgText: null,
   colorClass: 'marker-blue',
+  colorStyle: null,
   iconUrl: null,
 });
 
@@ -24,7 +26,17 @@ const init = async () => {
   const marker = props.marker
 
   state.iconUrl = marker?.icon;
-  state.colorClass = marker?.color;
+
+  // A custom color is a raw hex applied inline; a preset color is a
+  // "marker-<name>" class the stylesheet maps to a hex.
+  const color = marker?.color;
+  if (isHexColor(color)) {
+    state.colorClass = null;
+    state.colorStyle = { backgroundColor: color, borderColor: color };
+  } else {
+    state.colorClass = color;
+    state.colorStyle = null;
+  }
 
   if (!marker?.icon) {
     state.iconUrl = `data:image/svg+xml,${encodeURIComponent(fallbackMarkerSvg.trim())}`;
@@ -43,6 +55,7 @@ watch(() => props.marker, init, { immediate: true });
       v-if="state.svgText"
       class="owc-openkaarten-streetmap__filters__body__list-item__dl-indicator"
       :class="state.colorClass"
+      :style="state.colorStyle"
       v-html="state.svgText"
   />
   <img
@@ -50,5 +63,6 @@ watch(() => props.marker, init, { immediate: true });
       :src="state.iconUrl"
       class="owc-openkaarten-streetmap__filters__body__list-item__dl-indicator"
       :class="state.colorClass"
+      :style="state.colorStyle"
   />
 </template>

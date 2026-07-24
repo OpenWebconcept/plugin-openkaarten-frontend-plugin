@@ -1,3 +1,5 @@
+import { isHexColor } from './is-hex-color';
+
 export const getColorFromMarker = (markerConfig, primaryColor) => {
   const colorMap = {
     "marker-black": "#000000",
@@ -17,14 +19,19 @@ export const getColorFromMarker = (markerConfig, primaryColor) => {
 
   if (!markerConfig) return primaryColor;
 
-  // If marker has a custom color, use that
+  // A custom color is stored as a raw hex value; use it directly. A preset
+  // color is a "marker-<name>" class that maps to a hex via colorMap. Unknown
+  // values fall back to the primary color.
+  const resolve = (color) => (isHexColor(color) ? color : colorMap[color]);
+
+  // If marker has a color (custom hex or preset class), use that.
   if (markerConfig.color) {
-    return colorMap[markerConfig.color];
+    return resolve(markerConfig.color) || primaryColor;
   }
 
-  // If marker has a custom icon with color, use that
+  // If marker has a custom icon with color, use that.
   if (markerConfig.icon?.color) {
-    return colorMap[markerConfig.icon.color];
+    return resolve(markerConfig.icon.color) || primaryColor;
   }
 
   return primaryColor;
