@@ -3,6 +3,8 @@ import { reactive, watch } from 'vue';
 import {fetchAndProcessSvg} from "../utils/fetch-and-process-svg";
 import { fallbackMarkerSvg } from "../utils/make-marker-icon";
 import { isHexColor } from "../utils/is-hex-color";
+import { getColorFromMarker } from "../utils/get-color-from-marker";
+import { patternSwatchDataUri } from "../utils/pattern-fills";
 
 const props = defineProps({
   marker: {
@@ -16,6 +18,7 @@ const state = reactive({
   colorClass: 'marker-blue',
   colorStyle: null,
   iconUrl: null,
+  patternStyle: null,
 });
 
 const loadSvg = async (marker) => {
@@ -37,6 +40,14 @@ const init = async () => {
     state.colorClass = color;
     state.colorStyle = null;
   }
+
+  // WCAG 1.4.1: area layers carry a fill pattern. Show it in the legend so the
+  // pattern-to-layer mapping is discoverable, matching what the map draws.
+  const resolvedColor = getColorFromMarker(marker, '#328725');
+  const patternUri = patternSwatchDataUri(marker?.pattern, resolvedColor);
+  state.patternStyle = patternUri
+    ? { backgroundImage: `url("${patternUri}")`, backgroundSize: 'cover', borderColor: resolvedColor }
+    : null;
 
   if (!marker?.icon) {
     state.iconUrl = `data:image/svg+xml,${encodeURIComponent(fallbackMarkerSvg.trim())}`;
@@ -64,5 +75,11 @@ watch(() => props.marker, init, { immediate: true });
       class="owc-openkaarten-streetmap__filters__body__list-item__dl-indicator"
       :class="state.colorClass"
       :style="state.colorStyle"
+  />
+  <div
+      v-if="state.patternStyle"
+      class="owc-openkaarten-streetmap__filters__body__list-item__dl-indicator owc-openkaarten-streetmap__filters__body__list-item__dl-pattern"
+      :style="state.patternStyle"
+      aria-hidden="true"
   />
 </template>

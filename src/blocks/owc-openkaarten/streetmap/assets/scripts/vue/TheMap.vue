@@ -17,6 +17,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import '../utils/map-window-api';
 import { getColorFromMarker } from '../utils/get-color-from-marker';
+import { createPatternManager } from '../utils/pattern-fills';
 
 const props = defineProps({
 	datasets: {
@@ -51,8 +52,10 @@ const showFiltersCard = ref(false);
 const mapRef = ref(null);
 // Reference to this instance's map DOM element, so multiple maps can coexist on one page.
 const mapContainer = ref(null);
+// SVG fill-pattern manager (WCAG 1.4.1), created once the map exists.
+const patternManager = ref(null);
 // Polygon selection state scoped to this map instance.
-const { selectOverlappingPolygon, resetPolygonSelection } = createPolygonSelector(props.primaryColor);
+const { selectOverlappingPolygon, resetPolygonSelection } = createPolygonSelector(props.primaryColor, () => patternManager.value);
 // Marker highlight state scoped to this map instance.
 const { highlightSelectedMarker, resetMarkers, activeMarkerRef } = createMarkerHighlighter();
 const clusters = ref([]);
@@ -149,11 +152,14 @@ const createLayer = async (feature, dataset) => {
     return new L.GeoJSON(feature, {
       style: () => {
         const color = getColorFromMarker(feature.properties?.marker, props.primaryColor);
+        // WCAG 1.4.1: add a fill pattern so areas stay distinguishable without color.
+        const fillPattern = patternManager.value?.getFillPattern(feature.properties?.marker?.pattern, color);
         return {
           color: color,
           fillColor: color,
           fillOpacity: 0.2,
-          weight: 2
+          weight: 2,
+          ...(fillPattern ? { fillPattern } : {})
         };
       }
     });
@@ -238,6 +244,9 @@ const initializeMap = async (datasets, settings) => {
 	});
 
 	map.setView([config.centerX, config.centerY], config.defaultZoom);
+
+	// Bind the fill-pattern manager to this map before any polygon is styled.
+	patternManager.value = createPatternManager(map);
 
   if (config.enableZoomControl) {
     L.control.zoom({ position: 'bottomright' }).addTo(map);

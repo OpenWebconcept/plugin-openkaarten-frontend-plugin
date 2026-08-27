@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-08-27
+
+### Added
+
+- Distinguishing fill patterns for polygon areas (WCAG 1.4.1). Each colored area can now carry a unique SVG fill pattern in addition to its color, so areas stay distinguishable in black-and-white print, for people with color blindness, and at low screen quality. Patterns are read from `properties.marker.pattern` (set in the OpenKaarten base plugin) and drawn over the area's color via the `leaflet.pattern` plugin; the selection highlight and the filter legend swatch mirror the same pattern. Ten base patterns are supported (diagonal lines forward/backward, horizontal, vertical, grid, crosshatch, dots, rings, checkerboard, zigzag); areas without a pattern render solid exactly as before.
+
 ## [0.4.2] - 2026-07-24
 
 ### Added
