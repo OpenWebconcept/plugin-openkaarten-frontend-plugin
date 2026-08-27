@@ -24,9 +24,9 @@ require('leaflet.pattern');
 
 const TILE = 10; // Pattern tile size in pixels.
 const STROKE_WEIGHT = 1.5;
-const STROKE_OPACITY = 0.9;
+const STROKE_OPACITY = 1; // Pattern lines at full opacity for stronger contrast.
 const TINT_OPACITY = 0.2; // Matches the previous solid polygon fillOpacity.
-const FILL_OPACITY = 0.85;
+const FILL_OPACITY = 1; // Pattern shapes (dots/checkerboard) at full opacity.
 
 // Each entry is a list of tile shapes. A `stroke` path/circle is drawn as an
 // outline in the feature color; a `fill` circle/rect is filled with it. A
