@@ -5,7 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.2] - 2026-09-14
+## [0.4.4] - 2026-09-14
+
+### Changed
+
+- Regex to remove space when searching for a postal code. PDOK does not handle spaces, without it it will rank a match on woonplaatscode higher than postal code.
+
+## [0.4.3] - 2026-09-14
 
 ### Changed
 

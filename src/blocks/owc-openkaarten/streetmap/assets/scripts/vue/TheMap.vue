@@ -406,9 +406,12 @@ const handleSearch = async (query) => {
 
   if (!map || !query) return;
 
+  // trims space from postal codes in the searchbar as pdok doesn't handle searches with a space
+  const q = query.trim().replace(/^(\d{4})\s+([a-z]{2})$/i, '$1$2');
+
   try {
     const response = await fetch(
-        `https://api.pdok.nl/bzk/locatieserver/search/v3_1/free?q=${encodeURIComponent(query)}&rows=1`
+        `https://api.pdok.nl/bzk/locatieserver/search/v3_1/free?q=${encodeURIComponent(q)}&rows=1`
     );
     const results = await response.json();
 
