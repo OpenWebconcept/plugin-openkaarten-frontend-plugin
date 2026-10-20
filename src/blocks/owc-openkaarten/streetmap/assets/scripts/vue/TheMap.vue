@@ -341,7 +341,8 @@ const initializeMap = async (datasets, settings) => {
 		},
 	});
 
-	const tileLayerUri = new L.TileLayer(props.tileLayerUri);
+	// OSM blocks tile requests without a Referer; sites sending Referrer-Policy: same-origin would strip it.
+	const tileLayerUri = new L.TileLayer(props.tileLayerUri, { referrerPolicy: 'strict-origin-when-cross-origin' });
 	const datalayerFilters = new L.Control.DataLayerFilters();
 	const listViewToggle = new L.Control.ListViewToggle();
 
