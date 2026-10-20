@@ -56,7 +56,7 @@ class Proxy_Datasets_Endpoint {
 	 * @return WP_Error|WP_REST_Response The response or WP_Error on failure.
 	 */
 	public function fetch_dynamic_datasets( WP_REST_Request $request ) {
-		$url      = esc_url_raw( $request->get_param( 'url' ) );
+		$url      = esc_url_raw( $request->get_param( 'url' ), [ 'http', 'https' ] );
 		$username = sanitize_text_field( $request->get_param( 'username' ) );
 		$password = sanitize_text_field( $request->get_param( 'password' ) );
 
@@ -74,51 +74,173 @@ class Proxy_Datasets_Endpoint {
 			return $this->fetch_local_datasets( $local_route['route'], $local_route['query'] );
 		}
 
+		// This route is public (the map renders for anonymous visitors), so the
+		// server must never fetch an arbitrary URL on the caller's behalf. Only
+		// allow a datasets endpoint on a publicly routable host; this blocks
+		// SSRF against loopback, private/reserved ranges and internal services.
+		if ( ! $this->is_external_url_allowed( $url ) ) {
+			return new WP_Error( 'invalid_url', 'The requested URL is not allowed.', [ 'status' => 403 ] );
+		}
+
 		// External source: perform a real HTTP request with Basic Authentication.
-		$response = wp_remote_get(
+		// wp_safe_remote_get() re-validates the host of every hop at request
+		// time, so a safe host cannot bounce to an internal one. Redirects are
+		// disabled by default; raise the filter only when a trusted source
+		// legitimately redirects (e.g. http->https canonicalisation).
+		$response = wp_safe_remote_get(
 			$url,
 			[
-				'timeout' => (int) apply_filters( 'openkaarten_frontend_plugin_proxy_timeout', 15 ),
-				'headers' => [
+				'timeout'     => (int) apply_filters( 'openkaarten_frontend_plugin_proxy_timeout', 15 ),
+				'redirection' => (int) apply_filters( 'openkaarten_frontend_plugin_proxy_max_redirects', 0 ),
+				'headers'     => [
 					'Authorization' => 'Basic ' . base64_encode( "$username:$password" ),
 					'Content-Type'  => 'application/json',
 				],
 			]
 		);
 
-		// Handle errors in the response.
-		if ( is_wp_error( $response ) ) {
-			$error_message = $response->get_error_message();
-			error_log( 'Fetch error: ' . $error_message );
-
+		// Collapse every failure into one generic error. Returning the upstream
+		// status or the error message would turn this route into a port scanner
+		// (open vs. closed) and leak internal details.
+		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_REST_Response(
 				[
-					'error'      => true,
-					'message'    => 'Failed to fetch data',
-					'debug_info' => $error_message,
+					'error'   => true,
+					'message' => 'Failed to fetch data',
 				],
-				500
-			);
-		}
-
-		$status_code = wp_remote_retrieve_response_code( $response );
-		if ( 200 !== $status_code ) {
-			$error_message = "Unexpected HTTP status code: $status_code";
-			error_log( $error_message );
-
-			return new WP_REST_Response(
-				[
-					'error'      => true,
-					'message'    => "HTTP request failed with status $status_code",
-					'debug_info' => $error_message,
-				],
-				$status_code
+				502
 			);
 		}
 
 		$body = wp_remote_retrieve_body( $response );
+		$data = json_decode( $body );
 
-		return rest_ensure_response( json_decode( $body ) );
+		// Only return well-formed JSON; never hand back an arbitrary raw body.
+		if ( JSON_ERROR_NONE !== json_last_error() ) {
+			return new WP_REST_Response(
+				[
+					'error'   => true,
+					'message' => 'Failed to fetch data',
+				],
+				502
+			);
+		}
+
+		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Determine whether an external URL may be fetched by the proxy.
+	 *
+	 * The URL must use http(s), resolve exclusively to publicly routable IP
+	 * addresses (no loopback, private, reserved or link-local ranges) and point
+	 * at a `datasets` endpoint. Hostnames are resolved and every resulting IP is
+	 * checked, which — together with wp_safe_remote_get() re-validating at
+	 * request time — mitigates DNS-rebinding.
+	 *
+	 * The result can be overridden with the
+	 * `openkaarten_frontend_plugin_proxy_url_allowed` filter for environments
+	 * that legitimately need a non-public host (e.g. staging).
+	 *
+	 * @param string $url The external URL.
+	 * @return bool True when the URL is allowed.
+	 */
+	private function is_external_url_allowed( $url ) {
+		$allowed = $this->validate_external_url( $url );
+
+		/**
+		 * Filters whether the proxy may fetch a given external URL.
+		 *
+		 * @param bool   $allowed Whether the URL is allowed.
+		 * @param string $url     The requested URL.
+		 */
+		return (bool) apply_filters( 'openkaarten_frontend_plugin_proxy_url_allowed', $allowed, $url );
+	}
+
+	/**
+	 * Perform the built-in safety checks for an external URL.
+	 *
+	 * @param string $url The external URL.
+	 * @return bool True when the URL passes every check.
+	 */
+	private function validate_external_url( $url ) {
+		$parts = wp_parse_url( $url );
+
+		if ( empty( $parts['scheme'] ) || empty( $parts['host'] ) || empty( $parts['path'] ) ) {
+			return false;
+		}
+
+		if ( ! in_array( strtolower( $parts['scheme'] ), [ 'http', 'https' ], true ) ) {
+			return false;
+		}
+
+		// Restrict to a datasets endpoint, which is all this proxy is for.
+		if ( ! preg_match( '#/datasets$#', rtrim( $parts['path'], '/' ) ) ) {
+			return false;
+		}
+
+		$ips = $this->resolve_host( $parts['host'] );
+		if ( empty( $ips ) ) {
+			return false;
+		}
+
+		foreach ( $ips as $ip ) {
+			if ( ! $this->is_public_ip( $ip ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Resolve a host to the list of IP addresses it points at.
+	 *
+	 * An IP literal is returned as-is; a hostname is resolved to its A and AAAA
+	 * records.
+	 *
+	 * @param string $host The host, optionally an IPv6 literal in brackets.
+	 * @return string[] The resolved IP addresses (may be empty).
+	 */
+	private function resolve_host( $host ) {
+		$host = trim( $host, '[]' );
+
+		if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
+			return [ $host ];
+		}
+
+		$ips = gethostbynamel( $host );
+		$ips = is_array( $ips ) ? $ips : [];
+
+		if ( function_exists( 'dns_get_record' ) ) {
+			$records = dns_get_record( $host, DNS_AAAA );
+			if ( is_array( $records ) ) {
+				foreach ( $records as $record ) {
+					if ( ! empty( $record['ipv6'] ) ) {
+						$ips[] = $record['ipv6'];
+					}
+				}
+			}
+		}
+
+		return array_values( array_unique( $ips ) );
+	}
+
+	/**
+	 * Determine whether an IP address is publicly routable.
+	 *
+	 * Rejects private (RFC1918, ULA) and reserved ranges, which covers loopback
+	 * (127.0.0.0/8, ::1) and link-local (169.254.0.0/16, fe80::/10).
+	 *
+	 * @param string $ip The IP address.
+	 * @return bool True when the IP is public.
+	 */
+	private function is_public_ip( $ip ) {
+		return false !== filter_var(
+			$ip,
+			FILTER_VALIDATE_IP,
+			FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+		);
 	}
 
 	/**
