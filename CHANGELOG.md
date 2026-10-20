@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.5] - 2026-10-20
+
+### Fixed
+
+- Send the site origin as referrer on map tile requests. OpenStreetMap blocks tiles without a referrer, which sites sending `Referrer-Policy: same-origin` stripped.
+
 ## [0.4.4] - 2026-09-14
 
 ### Changed
