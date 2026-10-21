@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.6] - 2026-10-20
+
+### Security
+
+- Prevent Server-Side Request Forgery (SSRF) on the public `proxy-datasets` REST route (CWE-918). The route no longer fetches arbitrary client-supplied URLs: the target is restricted to an http(s) datasets endpoint on a publicly routable host (loopback, private, reserved and link-local ranges are rejected), redirects are disabled by default, all fetch failures return one generic `502` (removing the port-scan oracle and error-message leak), and only well-formed JSON is returned. Same-site requests are unaffected. New filters `openkaarten_frontend_plugin_proxy_url_allowed` and `openkaarten_frontend_plugin_proxy_max_redirects` cover non-public hosts and trusted redirects.
+
 ## [0.4.5] - 2026-10-20
 
 ### Fixed
