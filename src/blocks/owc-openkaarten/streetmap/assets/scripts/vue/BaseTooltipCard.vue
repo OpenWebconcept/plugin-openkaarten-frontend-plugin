@@ -15,15 +15,24 @@ const props = defineProps({
 		type: Object,
 		default: () => ({}),
 	},
+	// Every feature at the marker's location, as built by makeTooltipCard().
+	// With more than one, the card lists them all instead of only the first.
+	items: {
+		type: Array,
+		default: () => [],
+	},
 	primaryColor: {
 		type: String,
 		required: true,
 	},
 });
 
-const title = computed(
-	() => props.tooltipArray.find(item => item.layout === 'title')?.title || props.properties?.title || ''
-);
+const getTitle = (tooltipArray, properties) =>
+	tooltipArray.find(item => item.layout === 'title')?.title || properties?.title || '';
+
+const title = computed(() => getTitle(props.tooltipArray, props.properties));
+
+const hasMultipleItems = computed(() => props.items.length > 1);
 
 const emit = defineEmits(['closeCard']);
 
@@ -59,7 +68,27 @@ const handleFocus = (el) => {
 						@closeCard="$emit('closeCard')"
 					/>
 				</div>
+				<template v-if="hasMultipleItems">
+					<p class="owc-openkaarten-streetmap__tooltip-card__count">
+						{{ items.length }} items op deze locatie
+					</p>
+					<ul class="owc-openkaarten-streetmap__tooltip-card__items">
+						<li
+							v-for="(item, index) in items"
+							:key="item.id ?? index"
+							class="owc-openkaarten-streetmap__tooltip-card__item"
+						>
+							<TooltipContent
+								:tooltipArray="item.tooltipArray"
+								classPrefix="owc-openkaarten-streetmap__tooltip-card"
+								:title="getTitle(item.tooltipArray, item.properties)"
+								titleTag="h4"
+							/>
+						</li>
+					</ul>
+				</template>
 				<TooltipContent
+					v-else
 					:tooltipArray="tooltipArray"
 					classPrefix="owc-openkaarten-streetmap__tooltip-card"
 					:title="title"
@@ -147,6 +176,37 @@ const handleFocus = (el) => {
 		&__meta {
 			color: #666;
 			font-size: 14px;
+		}
+
+		&__count {
+			color: #666;
+			font-size: 14px;
+			margin-block: 0;
+		}
+
+		&__items {
+			inline-size: 100%;
+			list-style-type: none;
+			margin-block: 0;
+			max-block-size: min(50dvh, 360px);
+			overflow-y: auto;
+			padding-inline-start: 0;
+		}
+
+		&__item {
+			align-items: flex-start;
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			padding-block: 12px;
+
+			& + & {
+				border-block-start: 1px solid #e5e5e6;
+			}
+
+			&:last-child {
+				padding-block-end: 0;
+			}
 		}
 
 		&__image {

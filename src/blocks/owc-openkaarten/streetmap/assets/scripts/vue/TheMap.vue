@@ -8,6 +8,7 @@ import { calculateBounds } from '../utils/calculate-bounds';
 import { calculateCenter } from '../utils/calculate-center';
 import { makeMarkerIcon, applyMarkerColor } from '../utils/make-marker-icon';
 import { makeTooltipCard } from '../utils/make-tooltip-card';
+import { groupFeaturesByLocation } from '../utils/group-features-by-location';
 import { makeFilterButtonHTML } from '../utils/make-filter-button-html';
 import { makeListViewButtonHTML } from '../utils/make-list-view-button-html';
 import { createMarkerHighlighter } from '../utils/selected-marker';
@@ -111,14 +112,18 @@ const datasetChange = (id, checked) => {
 	}
 };
 
-// Move attachEvents outside of initializeMap
-const attachEvents = (marker, location, set) => {
+// Move attachEvents outside of initializeMap.
+// `features` holds every feature the layer stands for: one, or several Point
+// features that share a location (see groupFeaturesByLocation()).
+const attachEvents = (marker, features, set) => {
+  const [location] = features;
+
   marker.on('click', (e) => {
     highlightSelectedMarker(marker, mapContainer.value);
 
     if (location.geometry?.type !== 'Polygon') {
       resetPolygonSelection();
-      tooltipCard.value = makeTooltipCard(location, set);
+      tooltipCard.value = makeTooltipCard(features, set);
       return;
     }
 
@@ -136,14 +141,16 @@ const attachEvents = (marker, location, set) => {
 
   marker.on('keydown', ({ originalEvent }) => {
     if (originalEvent.key === 'Enter') {
-      tooltipCard.value = makeTooltipCard(location, set);
+      tooltipCard.value = makeTooltipCard(features, set);
       highlightSelectedMarker(marker, mapContainer.value);
     }
   });
 };
 
-// Helper function to create appropriate layer based on feature type
-const createLayer = async (feature, dataset) => {
+// Helper function to create appropriate layer based on feature type.
+// `count` is the number of features at this location; a Point marker that
+// stands for more than one feature shows that number.
+const createLayer = async (feature, dataset, count = 1) => {
   console.log('Creating layer for feature:', feature);
   if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
     return new L.GeoJSON(feature, {
@@ -183,11 +190,13 @@ const createLayer = async (feature, dataset) => {
   const icon = await makeMarkerIcon(L, {
     marker: feature.properties?.marker,
     defaultColor: props.primaryColor,
+    count,
   });
+  const markerOptions = count > 1 ? { icon, title: `${count} items op deze locatie` } : { icon };
 
   return new L.GeoJSON(feature, {
     pointToLayer: (feature, latlng) => {
-      const marker = new L.Marker(latlng, { icon });
+      const marker = new L.Marker(latlng, markerOptions);
       applyMarkerColor(marker, markerColor);
       return marker;
     }
@@ -267,8 +276,11 @@ const initializeMap = async (datasets, settings) => {
 				dataset.features = [dataset.features];
 			}
 
-      for (const feature of dataset.features) {
-        const layer = await createLayer(feature, dataset);
+      // Features on exactly the same location would hide each other, so they
+      // share one marker whose tooltip lists all of them.
+      for (const features of groupFeaturesByLocation(dataset.features)) {
+        const [feature] = features;
+        const layer = await createLayer(feature, dataset, features.length);
         // Store feature and dataset data on the layer for later retrieval.
         layer._featureData = feature;
         layer._datasetData = dataset;
@@ -279,7 +291,7 @@ const initializeMap = async (datasets, settings) => {
             childLayer._datasetData = dataset;
           });
         }
-        attachEvents(layer, feature, dataset);
+        attachEvents(layer, features, dataset);
         cluster.addLayer(layer);
       }
 
@@ -486,6 +498,7 @@ const handleSearch = async (query) => {
 			:id="tooltipCard.datasetId"
 			:tooltipArray="tooltipCard.tooltipArray"
 			:properties="tooltipCard.properties"
+			:items="tooltipCard.items"
 			:primaryColor="primaryColor"
 			@closeCard="closeTooltipCard"
 		/>
@@ -650,6 +663,27 @@ $marker-colors: (
 				svg path {
 					fill: white;
 				}
+			}
+
+			// Number of features on a marker that stands for one location.
+			&__count {
+				align-items: center;
+				background-color: #fff;
+				block-size: 20px;
+				border: 2px solid var(--owc-openkaarten-streetmap--marker-color);
+				border-radius: 10px;
+				box-sizing: border-box;
+				color: var(--owc-openkaarten-streetmap--marker-color);
+				display: flex;
+				font-size: 12px;
+				font-weight: bold;
+				inset-block-start: -6px;
+				inset-inline-end: -6px;
+				justify-content: center;
+				line-height: 1;
+				min-inline-size: 20px;
+				padding-inline: 4px;
+				position: absolute;
 			}
 		}
 
