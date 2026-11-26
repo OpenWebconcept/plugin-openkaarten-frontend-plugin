@@ -14,7 +14,7 @@ export const fallbackMarkerSvg = `
     </g>
   </svg>`;
 
-export const makeMarkerIcon = async (L, { marker, defaultColor }) => {
+export const makeMarkerIcon = async (L, { marker, defaultColor, count = 1 }) => {
   const iconColor = marker?.color || defaultColor;
   // A preset color is a "marker-<name>" class the stylesheet maps to a hex. A
   // custom color is a raw hex that can't be expressed as a class, so it is
@@ -30,6 +30,12 @@ export const makeMarkerIcon = async (L, { marker, defaultColor }) => {
     if (svgText) {
       iconHtml = svgText;
     }
+  }
+
+  // A marker that stands for several features at the same location shows how
+  // many there are. The count is decorative: the marker's title names it.
+  if (count > 1) {
+    iconHtml += `<span class="leaflet-custom-icon__count" aria-hidden="true">${count}</span>`;
   }
 
   return L.divIcon({
