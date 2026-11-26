@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.7] - 2026-11-26
+
+### Added
+
+- Group markers that share a location. Point features of a dataset on exactly the same coordinates (compared at 6 decimals) used to be drawn on top of each other, so only one of them could be clicked. They now become a single marker with a count badge, and its tooltip card lists every feature at that location in a scrollable list. Single-feature markers, polygons and multipoints are unchanged.
+
 ## [0.4.6] - 2026-10-20
 
 ### Security
